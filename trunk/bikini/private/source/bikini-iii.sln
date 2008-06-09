@@ -3,6 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "base\base.vcproj", "{537FCF05-5BA7-43CB-9652-35FBF764B18E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{75357CBD-D2B7-40B8-900E-D717CE554847}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "games", "games", "{2B51B244-2DF7-40D7-A7EF-3DFE3466D91E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_math", "..\tests\test_math\test_math.vcproj", "{97AE86F4-3052-4F52-9943-ABACB217D983}"
+	ProjectSection(ProjectDependencies) = postProject
+		{537FCF05-5BA7-43CB-9652-35FBF764B18E} = {537FCF05-5BA7-43CB-9652-35FBF764B18E}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,8 +22,15 @@ Global
 		{537FCF05-5BA7-43CB-9652-35FBF764B18E}.Debug|Win32.Build.0 = Debug|Win32
 		{537FCF05-5BA7-43CB-9652-35FBF764B18E}.Release|Win32.ActiveCfg = Release|Win32
 		{537FCF05-5BA7-43CB-9652-35FBF764B18E}.Release|Win32.Build.0 = Release|Win32
+		{97AE86F4-3052-4F52-9943-ABACB217D983}.Debug|Win32.ActiveCfg = Debug|Win32
+		{97AE86F4-3052-4F52-9943-ABACB217D983}.Debug|Win32.Build.0 = Debug|Win32
+		{97AE86F4-3052-4F52-9943-ABACB217D983}.Release|Win32.ActiveCfg = Release|Win32
+		{97AE86F4-3052-4F52-9943-ABACB217D983}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{97AE86F4-3052-4F52-9943-ABACB217D983} = {75357CBD-D2B7-40B8-900E-D717CE554847}
 	EndGlobalSection
 EndGlobal

@@ -23,3 +23,6 @@ const uint bad_ID = uint(-1);
 
 const real r_0 = real(0);
 const real r_1 = real(1);
+
+#define super	__super
+#define inline	__forceinline
