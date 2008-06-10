@@ -62,7 +62,7 @@ template<uint _Dimention, typename _Type = real> struct vector_ : vector_<_Dimen
 	inline const vector_ operator / (_Type _s) const;
 	inline vector_& operator /= (_Type _s);
 private:
-	real m_cell;
+	type m_cell;
 };
 template<typename _Type> struct vector_<0, _Type> {
 	typedef _Type type;
@@ -84,6 +84,9 @@ template<typename _Type> struct vector_<0, _Type> {
 typedef vector_<2, real> real2;
 typedef vector_<3, real> real3;
 typedef vector_<4, real> real4;
+typedef vector_<3, real3> real3x3;
+typedef vector_<4, real3> real4x3;
+typedef vector_<4, real4> real4x4;
 
 const real2 r2_0(r_0, r_0);
 const real2 r2_1(r_1, r_1);
@@ -94,11 +97,18 @@ const real3 r3_1(r_1, r_1, r_1);
 const real3 r3_x(r_1, r_0, r_0);
 const real3 r3_y(r_0, r_1, r_0);
 const real3 r3_z(r_0, r_0, r_1);
-const real4 r4_0(r_0, r_0, r_0, r_1);
+const real4 r4_0(r_0, r_0, r_0, r_0);
 const real4 r4_1(r_1, r_1, r_1, r_1);
-const real4 r4_x(r_1, r_0, r_0, r_1);
-const real4 r4_y(r_0, r_1, r_0, r_1);
-const real4 r4_z(r_0, r_0, r_1, r_1);
+const real4 r4_x(r_1, r_0, r_0, r_0);
+const real4 r4_y(r_0, r_1, r_0, r_0);
+const real4 r4_z(r_0, r_0, r_1, r_0);
+const real4 r4_w(r_0, r_0, r_0, r_1);
+const real3x3 r3x3_0(r3_0, r3_0, r3_0);
+const real3x3 r3x3_1(r3_x, r3_y, r3_z);
+const real4x3 r4x3_0(r3_0, r3_0, r3_0, r3_0);
+const real4x3 r4x3_1(r3_x, r3_y, r3_z, r3_0);
+const real4x4 r4x4_0(r4_0, r4_0, r4_0, r4_0);
+const real4x4 r4x4_1(r4_x, r4_y, r4_z, r4_w);
 
 template<bool _Condition, typename _Type0, typename _Type1> struct select {
 	typedef _Type0 type;
@@ -147,29 +157,39 @@ template<typename _Type, bool _Const> struct quat_reference {
 template<typename _Type> quat_reference<_Type, false> quat(vector_<4, _Type> &_v);
 template<typename _Type> quat_reference<_Type, true> quat(const vector_<4, _Type> &_v);
 
-// matrix
-template<uint _Height, uint _Width, typename _Type = real> struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
-	static const uint height = _Height;
-	static const uint width = _Width;
-	typedef _Type type;
-	typedef vector_<_Width, _Type> vector;
-	inline matrix_();
-	inline matrix_(const matrix_ &_m);
-	inline matrix_(const matrix_<_Height - 1, _Width, _Type> &_m);
-	inline const vector& row() const;
-	inline vector& row();
-	template<uint _I> inline const vector& row() const;
-	template<uint _I> inline vector& row();
-	template<uint _I, uint _J> inline const _Type& cell() const;
-	template<uint _I, uint _J> inline _Type& cell();
-protected:
-	vector m_row;
-};
-template<uint _Width, typename _Type> struct matrix_<0, _Width, _Type> {
-};
+//// matrix
+//template<uint _Height, uint _Width, typename _Type = real> struct matrix_ : vector_<_Height, vector_<_Width, _Type> > {
+//	static const uint height = _Height;
+//	static const uint width = _Width;
+//	typedef _Type type;
+//	typedef vector_<_Width, _Type> vector;
+//	inline matrix_();
+//	//inline matrix_(const matrix_ &_m);
+//	//inline matrix_(const matrix_<_Height - 1, _Width, _Type> &_m);
+//	inline const vector& row() const;
+//	inline vector& row();
+//	template<uint _I> inline const vector& row() const;
+//	template<uint _I> inline vector& row();
+//	template<uint _I, uint _J> inline const _Type& cell() const;
+//	template<uint _I, uint _J> inline _Type& cell();
+//
+//	//inline const vector& operator [] (uint _i) const;
+//	//inline vector& operator [] (uint _i);
+//	//inline matrix_& operator = (const matrix_ &_v);
+//	//inline const matrix_ operator + (const matrix_ &_v) const;
+//	//inline matrix_& operator += (const matrix_ &_v);
+//	//inline const matrix_ operator - (const matrix_ &_v) const;
+//	//inline matrix_& operator -= (const matrix_ &_v);
+//	//inline const matrix_ operator * (_Type _s) const;
+//	//inline matrix_& operator *= (_Type _s);
+//	//inline const matrix_ operator / (_Type _s) const;
+//	//inline matrix_& operator /= (_Type _s);
+////protected:
+////	vector m_row;
+//};
 
-typedef matrix_<3, 3, real> real3x3;
-typedef matrix_<4, 4, real> real4x4;
-typedef matrix_<4, 3, real> real4x3;
+//typedef matrix_<3, 3, real> real3x3;
+//typedef matrix_<4, 4, real> real4x4;
+//typedef matrix_<4, 3, real> real4x3;
 
 #include "math.inl"
