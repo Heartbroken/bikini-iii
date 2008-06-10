@@ -85,7 +85,23 @@ template<uint _D, typename _T>
 inline vector_<_D, _T>::vector_(const typename vector_<_D - 1, _T> &_v) : vector_<_D - 1, _T>(_v) {
 }
 template<uint _D, typename _T>
-inline const typename vector_<_D, _T>::type vector_<_D, _T>::cell() const {
+inline vector_<_D, _T>::vector_(_T _cell0) : m_cell(_cell0) {
+	c_assert(_D == 1);
+}
+template<uint _D, typename _T>
+inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1) : vector_<_D - 1, _T>(_cell0), m_cell(_cell1) {
+	c_assert(_D == 2);
+}
+template<uint _D, typename _T>
+inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2) : vector_<_D - 1, _T>(_cell0, _cell1), m_cell(_cell2){
+	c_assert(_D == 3);
+}
+template<uint _D, typename _T>
+inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2, _T _cell3) : vector_<_D - 1, _T>(_cell0, _cell1, _cell2), m_cell(_cell3){
+	c_assert(_D == 4);
+}
+template<uint _D, typename _T>
+inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
 	return m_cell;
 }
 template<uint _D, typename _T>
@@ -93,7 +109,7 @@ inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
 	return m_cell;
 }
 template<uint _D, typename _T> template<uint _I>
-inline const typename vector_<_D, _T>::type vector_<_D, _T>::cell() const {
+inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
 	c_assert(_I < dimention);
 	return static_cast<const vector_<_I + 1, _T>&>(*this).cell();
 }
@@ -105,12 +121,12 @@ inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
 template<uint _D, typename _T>
 inline const typename vector_<_D, _T>::type vector_<_D, _T>::operator [] (uint _i) const {
 	assert(_i < dimention);
-	return _i == last ? m_cell : super::operaor [] (_i);
+	return *(&static_cast<const vector_<1, _T>&>(*this).cell() + _i);
 }
 template<uint _D, typename _T>
 inline typename vector_<_D, _T>::type& vector_<_D, _T>::operator [] (uint _i) {
 	assert(_i < dimention);
-	return _i == last ? m_cell : super::operaor [] (_i);
+	return *(&static_cast<vector_<1, _T>&>(*this).cell() + _i);
 }
 template<uint _D, typename _T>
 inline vector_<_D, _T>& vector_<_D, _T>::operator = (const vector_ &_v) {

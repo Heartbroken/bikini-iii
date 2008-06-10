@@ -42,9 +42,13 @@ template<uint _Dimention, typename _Type = real> struct vector_ : vector_<_Dimen
 	inline vector_();
 	inline vector_(const vector_ &_v);
 	inline vector_(const vector_<_Dimention - 1, _Type> &_v);
-	inline const _Type cell() const;
+	inline vector_(_Type _cell0);
+	inline vector_(_Type _cell0, _Type _cell1);
+	inline vector_(_Type _cell0, _Type _cell1, _Type _cell2);
+	inline vector_(_Type _cell0, _Type _cell1, _Type _cell2, _Type _cell3);
+	inline const _Type& cell() const;
 	inline _Type& cell();
-	template<uint _I> inline const _Type cell() const;
+	template<uint _I> inline const _Type& cell() const;
 	template<uint _I> inline _Type& cell();
 	inline const _Type operator [] (uint _i) const;
 	inline _Type& operator [] (uint _i);
@@ -81,7 +85,7 @@ typedef vector_<2, real> real2;
 typedef vector_<3, real> real3;
 typedef vector_<4, real> real4;
 
-const real2 r2_0 = { r_0, r_0 } ;
+const real2 r2_0(r_0, r_0);
 const real2 r2_1(r_1, r_1);
 const real2 r2_x(r_1, r_0);
 const real2 r2_y(r_0, r_1);
