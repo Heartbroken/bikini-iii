@@ -72,23 +72,149 @@ template<typename _T> inline void swap(_T &_a, _T &_b) {
 	_T l_t = _a; _a = _b; _b = l_t;
 }
 
-template<uint _D1, uint _D2, uint _D3, typename _T>
-inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D2, vector_<_D3, _T> > &_b, vector_<_D1, vector_<_D3, _T> > &_c) {
-}
-template<uint _D1, uint _D2, typename _T>
-inline void multiply(const vector_<_D1, _T> &_a, const vector_<_D1, vector_<_D2, _T> > &_b, vector_<1, vector_<_D1, _T> > &_c) {
-	multiply(vector_<1, vector_<_D1, _T> >(_a), _b, _c);
-}
-template<uint _D1, uint _D2, typename _T>
-inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D1, _T> &_b, vector_<_D1, vector_<1, _T> > &_c) {
-	multiply(_a, vector_<_D1, vector_<1, _T> >(_b), _c);
-}
-template<uint _D, typename _T>
-inline void multiply(const vector_<_D, _T> &_a, const vector_<_D, _T> &_b, vector_<1, vector_<1, _T> > &_c) {
-	multiply(vector_<1, vector_<_D, _T> >(_a), vector_<_D, vector_<1, _T> >(_b), _c);
-}
+//template<uint _D1, uint _D2, uint _D3, typename _T>
+//inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D2, vector_<_D3, _T> > &_b, vector_<_D1, vector_<_D3, _T> > &_c) {
+//}
+//template<uint _D1, uint _D2, typename _T>
+//inline void multiply(const vector_<_D1, _T> &_a, const vector_<_D1, vector_<_D2, _T> > &_b, vector_<1, vector_<_D1, _T> > &_c) {
+//	multiply(vector_<1, vector_<_D1, _T> >(_a), _b, _c);
+//}
+//template<uint _D1, uint _D2, typename _T>
+//inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D1, _T> &_b, vector_<_D1, vector_<1, _T> > &_c) {
+//	multiply(_a, vector_<_D1, vector_<1, _T> >(_b), _c);
+//}
+//template<uint _D, typename _T>
+//inline void multiply(const vector_<_D, _T> &_a, const vector_<_D, _T> &_b, vector_<1, vector_<1, _T> > &_c) {
+//	multiply(vector_<1, vector_<_D, _T> >(_a), vector_<_D, vector_<1, _T> >(_b), _c);
+//}
 
 // types
+
+// _matrix_row_
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_() {
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(const _matrix_row_ &_r) : parent_type(_r), m_cell(_r.cell()) {
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(const parent_type &_r) : parent_type(_r) {
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(_T _cell0) : m_cell(_cell0) {
+	c_assert(_S == 1);
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(_T _cell0, _T _cell1) : parent_type(_cell0), m_cell(_cell1) {
+	c_assert(_S == 2);
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(_T _cell0, _T _cell1, _T _cell2) : parent_type(_cell0, _cell1), m_cell(_cell2) {
+	c_assert(_S == 3);
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>::_matrix_row_(_T _cell0, _T _cell1, _T _cell2, _T _cell3) : parent_type(_cell0, _cell1, _cell2), m_cell(_cell3) {
+	c_assert(_S == 4);
+}
+template<uint _S, typename _T>
+inline const _T& _matrix_row_<_S, _T>::cell() const {
+	return m_cell;
+}
+template<uint _S, typename _T>
+inline _T& _matrix_row_<_S, _T>::cell() {
+	return m_cell;
+}
+template<uint _S, typename _T> template<uint _I>
+inline const _T& _matrix_row_<_S, _T>::cell() const {
+	c_assert(_I < _S);
+	return *(&static_cast<const _matrix_row_<_I + 1, _T>&>(*this).cell());
+}
+template<uint _S, typename _T> template<uint _I>
+inline _T& _matrix_row_<_S, _T>::cell() {
+	c_assert(_I < _S);
+	return *(&static_cast<_matrix_row_<_I + 1, _T>&>(*this).cell());
+}
+template<uint _S, typename _T>
+inline const _T& _matrix_row_<_S, _T>::operator [] (uint _i) const {
+	assert(_i < _S);
+	return *(&cell<0>() + _i);
+}
+template<uint _S, typename _T>
+inline _T& _matrix_row_<_S, _T>::operator [] (uint _i) {
+	assert(_i < _S);
+	return *(&cell<0>() + _i);
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator = (const _matrix_row_ &_r) {
+	parent_type::operator = (_r);
+	m_cell = _r.cell();
+	return *this;
+}
+template<uint _S, typename _T>
+inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator + (const _matrix_row_ &_r) const {
+	_matrix_row_ l_r;
+	add(_r, l_r);
+	return l_r;
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator += (const _matrix_row_ &_r) {
+	add(_r, *this);
+	return *this;
+}
+template<uint _S, typename _T>
+inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - (const _matrix_row_ &_r) const {
+	_matrix_row_ l_r;
+	sub(_r, l_r);
+	return l_r;
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator -= (const _matrix_row_ &_r) {
+	sub(_r, *this);
+	return *this;
+}
+template<uint _S, typename _T>
+inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator * (_T _s) const {
+	_matrix_row_ l_r;
+	mul(_s, l_r);
+	return l_r;
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator *= (_T _s) {
+	mul(_r, *this);
+	return *this;
+}
+template<uint _S, typename _T>
+inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator / (_T _s) const {
+	_matrix_row_ l_r;
+	div(_s, l_r);
+	return l_r;
+}
+template<uint _S, typename _T>
+inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator /= (_T _s) {
+	div(_r, *this);
+	return *this;
+}
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>::operator _T () const {
+//	//c_assert(_S == 1);
+//	return m_cell;
+//}
+template<uint _S, typename _T>
+inline void _matrix_row_<_S, _T>::add(const _matrix_row_ &_b, _matrix_row_ &_c) const {
+	parent_type::add(_b, _c); _c.cell() = m_cell + _b.cell();
+}
+template<uint _S, typename _T>
+inline void _matrix_row_<_S, _T>::sub(const _matrix_row_ &_b, _matrix_row_ &_c) const {
+	parent_type::sub(_b, _c); _c.cell() = m_cell - _b.cell();
+}
+template<uint _S, typename _T>
+inline void _matrix_row_<_S, _T>::mul(_T _s, _matrix_row_ &_c) const {
+	parent_type::mul(_s, _c); _c.cell() = m_cell * _s;
+}
+template<uint _S, typename _T>
+inline void _matrix_row_<_S, _T>::div(_T _s, _matrix_row_ &_c) const {
+	parent_type::div(_s, _c); _c.cell() = m_cell + _s;
+}
 
 // matrix
 template<uint _H, uint _W, typename _T>
@@ -99,6 +225,34 @@ inline matrix_<_H, _W, _T>::matrix_(const matrix_ &_m) : parent_type(_m), m_row(
 }
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>::matrix_(const parent_type &_m) : parent_type(_m) {
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(_T _cell0) : m_row(_cell0) {
+	c_assert(_H == 1 && _W == 1);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(_T _cell0, _T _cell1) : m_row(_cell0, _cell1) {
+	c_assert(_H == 1 && _W == 2);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(_T _cell0, _T _cell1, _T _cell2) : m_row(_cell0, _cell1, _cell2) {
+	c_assert(_H == 1 && _W == 3);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(_T _cell0, _T _cell1, _T _cell2, _T _cell3) : m_row(_cell0, _cell1, _cell2, _cell3) {
+	c_assert(_H == 1 && _W == 4);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const row_matrix &_row0, const row_matrix &_row1) : parent_type(_row0), m_row(_row1.row()) {
+	c_assert(_H == 2);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const row_matrix &_row0, const row_matrix &_row1, const row_matrix &_row2) : parent_type(_row0, _row1), m_row(_row2.row()) {
+	c_assert(_H == 3);
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const row_matrix &_row0, const row_matrix &_row1, const row_matrix &_row2, const row_matrix &_row3) : parent_type(_row0, _row1, _row2), m_row(_row3.row()) {
+	c_assert(_H == 4);
 }
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() const {
@@ -116,189 +270,246 @@ inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() 
 template<uint _H, uint _W, typename _T> template<uint _I>
 inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() {
 	c_assert(_I < _H);
-	return static_cast<matrix_<1, _W, _T>&>(*this);
+	return static_cast<matrix_<_I + 1, _W, _T>&>(*this).row();
 }
 template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
 inline const _T& matrix_<_H, _W, _T>::cell() const {
 	c_assert(_I < _H && _J < _W);
-	return static_cast<const matrix_<1, _J + 1, _T>&>(row<_I>()).row();
+	return row<_I>().cell<_J>();
 }
 template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
 inline _T& matrix_<_H, _W, _T>::cell() {
 	c_assert(_I < _H && _J < _W);
-	return static_cast<matrix_<1, _J + 1, _T>&>(row<_I>()).row();
+	return row<_I>().cell<_J>();
 }
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) const {
-	assert(_i < _H || (_H == 1 && _i < _W));
-	typedef typename select<_H == 1, matrix_<1, 1, _T>, matrix_<1, _W, _T> >::type aux_type;
-	return *(&static_cast<const aux_type&>(*this).row() + _i);
+	assert(_i < _H && _i < _W);
+	return *(&row<0>() + _i);
 }
 template<uint _H, uint _W, typename _T>
 inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) {
-	assert(_i < _H || (_H == 1 && _i < _W));
-	typedef typename select<_H == 1, matrix_<1, 1, _T>, matrix_<1, _W, _T> >::type aux_type;
-	return *(&static_cast<aux_type&>(*this).row() + _i);
+	assert(_i < _H && _i < _W);
+	return *(&row<0>() + _i);
 }
-
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator = (const matrix_ &_m) {
 	parent_type::operator = (_m);
 	m_row = _m.row();
 	return *this;
 }
+template<uint _H, uint _W, typename _T>
+inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator + (const matrix_ &_m) const {
+	matrix_ l_m;
+	add(_m, l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator += (const matrix_ &_m) {
+	add(_m, *this);
+	return *this;
+}
+template<uint _H, uint _W, typename _T>
+inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator - (const matrix_ &_m) const {
+	matrix_ l_m;
+	sub(_m, l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator -= (const matrix_ &_m) {
+	sub(_m, *this);
+	return *this;
+}
+template<uint _H, uint _W, typename _T>
+inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator * (_T _s) const {
+	matrix_ l_m;
+	mul(_s, l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator *= (_T _s) {
+	mul(_s, *this);
+	return *this;
+}
+template<uint _H, uint _W, typename _T>
+inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator / (_T _s) const {
+	matrix_ l_m;
+	div(_s, l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator /= (_T _s) {
+	div(_s, *this);
+	return *this;
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::add(const matrix_ &_b, matrix_ &_c) const {
+	parent_type::add(_b, _c); _c.row() = m_row + _b.row();
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::sub(const matrix_ &_b, matrix_ &_c) const {
+	parent_type::sub(_b, _c); _c.row() = m_row - _b.row();
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::mul(_T _s, matrix_ &_c) const {
+	parent_type::mul(_s, _c); _c.row() = m_row * _s;
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::div(_T _s, matrix_ &_c) const {
+	parent_type::div(_s, _c); _c.row() = m_row / _s;
+}
 
-// vector
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_() {
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(const vector_ &_v) : vector_<_D - 1, _T>(_v), m_cell(_v.cell<_D - 1>()) {
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(const typename vector_<_D - 1, _T> &_v) : vector_<_D - 1, _T>(_v) {
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(_T _cell0) : m_cell(_cell0) {
-	c_assert(_D == 1);
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1) : vector_<_D - 1, _T>(_cell0), m_cell(_cell1) {
-	c_assert(_D == 2);
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2) : vector_<_D - 1, _T>(_cell0, _cell1), m_cell(_cell2){
-	c_assert(_D == 3);
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2, _T _cell3) : vector_<_D - 1, _T>(_cell0, _cell1, _cell2), m_cell(_cell3){
-	c_assert(_D == 4);
-}
-template<uint _D, typename _T>
-inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
-	return m_cell;
-}
-template<uint _D, typename _T>
-inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
-	return m_cell;
-}
-template<uint _D, typename _T> template<uint _I>
-inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
-	c_assert(_I < dimention);
-	return static_cast<const vector_<_I + 1, _T>&>(*this).cell();
-}
-template<uint _D, typename _T> template<uint _I>
-inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
-	c_assert(_I < dimention);
-	return static_cast<vector_<_I + 1, _T>&>(*this).cell();
-}
-template<uint _D, typename _T>
-inline const typename vector_<_D, _T>::type vector_<_D, _T>::operator [] (uint _i) const {
-	assert(_i < dimention);
-	return *(&static_cast<const vector_<1, _T>&>(*this).cell() + _i);
-}
-template<uint _D, typename _T>
-inline typename vector_<_D, _T>::type& vector_<_D, _T>::operator [] (uint _i) {
-	assert(_i < dimention);
-	return *(&static_cast<vector_<1, _T>&>(*this).cell() + _i);
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>& vector_<_D, _T>::operator = (const vector_ &_v) {
-	super::operator = (_v);
-	m_cell = _v.cell();
-	return *this;
-}
-template<uint _D, typename _T>
-inline const vector_<_D, _T> vector_<_D, _T>::operator + (const vector_ &_v) const {
-	vector_ l_v = super::operator + (_v);
-	l_v.cell() = m_cell + _v.cell();
-	return l_v;
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>& vector_<_D, _T>::operator += (const vector_ &_v) {
-	super::operator += (_v);
-	m_cell += _v.cell();
-	return *this;
-}
-template<uint _D, typename _T>
-inline const vector_<_D, _T> vector_<_D, _T>::operator - (const vector_ &_v) const {
-	vector_ l_v = super::operator - (_v);
-	l_v.cell() = m_cell - _v.cell();
-	return l_v;
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>& vector_<_D, _T>::operator -= (const vector_ &_v) {
-	super::operator -= (_v);
-	m_cell -= _v.cell();
-	return *this;
-}
-template<uint _D, typename _T>
-inline const vector_<_D, _T> vector_<_D, _T>::operator * (_T _s) const {
-	vector_ l_v = super::operator * (_s);
-	l_v.cell() = m_cell * _s;
-	return l_v;
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>& vector_<_D, _T>::operator *= (_T _s) {
-	super::operator *= (_s);
-	m_cell *= _s;
-	return *this;
-}
-template<uint _D, typename _T>
-inline const vector_<_D, _T> vector_<_D, _T>::operator / (_T _s) const {
-	vector_ l_v = super::operator / (_s);
-	l_v.cell() = m_cell / _s;
-	return l_v;
-}
-template<uint _D, typename _T>
-inline vector_<_D, _T>& vector_<_D, _T>::operator /= (_T _s) {
-	super::operator /= (_s);
-	m_cell /= _s;
-	return *this;
-}
+//// vector
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_() {
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(const vector_ &_v) : vector_<_D - 1, _T>(_v), m_cell(_v.cell<_D - 1>()) {
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(const typename vector_<_D - 1, _T> &_v) : vector_<_D - 1, _T>(_v) {
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(_T _cell0) : m_cell(_cell0) {
+//	c_assert(_D == 1);
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1) : vector_<_D - 1, _T>(_cell0), m_cell(_cell1) {
+//	c_assert(_D == 2);
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2) : vector_<_D - 1, _T>(_cell0, _cell1), m_cell(_cell2){
+//	c_assert(_D == 3);
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>::vector_(_T _cell0, _T _cell1, _T _cell2, _T _cell3) : vector_<_D - 1, _T>(_cell0, _cell1, _cell2), m_cell(_cell3){
+//	c_assert(_D == 4);
+//}
+//template<uint _D, typename _T>
+//inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
+//	return m_cell;
+//}
+//template<uint _D, typename _T>
+//inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
+//	return m_cell;
+//}
+//template<uint _D, typename _T> template<uint _I>
+//inline const typename vector_<_D, _T>::type& vector_<_D, _T>::cell() const {
+//	c_assert(_I < dimention);
+//	return static_cast<const vector_<_I + 1, _T>&>(*this).cell();
+//}
+//template<uint _D, typename _T> template<uint _I>
+//inline typename vector_<_D, _T>::type& vector_<_D, _T>::cell() {
+//	c_assert(_I < dimention);
+//	return static_cast<vector_<_I + 1, _T>&>(*this).cell();
+//}
+//template<uint _D, typename _T>
+//inline const typename vector_<_D, _T>::type vector_<_D, _T>::operator [] (uint _i) const {
+//	assert(_i < dimention);
+//	return *(&static_cast<const vector_<1, _T>&>(*this).cell() + _i);
+//}
+//template<uint _D, typename _T>
+//inline typename vector_<_D, _T>::type& vector_<_D, _T>::operator [] (uint _i) {
+//	assert(_i < dimention);
+//	return *(&static_cast<vector_<1, _T>&>(*this).cell() + _i);
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>& vector_<_D, _T>::operator = (const vector_ &_v) {
+//	super::operator = (_v);
+//	m_cell = _v.cell();
+//	return *this;
+//}
+//template<uint _D, typename _T>
+//inline const vector_<_D, _T> vector_<_D, _T>::operator + (const vector_ &_v) const {
+//	vector_ l_v = super::operator + (_v);
+//	l_v.cell() = m_cell + _v.cell();
+//	return l_v;
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>& vector_<_D, _T>::operator += (const vector_ &_v) {
+//	super::operator += (_v);
+//	m_cell += _v.cell();
+//	return *this;
+//}
+//template<uint _D, typename _T>
+//inline const vector_<_D, _T> vector_<_D, _T>::operator - (const vector_ &_v) const {
+//	vector_ l_v = super::operator - (_v);
+//	l_v.cell() = m_cell - _v.cell();
+//	return l_v;
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>& vector_<_D, _T>::operator -= (const vector_ &_v) {
+//	super::operator -= (_v);
+//	m_cell -= _v.cell();
+//	return *this;
+//}
+//template<uint _D, typename _T>
+//inline const vector_<_D, _T> vector_<_D, _T>::operator * (_T _s) const {
+//	vector_ l_v = super::operator * (_s);
+//	l_v.cell() = m_cell * _s;
+//	return l_v;
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>& vector_<_D, _T>::operator *= (_T _s) {
+//	super::operator *= (_s);
+//	m_cell *= _s;
+//	return *this;
+//}
+//template<uint _D, typename _T>
+//inline const vector_<_D, _T> vector_<_D, _T>::operator / (_T _s) const {
+//	vector_ l_v = super::operator / (_s);
+//	l_v.cell() = m_cell / _s;
+//	return l_v;
+//}
+//template<uint _D, typename _T>
+//inline vector_<_D, _T>& vector_<_D, _T>::operator /= (_T _s) {
+//	super::operator /= (_s);
+//	m_cell /= _s;
+//	return *this;
+//}
 
 // v2
 template<typename _T, bool _C>
-inline v2_reference<_T, _C>::v2_reference(typename v2_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()) {
+inline v2_r_<_T, _C>::v2_r_(typename v2_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()) {
 }
-template<typename _T> v2_reference<_T, false> v2(vector_<2, _T> &_v) {
-	return v2_reference<_T, false>(_v);
+template<typename _T> v2_r_<_T, false> v2(typename v2_r_<_T, false>::vector &_v) {
+	return v2_r_<_T, false>(_v);
 }
-template<typename _T> v2_reference<_T, true> v2(const vector_<2, _T> &_v) {
-	return v2_reference<_T, true>(_v);
+template<typename _T> v2_r_<_T, true> v2(typename v2_r_<_T, true>::vector &_v) {
+	return v2_r_<_T, true>(_v);
 }
 
 // v3
 template<typename _T, bool _C>
-inline v3_reference<_T, _C>::v3_reference(typename v3_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()), z(_v.cell<2>()) {
+inline v3_r_<_T, _C>::v3_r_(typename v3_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()) {
 }
-template<typename _T> v3_reference<_T, false> v3(vector_<3, _T> &_v) {
-	return v3_reference<_T, false>(_v);
+template<typename _T> v3_r_<_T, false> v3(typename v3_r_<_T, false>::vector &_v) {
+	return v3_r_<_T, false>(_v);
 }
-template<typename _T> v3_reference<_T, true> v3(const vector_<3, _T> &_v) {
-	return v3_reference<_T, true>(_v);
+template<typename _T> v3_r_<_T, true> v3(typename v3_r_<_T, true>::vector &_v) {
+	return v3_r_<_T, true>(_v);
 }
 
 // v4
 template<typename _T, bool _C>
-inline v4_reference<_T, _C>::v4_reference(typename v4_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()), z(_v.cell<2>()), w(_v.cell<3>()) {
+inline v4_r_<_T, _C>::v4_r_(typename v4_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()), w(_v.cell<0, 3>()) {
 }
-template<typename _T> v4_reference<_T, false> v4(vector_<4, _T> &_v) {
-	return v4_reference<_T, false>(_v);
+template<typename _T> v4_r_<_T, false> v4(typename v4_r_<_T, false>::vector &_v) {
+	return v4_r_<_T, false>(_v);
 }
-template<typename _T> v4_reference<_T, true> v4(const vector_<4, _T> &_v) {
-	return v4_reference<_T, true>(_v);
+template<typename _T> v4_r_<_T, true> v4(typename v4_r_<_T, true>::vector &_v) {
+	return v4_r_<_T, true>(_v);
 }
 
 // quat
 template<typename _T, bool _C>
-inline quat_reference<_T, _C>::quat_reference(typename quat_reference<_T, _C>::vector &_v) : i(_v.cell<0>()), j(_v.cell<1>()), k(_v.cell<2>()), r(_v.cell<3>()) {
+inline quat_r_<_T, _C>::quat_r_(typename quat_r_<_T, _C>::vector &_v) : i(_v.cell<0, 0>()), j(_v.cell<0, 1>()), k(_v.cell<0, 2>()), r(_v.cell<0, 3>()) {
 }
-template<typename _T> quat_reference<_T, false> quat(vector_<4, _T> &_v) {
-	return quat_reference<_T, false>(_v);
+template<typename _T> quat_r_<_T, false> quat(typename quat_r_<_T, false>::vector &_v) {
+	return quat_r_<_T, false>(_v);
 }
-template<typename _T> quat_reference<_T, true> quat(const vector_<4, _T> &_v) {
-	return quat_reference<_T, true>(_v);
+template<typename _T> quat_r_<_T, true> quat(typename quat_r_<_T, true>::vector &_v) {
+	return quat_r_<_T, true>(_v);
 }
 
 //// matrix
