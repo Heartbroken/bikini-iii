@@ -20,6 +20,7 @@ int _tmain(int argc, _TCHAR* argv[])
 //	bk::real3x3 m3;
 	bk::matrix_<3, 3, bk::real> m3;
 	l_size = sizeof(m3);
+	//bk::matrix_<3, 3, bk::real>::row_type l_row = m3.row<0>();
 	return 0;
 }
 
