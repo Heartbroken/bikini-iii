@@ -17,7 +17,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	bk::v2(l_r2).y = 0;
 //	bk::v2(bk::r2_0).x = bk::real(1);
 	l_r2 = bk::r2_0;
-	bk::real3x3 m3;
+//	bk::real3x3 m3;
+	bk::matrix_<3, 3, bk::real> m3;
 	l_size = sizeof(m3);
 	return 0;
 }
