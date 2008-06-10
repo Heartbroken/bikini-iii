@@ -116,7 +116,7 @@ inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() 
 template<uint _H, uint _W, typename _T> template<uint _I>
 inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() {
 	c_assert(_I < _H);
-	return static_cast<matrix_<_I + 1, _W, _T>&>(*this).row();
+	return static_cast<matrix_<1, _W, _T>&>(*this);
 }
 template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
 inline const _T& matrix_<_H, _W, _T>::cell() const {
@@ -127,6 +127,18 @@ template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
 inline _T& matrix_<_H, _W, _T>::cell() {
 	c_assert(_I < _H && _J < _W);
 	return static_cast<matrix_<1, _J + 1, _T>&>(row<_I>()).row();
+}
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) const {
+	assert(_i < _H || (_H == 1 && _i < _W));
+	typedef typename select<_H == 1, matrix_<1, 1, _T>, matrix_<1, _W, _T> >::type aux_type;
+	return *(&static_cast<const aux_type&>(*this).row() + _i);
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) {
+	assert(_i < _H || (_H == 1 && _i < _W));
+	typedef typename select<_H == 1, matrix_<1, 1, _T>, matrix_<1, _W, _T> >::type aux_type;
+	return *(&static_cast<aux_type&>(*this).row() + _i);
 }
 
 template<uint _H, uint _W, typename _T>

@@ -48,6 +48,8 @@ struct matrix_ : select<_Height == 1, matrix_<1, _Width - 1, _Type>, matrix_<_He
 	template<uint _I> inline row_type& row();
 	template<uint _I, uint _J> inline const _Type& cell() const;
 	template<uint _I, uint _J> inline _Type& cell();
+	inline const row_type& operator [] (uint _i) const;
+	inline row_type& operator [] (uint _i);
 
 	inline matrix_& operator = (const matrix_ &_m);
 private:
