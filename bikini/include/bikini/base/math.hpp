@@ -35,80 +35,94 @@ template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _
 // types
 
 // vector
-template<uint _Dimention, typename _Real = real> struct vector_ : vector_<_Dimention - 1, _Real> {
+template<uint _Dimention, typename _Type = real> struct vector_ : vector_<_Dimention - 1, _Type> {
 	static const uint dimention = _Dimention;
 	static const uint last = dimention - 1;
-	typedef _Real real;
+	typedef _Type type;
 	inline vector_();
 	inline vector_(const vector_ &_v);
-	inline vector_(const vector_<_Dimention - 1, real> &_v);
-	inline const real cell() const;
-	inline real& cell();
-	template<uint _I> inline const real cell() const;
-	template<uint _I> inline real& cell();
-	inline const real operator [] (uint _i) const;
-	inline real& operator [] (uint _i);
+	inline vector_(const vector_<_Dimention - 1, _Type> &_v);
+	inline const _Type cell() const;
+	inline _Type& cell();
+	template<uint _I> inline const _Type cell() const;
+	template<uint _I> inline _Type& cell();
+	inline const _Type operator [] (uint _i) const;
+	inline _Type& operator [] (uint _i);
 	inline vector_& operator = (const vector_ &_v);
 	inline const vector_ operator + (const vector_ &_v) const;
 	inline vector_& operator += (const vector_ &_v);
 	inline const vector_ operator - (const vector_ &_v) const;
 	inline vector_& operator -= (const vector_ &_v);
-	inline const vector_ operator * (real _s) const;
-	inline vector_& operator *= (real _s);
-	inline const vector_ operator / (real _s) const;
-	inline vector_& operator /= (real _s);
+	inline const vector_ operator * (_Type _s) const;
+	inline vector_& operator *= (_Type _s);
+	inline const vector_ operator / (_Type _s) const;
+	inline vector_& operator /= (_Type _s);
 private:
 	real m_cell;
 };
-template<typename _Real> struct vector_<0, _Real> {
-	typedef _Real real;
+template<typename _Type> struct vector_<0, _Type> {
+	typedef _Type type;
 	inline vector_() {}
 	inline vector_(const vector_ &_v) {}
-	inline const real operator [] (uint _i) const {}
-	inline real& operator [] (uint _i) {}
+	inline const _Type operator [] (uint _i) const {}
+	inline _Type& operator [] (uint _i) {}
 	inline vector_& operator = (const vector_ &_v) { return *this; }
 	inline const vector_ operator + (const vector_ &_v) const { return *this; }
 	inline vector_& operator += (const vector_ &_v) { return *this; }
 	inline const vector_ operator - (const vector_ &_v) const { return *this; }
 	inline vector_& operator -= (const vector_ &_v) { return *this; }
-	inline const vector_ operator * (real _s) const { return *this; }
-	inline vector_& operator *= (real _s) { return *this; }
-	inline const vector_ operator / (real _s) const { return *this; }
-	inline vector_& operator /= (real _s) {}
+	inline const vector_ operator * (_Type _s) const { return *this; }
+	inline vector_& operator *= (_Type _s) { return *this; }
+	inline const vector_ operator / (_Type _s) const { return *this; }
+	inline vector_& operator /= (_Type _s) {}
 };
 
-// vector2
-template<typename _Real = real> struct vector2_ : vector_<2, _Real> {
-	real &x, &y;
-	inline vector2_();
-	inline vector2_(real _x, real _y);
-	template<uint _D> inline vector2_(const vector_<_D, _Real> &_v);
-	template<uint _D> inline vector2_& operator = (const vector_<_D, _Real> &_v);
-};
+typedef vector_<2, real> real2;
+typedef vector_<3, real> real3;
+typedef vector_<4, real> real4;
 
-typedef vector2_<real> vector2;
+const real2 r2_0 = { r_0, r_0 } ;
+const real2 r2_1(r_1, r_1);
+const real2 r2_x(r_1, r_0);
+const real2 r2_y(r_0, r_1);
+const real3 r3_0(r_0, r_0, r_0);
+const real3 r3_1(r_1, r_1, r_1);
+const real3 r3_x(r_1, r_0, r_0);
+const real3 r3_y(r_0, r_1, r_0);
+const real3 r3_z(r_0, r_0, r_1);
 
-const vector2 v2_0(r_0, r_0), v2_1(r_1, r_1), v2_x(r_1, r_0), v2_y(r_0, r_1);
+//// vector2
+//template<typename _Type = real> struct vector2_ : vector_<2, _Type> {
+//	real &x, &y;
+//	inline vector2_();
+//	inline vector2_(real _x, real _y);
+//	template<uint _D> inline vector2_(const vector_<_D, _Type> &_v);
+//	template<uint _D> inline vector2_& operator = (const vector_<_D, _Type> &_v);
+//};
+//
+//typedef vector2_<real> vector2;
+//
+//const vector2 v2_0(r_0, r_0), v2_1(r_1, r_1), v2_x(r_1, r_0), v2_y(r_0, r_1);
 
-// vector3
-template<typename _Real = real> struct vector3_ : vector_<3, _Real> {
-	real &x, &y, &z;
-	inline vector3_();
-	inline vector3_(real _x, real _y, real _z);
-	template<uint _D> inline vector3_(const vector_<_D, _Real> &_v);
-	template<uint _D> inline vector3_& operator = (const vector_<_D, _Real> &_v);
-};
-
-typedef vector3_<real> vector3;
-
-const vector3 v3_0(r_0, r_0, r_0), v3_1(r_1, r_1, r_1), v3_x(r_1, r_0, r_0), v3_y(r_0, r_1, r_0), v3_z(r_0, r_0, r_1);
+//// vector3
+//template<typename _Type = real> struct vector3_ : vector_<3, _Type> {
+//	real &x, &y, &z;
+//	inline vector3_();
+//	inline vector3_(real _x, real _y, real _z);
+//	template<uint _D> inline vector3_(const vector_<_D, _Type> &_v);
+//	template<uint _D> inline vector3_& operator = (const vector_<_D, _Type> &_v);
+//};
+//
+//typedef vector3_<real> vector3;
+//
+//const vector3 v3_0(r_0, r_0, r_0), v3_1(r_1, r_1, r_1), v3_x(r_1, r_0, r_0), v3_y(r_0, r_1, r_0), v3_z(r_0, r_0, r_1);
 
 // matrix
-template<uint _Height, uint _Width, typename _Real = real> struct matrix_ : matrix_<_Height - 1, _Width, _Real> {
+template<uint _Height, uint _Width, typename _Type = real> struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	static const uint height = _Height;
 	static const uint width = _Width;
-	typedef _Real real;
-	typedef vector_<_Width, _Real> vector;
+	typedef _Type real;
+	typedef vector_<_Width, _Type> vector;
 	inline matrix_();
 	inline const vector& row() const;
 	inline vector& row();
@@ -117,22 +131,26 @@ template<uint _Height, uint _Width, typename _Real = real> struct matrix_ : matr
 protected:
 	vector m_row;
 };
-template<uint _Width, typename _Real> struct matrix_<0, _Width, _Real> {
+template<uint _Width, typename _Type> struct matrix_<0, _Width, _Type> {
 };
 
-// matrix3
-template<typename _Real = real> struct matrix3_ : matrix_<3, 3, _Real> {
-	real &m11, &m12, &m13;
-	real &m21, &m22, &m23;
-	real &m31, &m32, &m33;
-	inline matrix3_();
-	inline matrix3_(
-		real _m11, real _m12, real _m13,
-		real _m21, real _m22, real _m23,
-		real _m31, real _m32, real _m33
-	);
-};
+typedef matrix_<3, 3, real> real3x3;
+typedef matrix_<4, 4, real> real4x4;
+typedef matrix_<4, 3, real> real4x3;
 
-typedef matrix3_<real> matrix3;
+//// matrix3
+//template<typename _Type = real> struct matrix3_ : matrix_<3, 3, _Type> {
+//	real &m11, &m12, &m13;
+//	real &m21, &m22, &m23;
+//	real &m31, &m32, &m33;
+//	inline matrix3_();
+//	inline matrix3_(
+//		real _m11, real _m12, real _m13,
+//		real _m21, real _m22, real _m23,
+//		real _m31, real _m32, real _m33
+//	);
+//};
+//
+//typedef matrix3_<real> matrix3;
 
 #include "math.inl"
