@@ -34,6 +34,29 @@ template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _
 
 // types
 
+// matrix
+template<uint _Height, uint _Width, typename _Type>
+struct matrix_ : select<_Height == 1, matrix_<1, _Width - 1, _Type>, matrix_<_Height - 1, _Width, _Type> >::type {
+	typedef typename select<_Height == 1, matrix_<1, _Width - 1, _Type>, matrix_<_Height - 1, _Width, _Type> >::type parent_type;
+	typedef typename select<_Height == 1, _Type, matrix_<1, _Width, _Type> >::type row_type;
+	inline matrix_();
+	inline matrix_(const matrix_ &_m);
+	inline matrix_(const parent_type &_m);
+	inline const row_type& row() const;
+	inline row_type& row();
+	template<uint _I> inline const row_type& row() const;
+	template<uint _I> inline row_type& row();
+	template<uint _I, uint _J> inline const _Type& cell() const;
+	template<uint _I, uint _J> inline _Type& cell();
+
+	inline matrix_& operator = (const matrix_ &_m);
+private:
+	row_type m_row;
+};
+template<typename _Type>
+struct matrix_<1, 0, _Type> {
+};
+
 // vector
 template<uint _Dimention, typename _Type = real> struct vector_ : vector_<_Dimention - 1, _Type> {
 	static const uint dimention = _Dimention;
@@ -109,13 +132,6 @@ const real4x3 r4x3_0(r3_0, r3_0, r3_0, r3_0);
 const real4x3 r4x3_1(r3_x, r3_y, r3_z, r3_0);
 const real4x4 r4x4_0(r4_0, r4_0, r4_0, r4_0);
 const real4x4 r4x4_1(r4_x, r4_y, r4_z, r4_w);
-
-template<bool _Condition, typename _Type0, typename _Type1> struct select {
-	typedef _Type0 type;
-};
-template<typename _Type0, typename _Type1> struct select<false, _Type0, _Type1> {
-	typedef _Type1 type;
-};
 
 // v2
 template<typename _Type, bool _Const> struct v2_reference {

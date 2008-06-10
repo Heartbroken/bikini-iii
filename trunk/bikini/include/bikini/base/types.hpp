@@ -26,3 +26,10 @@ const real r_1 = real(1);
 
 #define super	__super
 #define inline	__forceinline
+
+template<bool _Condition, typename _Type0, typename _Type1> struct select {
+	typedef _Type0 type;
+};
+template<typename _Type0, typename _Type1> struct select<false, _Type0, _Type1> {
+	typedef _Type1 type;
+};

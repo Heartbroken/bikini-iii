@@ -72,7 +72,69 @@ template<typename _T> inline void swap(_T &_a, _T &_b) {
 	_T l_t = _a; _a = _b; _b = l_t;
 }
 
+template<uint _D1, uint _D2, uint _D3, typename _T>
+inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D2, vector_<_D3, _T> > &_b, vector_<_D1, vector_<_D3, _T> > &_c) {
+}
+template<uint _D1, uint _D2, typename _T>
+inline void multiply(const vector_<_D1, _T> &_a, const vector_<_D1, vector_<_D2, _T> > &_b, vector_<1, vector_<_D1, _T> > &_c) {
+	multiply(vector_<1, vector_<_D1, _T> >(_a), _b, _c);
+}
+template<uint _D1, uint _D2, typename _T>
+inline void multiply(const vector_<_D1, vector_<_D2, _T> > &_a, const vector_<_D1, _T> &_b, vector_<_D1, vector_<1, _T> > &_c) {
+	multiply(_a, vector_<_D1, vector_<1, _T> >(_b), _c);
+}
+template<uint _D, typename _T>
+inline void multiply(const vector_<_D, _T> &_a, const vector_<_D, _T> &_b, vector_<1, vector_<1, _T> > &_c) {
+	multiply(vector_<1, vector_<_D, _T> >(_a), vector_<_D, vector_<1, _T> >(_b), _c);
+}
+
 // types
+
+// matrix
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_() {
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const matrix_ &_m) : parent_type(_m), m_row(_m.row()) {
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const parent_type &_m) : parent_type(_m) {
+}
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() const {
+	return m_row;
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() {
+	return m_row;
+}
+template<uint _H, uint _W, typename _T> template<uint _I>
+inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() const {
+	c_assert(_I < _H);
+	return static_cast<const matrix_<_I + 1, _W, _T>&>(*this).row();
+}
+template<uint _H, uint _W, typename _T> template<uint _I>
+inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::row() {
+	c_assert(_I < _H);
+	return static_cast<matrix_<_I + 1, _W, _T>&>(*this).row();
+}
+template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
+inline const _T& matrix_<_H, _W, _T>::cell() const {
+	c_assert(_I < _H && _J < _W);
+	return static_cast<const matrix_<1, _J + 1, _T>&>(row<_I>()).row();
+}
+template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
+inline _T& matrix_<_H, _W, _T>::cell() {
+	c_assert(_I < _H && _J < _W);
+	return static_cast<matrix_<1, _J + 1, _T>&>(row<_I>()).row();
+}
+
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator = (const matrix_ &_m) {
+	parent_type::operator = (_m);
+	m_row = _m.row();
+	return *this;
+}
 
 // vector
 template<uint _D, typename _T>
