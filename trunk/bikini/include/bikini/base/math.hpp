@@ -94,44 +94,74 @@ const real3 r3_1(r_1, r_1, r_1);
 const real3 r3_x(r_1, r_0, r_0);
 const real3 r3_y(r_0, r_1, r_0);
 const real3 r3_z(r_0, r_0, r_1);
+const real4 r4_0(r_0, r_0, r_0, r_1);
+const real4 r4_1(r_1, r_1, r_1, r_1);
+const real4 r4_x(r_1, r_0, r_0, r_1);
+const real4 r4_y(r_0, r_1, r_0, r_1);
+const real4 r4_z(r_0, r_0, r_1, r_1);
 
-//// vector2
-//template<typename _Type = real> struct vector2_ : vector_<2, _Type> {
-//	real &x, &y;
-//	inline vector2_();
-//	inline vector2_(real _x, real _y);
-//	template<uint _D> inline vector2_(const vector_<_D, _Type> &_v);
-//	template<uint _D> inline vector2_& operator = (const vector_<_D, _Type> &_v);
-//};
-//
-//typedef vector2_<real> vector2;
-//
-//const vector2 v2_0(r_0, r_0), v2_1(r_1, r_1), v2_x(r_1, r_0), v2_y(r_0, r_1);
+template<bool _Condition, typename _Type0, typename _Type1> struct select {
+	typedef _Type0 type;
+};
+template<typename _Type0, typename _Type1> struct select<false, _Type0, _Type1> {
+	typedef _Type1 type;
+};
 
-//// vector3
-//template<typename _Type = real> struct vector3_ : vector_<3, _Type> {
-//	real &x, &y, &z;
-//	inline vector3_();
-//	inline vector3_(real _x, real _y, real _z);
-//	template<uint _D> inline vector3_(const vector_<_D, _Type> &_v);
-//	template<uint _D> inline vector3_& operator = (const vector_<_D, _Type> &_v);
-//};
-//
-//typedef vector3_<real> vector3;
-//
-//const vector3 v3_0(r_0, r_0, r_0), v3_1(r_1, r_1, r_1), v3_x(r_1, r_0, r_0), v3_y(r_0, r_1, r_0), v3_z(r_0, r_0, r_1);
+// v2
+template<typename _Type, bool _Const> struct v2_reference {
+	typedef typename select<_Const, const _Type, _Type>::type type;
+	typedef typename select<_Const, const vector_<2, _Type>, vector_<2, _Type> >::type vector;
+	type &x, &y;
+	inline v2_reference(vector &_v);
+};
+template<typename _Type> v2_reference<_Type, false> v2(vector_<2, _Type> &_v);
+template<typename _Type> v2_reference<_Type, true> v2(const vector_<2, _Type> &_v);
+
+// v3
+template<typename _Type, bool _Const> struct v3_reference {
+	typedef typename select<_Const, const _Type, _Type>::type type;
+	typedef typename select<_Const, const vector_<3, _Type>, vector_<3, _Type> >::type vector;
+	type &x, &y, &z;
+	inline v3_reference(vector &_v);
+};
+template<typename _Type> v3_reference<_Type, false> v3(vector_<3, _Type> &_v);
+template<typename _Type> v3_reference<_Type, true> v3(const vector_<3, _Type> &_v);
+
+// v4
+template<typename _Type, bool _Const> struct v4_reference {
+	typedef typename select<_Const, const _Type, _Type>::type type;
+	typedef typename select<_Const, const vector_<4, _Type>, vector_<4, _Type> >::type vector;
+	type &x, &y, &z, &w;
+	inline v4_reference(vector &_v);
+};
+template<typename _Type> v4_reference<_Type, false> v4(vector_<4, _Type> &_v);
+template<typename _Type> v4_reference<_Type, true> v4(const vector_<4, _Type> &_v);
+
+// quat
+template<typename _Type, bool _Const> struct quat_reference {
+	typedef typename select<_Const, const _Type, _Type>::type type;
+	typedef typename select<_Const, const vector_<4, _Type>, vector_<4, _Type> >::type vector;
+	type &i, &j, &k, &r;
+	inline quat_reference(vector &_v);
+};
+template<typename _Type> quat_reference<_Type, false> quat(vector_<4, _Type> &_v);
+template<typename _Type> quat_reference<_Type, true> quat(const vector_<4, _Type> &_v);
 
 // matrix
 template<uint _Height, uint _Width, typename _Type = real> struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	static const uint height = _Height;
 	static const uint width = _Width;
-	typedef _Type real;
+	typedef _Type type;
 	typedef vector_<_Width, _Type> vector;
 	inline matrix_();
+	inline matrix_(const matrix_ &_m);
+	inline matrix_(const matrix_<_Height - 1, _Width, _Type> &_m);
 	inline const vector& row() const;
 	inline vector& row();
 	template<uint _I> inline const vector& row() const;
 	template<uint _I> inline vector& row();
+	template<uint _I, uint _J> inline const _Type& cell() const;
+	template<uint _I, uint _J> inline _Type& cell();
 protected:
 	vector m_row;
 };
@@ -141,20 +171,5 @@ template<uint _Width, typename _Type> struct matrix_<0, _Width, _Type> {
 typedef matrix_<3, 3, real> real3x3;
 typedef matrix_<4, 4, real> real4x4;
 typedef matrix_<4, 3, real> real4x3;
-
-//// matrix3
-//template<typename _Type = real> struct matrix3_ : matrix_<3, 3, _Type> {
-//	real &m11, &m12, &m13;
-//	real &m21, &m22, &m23;
-//	real &m31, &m32, &m33;
-//	inline matrix3_();
-//	inline matrix3_(
-//		real _m11, real _m12, real _m13,
-//		real _m21, real _m22, real _m23,
-//		real _m31, real _m32, real _m33
-//	);
-//};
-//
-//typedef matrix3_<real> matrix3;
 
 #include "math.inl"

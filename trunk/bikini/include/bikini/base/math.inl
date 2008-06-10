@@ -183,43 +183,59 @@ inline vector_<_D, _T>& vector_<_D, _T>::operator /= (_T _s) {
 	return *this;
 }
 
-//// vector2
-//template<typename _T>
-//inline vector2_<_T>::vector2_() : x(cell<0>()), y(cell<1>()) {
-//}
-//template<typename _T>
-//inline vector2_<_T>::vector2_(real _x, real _y) : x(cell<0>()), y(cell<1>())  {
-//	x = _x; y = _y;
-//}
-//template<typename _T> template<uint _D>
-//inline vector2_<_T>::vector2_(const vector_<_D, _T> &_v) : vector_<2, _T>(_v), x(cell<0>()), y(cell<1>()) {
-//}
-//template<typename _T> template<uint _D>
-//inline vector2_<_T>& vector2_<_T>::operator = (const vector_<_D, _T> &_v) {
-//	x = _v.cell<0>(); y = _v.cell<1>();
-//	return *this;
-//}
+// v2
+template<typename _T, bool _C>
+inline v2_reference<_T, _C>::v2_reference(typename v2_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()) {
+}
+template<typename _T> v2_reference<_T, false> v2(vector_<2, _T> &_v) {
+	return v2_reference<_T, false>(_v);
+}
+template<typename _T> v2_reference<_T, true> v2(const vector_<2, _T> &_v) {
+	return v2_reference<_T, true>(_v);
+}
 
-//// vector3
-//template<typename _T>
-//inline vector3_<_T>::vector3_() : x(cell<0>()), y(cell<1>()), z(cell<2>()) {
-//}
-//template<typename _T>
-//inline vector3_<_T>::vector3_(real _x, real _y, real _z) : x(cell<0>()), y(cell<1>()), z(cell<2>())  {
-//	x = _x; y = _y; z = _z;
-//}
-//template<typename _T> template<uint _D>
-//inline vector3_<_T>::vector3_(const vector_<_D, _T> &_v) : vector_<3, _T>(_v), x(cell<0>()), y(cell<1>()), z(cell<2>()) {
-//}
-//template<typename _T> template<uint _D>
-//inline vector3_<_T>& vector3_<_T>::operator = (const vector_<_D, _T> &_v) {
-//	x = _v.cell<0>(); y = _v.cell<1>(); z = _v.cell<2>();
-//	return *this;
-//}
+// v3
+template<typename _T, bool _C>
+inline v3_reference<_T, _C>::v3_reference(typename v3_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()), z(_v.cell<2>()) {
+}
+template<typename _T> v3_reference<_T, false> v3(vector_<3, _T> &_v) {
+	return v3_reference<_T, false>(_v);
+}
+template<typename _T> v3_reference<_T, true> v3(const vector_<3, _T> &_v) {
+	return v3_reference<_T, true>(_v);
+}
+
+// v4
+template<typename _T, bool _C>
+inline v4_reference<_T, _C>::v4_reference(typename v4_reference<_T, _C>::vector &_v) : x(_v.cell<0>()), y(_v.cell<1>()), z(_v.cell<2>()), w(_v.cell<3>()) {
+}
+template<typename _T> v4_reference<_T, false> v4(vector_<4, _T> &_v) {
+	return v4_reference<_T, false>(_v);
+}
+template<typename _T> v4_reference<_T, true> v4(const vector_<4, _T> &_v) {
+	return v4_reference<_T, true>(_v);
+}
+
+// quat
+template<typename _T, bool _C>
+inline quat_reference<_T, _C>::quat_reference(typename quat_reference<_T, _C>::vector &_v) : i(_v.cell<0>()), j(_v.cell<1>()), k(_v.cell<2>()), r(_v.cell<3>()) {
+}
+template<typename _T> quat_reference<_T, false> quat(vector_<4, _T> &_v) {
+	return quat_reference<_T, false>(_v);
+}
+template<typename _T> quat_reference<_T, true> quat(const vector_<4, _T> &_v) {
+	return quat_reference<_T, true>(_v);
+}
 
 // matrix
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>::matrix_() {
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const matrix_ &_m) : matrix_<_H - 1, _W, _T>(_m), m_row(_m.row()) {
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::matrix_(const matrix_<_H - 1, _W, _T> &_m) : matrix_<_H - 1, _W, _T>(_m) {
 }
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::vector& matrix_<_H, _W, _T>::row() const {
@@ -237,25 +253,13 @@ template<uint _H, uint _W, typename _T> template<uint _I>
 inline typename matrix_<_H, _W, _T>::vector& matrix_<_H, _W, _T>::row() {
 	return static_cast<matrix_<_H - 1, _W, _T>&>(*this).row();
 }
-
-//// matrix3
-//template<typename _T>
-//inline matrix3_<_T>::matrix3_() :
-//	m11(row<0>().cell<0>()), m12(row<0>().cell<1>()), m13(row<0>().cell<2>()),
-//	m21(row<1>().cell<0>()), m22(row<1>().cell<1>()), m23(row<1>().cell<2>()),
-//	m31(row<2>().cell<0>()), m32(row<2>().cell<1>()), m33(row<2>().cell<2>())
-//{}
-//template<typename _T>
-//inline matrix3_<_T>::matrix3_(
-//	real _m11, real _m12, real _m13,
-//	real _m21, real _m22, real _m23,
-//	real _m31, real _m32, real _m33
-//) :
-//	m11(row<0>().cell<0>()), m12(row<0>().cell<1>()), m13(row<0>().cell<2>()),
-//	m21(row<1>().cell<0>()), m22(row<1>().cell<1>()), m23(row<1>().cell<2>()),
-//	m31(row<2>().cell<0>()), m32(row<2>().cell<1>()), m33(row<2>().cell<2>())
-//{
-//	m11 = _m11; m12 = _m12; m13 = _m13;
-//	m21 = _m21; m22 = _m22; m23 = _m23;
-//	m31 = _m31; m32 = _m32; m33 = _m33;
-//}
+template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
+inline const _T& matrix_<_H, _W, _T>::cell() const {
+	c_assert(_I < _H && _J < _W);
+	return row<_I>().cell<_J>();
+}
+template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
+inline _T& matrix_<_H, _W, _T>::cell() {
+	c_assert(_I < _H && _J < _W);
+	return row<_I>().cell<_J>();
+}

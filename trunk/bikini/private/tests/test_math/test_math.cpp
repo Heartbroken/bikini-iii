@@ -12,6 +12,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	bk::real l_r = l_b[0];
 	bk::uint l_size = sizeof(bk::real3);
 	l_size = sizeof(bk::vector_<3>);
+	bk::real2 l_r2;
+	bk::v2(l_r2).x = bk::v2(bk::r2_0).x;
+	bk::v2(l_r2).y = 0;
+//	bk::v2(bk::r2_0).x = bk::real(1);
+	l_r2 = bk::r2_0;
 	return 0;
 }
 
