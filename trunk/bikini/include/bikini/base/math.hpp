@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------------------------------------*//*
+
+	Binary Kinematics 3 - C++ game programming library
+	Copyright (C) 2008 Viktor Reutzky
+	reutzky@bitchingames.com
+
+*//*---------------------------------------------------------------------------------------------*/
+
 #pragma once
 
 // constants
@@ -20,7 +28,7 @@ inline real d2r(real _d);
 inline real r2d(real _r);
 inline real pow(real _a, real _b);
 inline bool is_tiny(real _a);
-inline u32 next_pow2(u32 _a);
+inline uint next_pow2(uint _a);
 inline real random();
 inline real random(real _max);
 inline real random(real _min, real _max);
@@ -61,7 +69,6 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	inline _matrix_row_& operator *= (_Type _s);
 	inline const _matrix_row_ operator / (_Type _s) const;
 	inline _matrix_row_& operator /= (_Type _s);
-	inline operator _Type () const { c_assert(_Size == 1); return m_cell; }
 	inline void add(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void mul(_Type _s, _matrix_row_ &_c) const;
@@ -129,53 +136,6 @@ struct matrix_<0, _Width, _Type> {
 	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<0, _W2, _Type> &_c) const {}
 	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
 };
-
-//// vector
-//template<uint _Dimention, typename _Type = real> struct vector_ : vector_<_Dimention - 1, _Type> {
-//	static const uint dimention = _Dimention;
-//	static const uint last = dimention - 1;
-//	typedef _Type type;
-//	inline vector_();
-//	inline vector_(const vector_ &_v);
-//	inline vector_(const vector_<_Dimention - 1, _Type> &_v);
-//	inline vector_(_Type _cell0);
-//	inline vector_(_Type _cell0, _Type _cell1);
-//	inline vector_(_Type _cell0, _Type _cell1, _Type _cell2);
-//	inline vector_(_Type _cell0, _Type _cell1, _Type _cell2, _Type _cell3);
-//	inline const _Type& cell() const;
-//	inline _Type& cell();
-//	template<uint _I> inline const _Type& cell() const;
-//	template<uint _I> inline _Type& cell();
-//	inline const _Type operator [] (uint _i) const;
-//	inline _Type& operator [] (uint _i);
-//	inline vector_& operator = (const vector_ &_v);
-//	inline const vector_ operator + (const vector_ &_v) const;
-//	inline vector_& operator += (const vector_ &_v);
-//	inline const vector_ operator - (const vector_ &_v) const;
-//	inline vector_& operator -= (const vector_ &_v);
-//	inline const vector_ operator * (_Type _s) const;
-//	inline vector_& operator *= (_Type _s);
-//	inline const vector_ operator / (_Type _s) const;
-//	inline vector_& operator /= (_Type _s);
-//private:
-//	type m_cell;
-//};
-//template<typename _Type> struct vector_<0, _Type> {
-//	typedef _Type type;
-//	inline vector_() {}
-//	inline vector_(const vector_ &_v) {}
-//	inline const _Type operator [] (uint _i) const {}
-//	inline _Type& operator [] (uint _i) {}
-//	inline vector_& operator = (const vector_ &_v) { return *this; }
-//	inline const vector_ operator + (const vector_ &_v) const { return *this; }
-//	inline vector_& operator += (const vector_ &_v) { return *this; }
-//	inline const vector_ operator - (const vector_ &_v) const { return *this; }
-//	inline vector_& operator -= (const vector_ &_v) { return *this; }
-//	inline const vector_ operator * (_Type _s) const { return *this; }
-//	inline vector_& operator *= (_Type _s) { return *this; }
-//	inline const vector_ operator / (_Type _s) const { return *this; }
-//	inline vector_& operator /= (_Type _s) {}
-//};
 
 typedef matrix_<1, 2, real> real2;
 typedef matrix_<1, 3, real> real3;
@@ -250,43 +210,5 @@ template<typename _Type, bool _Const = false> struct quat_r_ {
 template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, false>::vector &_v);
 template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
 typedef quat_r_<real> quat_r;
-
-
-
-
-//// matrix
-//template<uint _Height, uint _Width, typename _Type = real> struct matrix_ : vector_<_Height, vector_<_Width, _Type> > {
-//	static const uint height = _Height;
-//	static const uint width = _Width;
-//	typedef _Type type;
-//	typedef vector_<_Width, _Type> vector;
-//	inline matrix_();
-//	//inline matrix_(const matrix_ &_m);
-//	//inline matrix_(const matrix_<_Height - 1, _Width, _Type> &_m);
-//	inline const vector& row() const;
-//	inline vector& row();
-//	template<uint _I> inline const vector& row() const;
-//	template<uint _I> inline vector& row();
-//	template<uint _I, uint _J> inline const _Type& cell() const;
-//	template<uint _I, uint _J> inline _Type& cell();
-//
-//	//inline const vector& operator [] (uint _i) const;
-//	//inline vector& operator [] (uint _i);
-//	//inline matrix_& operator = (const matrix_ &_v);
-//	//inline const matrix_ operator + (const matrix_ &_v) const;
-//	//inline matrix_& operator += (const matrix_ &_v);
-//	//inline const matrix_ operator - (const matrix_ &_v) const;
-//	//inline matrix_& operator -= (const matrix_ &_v);
-//	//inline const matrix_ operator * (_Type _s) const;
-//	//inline matrix_& operator *= (_Type _s);
-//	//inline const matrix_ operator / (_Type _s) const;
-//	//inline matrix_& operator /= (_Type _s);
-////protected:
-////	vector m_row;
-//};
-
-//typedef matrix_<3, 3, real> real3x3;
-//typedef matrix_<4, 4, real> real4x4;
-//typedef matrix_<4, 3, real> real4x3;
 
 #include "math.inl"

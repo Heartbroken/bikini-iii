@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------------------------------------*//*
+
+	Binary Kinematics 3 - C++ game programming library
+	Copyright (C) 2008 Viktor Reutzky
+	reutzky@bitchingames.com
+
+*//*---------------------------------------------------------------------------------------------*/
+
 #pragma once
 
 typedef unsigned char		u8;
@@ -13,7 +21,11 @@ typedef double				f64;
 
 typedef size_t				uint;
 typedef ptrdiff_t			sint;
-typedef float				real;
+#if defined(BIKINI_REAL_IS_DOUBLE)
+	typedef double			real;
+#else
+	typedef float			real;
+#endif
 typedef double				rbig;
 
 typedef void*				handle;
