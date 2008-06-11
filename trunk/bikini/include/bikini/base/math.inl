@@ -358,6 +358,22 @@ template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::div(_T _s, matrix_ &_c) const {
 	parent_type::div(_s, _c); _c.row() = m_row / _s;
 }
+template<uint _H, uint _W, typename _T> template<uint _W2>
+inline const matrix_<_H, _W2, _T> matrix_<_H, _W, _T>::operator * (const matrix_<_W, _W2, _T> &_m) const {
+	matrix_<_H, _W2, _T> l_m;
+	mul(_m, l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T> template<uint _W2>
+inline void matrix_<_H, _W, _T>::mul(const matrix_<_W, _W2, _T> &_b, matrix_<_H, _W2, _T> &_c) const {
+	parent_type::mul(_b, _c);
+	_b.mul(m_row, _c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::mul(const _matrix_row_<_H, _T> &_b, _matrix_row_<_W, _T> &_c) const {
+	parent_type::mul(_b, _c);
+	_c += m_row * _b.cell();
+}
 
 //// vector
 //template<uint _D, typename _T>

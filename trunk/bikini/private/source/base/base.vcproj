@@ -124,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\base_d.lib"
+				OutputFile="..\..\..\library\base.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

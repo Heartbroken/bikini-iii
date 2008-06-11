@@ -109,10 +109,13 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline matrix_& operator *= (_Type _s);
 	inline const matrix_ operator / (_Type _s) const;
 	inline matrix_& operator /= (_Type _s);
+	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
 	inline void add(const matrix_ &_b, matrix_ &_c) const;
 	inline void sub(const matrix_ &_b, matrix_ &_c) const;
 	inline void mul(_Type _s, matrix_ &_c) const;
 	inline void div(_Type _s, matrix_ &_c) const;
+	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<_Height, _W2, _Type> &_c) const;
+	inline void mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
 private:
 	row_type m_row;
 };
@@ -122,6 +125,8 @@ struct matrix_<0, _Width, _Type> {
 	inline void sub(const matrix_ &_b, matrix_ &_c) const {}
 	inline void mul(_Type _s, matrix_ &_c) const {}
 	inline void div(_Type _s, matrix_ &_c) const {}
+	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<0, _W2, _Type> &_c) const {}
+	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
 };
 
 //// vector
