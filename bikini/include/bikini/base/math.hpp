@@ -116,6 +116,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline void div(_Type _s, matrix_ &_c) const;
 	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<_Height, _W2, _Type> &_c) const;
 	inline void mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
+	inline const matrix_<_Width, _Height, _Type> transposed() const;
 private:
 	row_type m_row;
 };
