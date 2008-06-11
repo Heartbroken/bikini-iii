@@ -8,7 +8,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	bk::real3 l_0(bk::r3_0), l_1(bk::r3_1);
 	bk::real3 l_a = l_0 + l_1;
-	bk::real3 l_b(l_a);
+	bk::real3 l_b(l_0);
 	bk::real l_r = l_b[0][0];
 	bk::uint l_size = sizeof(bk::real3);
 	bk::real2 l_r2(bk::r2_y);
@@ -26,6 +26,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	l_size = sizeof(l_r4x3);
 	bk::real4x4 l_r4x4(bk::r4x4_1);
 	l_size = sizeof(l_r4x4);
+	l_b = l_a * bk::r3x3_1;
+	std::cout << bk::real(l_b[0][0]) << bk::real(l_b[0][1]);
 	return 0;
 }
 
