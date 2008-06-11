@@ -9,15 +9,16 @@
 #include "header.hpp"
 
 namespace bk { /*--------------------------------------------------------------------------------*/
-
-static void test() {
-	real2 a(r2_0), b(r2_1);
-	real2 c = a + b;
-	c += r2_1;
-	a = b - c;
-	a -= b;
-
-	matrix_<3, 3, real> m3;
+	
+real sys_time() {
+	//u32 l_fpcw = _control87(0, 0); _control87(_PC_64, _MCW_PC);
+	static LARGE_INTEGER l_clock_freq;
+	static bool l_once = (QueryPerformanceFrequency(&l_clock_freq) == TRUE);
+	static rbig l_frq = rbig(l_clock_freq.QuadPart);
+	LARGE_INTEGER l_clock; QueryPerformanceCounter(&l_clock);
+	rbig l_time = rbig(l_clock.QuadPart) / l_frq;
+	//_control87(l_fpcw, 0xffffffff);
+	return real(l_time);
 }
 
 } /* namespace bk -------------------------------------------------------------------------------*/

@@ -12,6 +12,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_math", "..\tests\test_
 		{537FCF05-5BA7-43CB-9652-35FBF764B18E} = {537FCF05-5BA7-43CB-9652-35FBF764B18E}
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Interface Files", "Interface Files", "{8D46154F-D87F-45BF-A592-F744CFA52D71}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\include\bikini.hpp = ..\..\include\bikini.hpp
+		..\..\include\bikini\config.hpp = ..\..\include\bikini\config.hpp
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
