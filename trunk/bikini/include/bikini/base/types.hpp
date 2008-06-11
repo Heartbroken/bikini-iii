@@ -14,6 +14,7 @@ typedef double				f64;
 typedef size_t				uint;
 typedef ptrdiff_t			sint;
 typedef float				real;
+typedef double				rbig;
 
 typedef void*				handle;
 typedef const void*			pointer;
@@ -27,9 +28,5 @@ const real r_1 = real(1);
 #define super	__super
 #define inline	__forceinline
 
-template<bool _Condition, typename _Type0, typename _Type1> struct select {
-	typedef _Type0 type;
-};
-template<typename _Type0, typename _Type1> struct select<false, _Type0, _Type1> {
-	typedef _Type1 type;
-};
+template<bool _C, typename _T0, typename _T1> struct select { typedef _T0 type; };
+template<typename _T0, typename _T1> struct select<false, _T0, _T1> { typedef _T1 type; };
