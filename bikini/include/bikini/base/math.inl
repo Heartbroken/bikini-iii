@@ -369,10 +369,17 @@ inline void matrix_<_H, _W, _T>::mul(const matrix_<_W, _W2, _T> &_b, matrix_<_H,
 	parent_type::mul(_b, _c);
 	_b.mul(m_row, _c.row());
 }
+template<uint _H, uint _W, typename _T> struct _matrix_row_mul_helper_ { static void mul(const _matrix_row_<_W, _T> &_a, const _matrix_row_<_H, _T> &_b, _matrix_row_<_W, _T> &_c) {
+	_c += _a * _b.cell();
+}};
+template<uint _W, typename _T> struct _matrix_row_mul_helper_<1, _W, _T> { static void mul(const _matrix_row_<_W, _T> &_a, const _matrix_row_<1, _T> &_b, _matrix_row_<_W, _T> &_c) {
+	_c = _a * _b.cell();
+}};
 template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::mul(const _matrix_row_<_H, _T> &_b, _matrix_row_<_W, _T> &_c) const {
 	parent_type::mul(_b, _c);
-	_c += m_row * _b.cell();
+	_matrix_row_mul_helper_<_H, _W, _T>::mul(m_row, _b, _c);
+	//_c += m_row * _b.cell();
 }
 
 //// vector
