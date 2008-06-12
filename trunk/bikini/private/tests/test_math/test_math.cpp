@@ -7,7 +7,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	{
 	bk::r1x3 l_b(-bk::r1x3_1);
-	bk::r3x3 l_r(bk::r1x3_x, -bk::r1x3_z, bk::r1x3_y);
+	bk::r3x3 l_r(bk::r1x3_x,-bk::r1x3_z, bk::r1x3_y);
 	bk::real l_00 = l_b[0][0];
 	bk::uint l_count = 1000000;
 	bk::rbig l_time = bk::sys_time();
