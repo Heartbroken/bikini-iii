@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------*//*
 
-	Binary Kinematics 3 - C++ game programming library
+	Binary Kinematics 3 - C++ Game Programming Library
 	Copyright (C) 2008 Viktor Reutzky
 	reutzky@bitchingames.com
 
@@ -60,16 +60,6 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	template<uint _I> inline _Type& cell();
 	inline const _Type& operator [] (uint _i) const;
 	inline _Type& operator [] (uint _i);
-	//inline _matrix_row_& operator = (const _matrix_row_ &_r);
-	//inline const _matrix_row_ operator - () const;
-	//inline const _matrix_row_ operator + (const _matrix_row_ &_r) const;
-	//inline _matrix_row_& operator += (const _matrix_row_ &_r);
-	//inline const _matrix_row_ operator - (const _matrix_row_ &_r) const;
-	//inline _matrix_row_& operator -= (const _matrix_row_ &_r);
-	//inline const _matrix_row_ operator * (_Type _s) const;
-	//inline _matrix_row_& operator *= (_Type _s);
-	//inline const _matrix_row_ operator / (_Type _s) const;
-	//inline _matrix_row_& operator /= (_Type _s);
 	inline void set(const _matrix_row_ &_b);
 	inline void get(_matrix_row_ &_c) const;
 	inline void neg(_matrix_row_ &_c) const;
