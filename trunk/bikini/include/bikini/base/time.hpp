@@ -8,4 +8,4 @@
 
 #pragma once
 
-real sys_time();
+rbig sys_time();
