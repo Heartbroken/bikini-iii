@@ -136,61 +136,69 @@ inline _T& _matrix_row_<_S, _T>::operator [] (uint _i) {
 	assert(_i < _S);
 	return *(&cell<0>() + _i);
 }
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator = (const _matrix_row_ &_r) {
+//	parent_type::operator = (_r);
+//	m_cell = _r.cell();
+//	return *this;
+//}
+//template<uint _S, typename _T>
+//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - () const {
+//	_matrix_row_ l_r;
+//	neg(l_r);
+//	return l_r;
+//}
+//template<uint _S, typename _T>
+//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator + (const _matrix_row_ &_r) const {
+//	_matrix_row_ l_r;
+//	add(_r, l_r);
+//	return l_r;
+//}
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator += (const _matrix_row_ &_r) {
+//	add(_r, *this);
+//	return *this;
+//}
+//template<uint _S, typename _T>
+//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - (const _matrix_row_ &_r) const {
+//	_matrix_row_ l_r;
+//	sub(_r, l_r);
+//	return l_r;
+//}
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator -= (const _matrix_row_ &_r) {
+//	sub(_r, *this);
+//	return *this;
+//}
+//template<uint _S, typename _T>
+//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator * (_T _s) const {
+//	_matrix_row_ l_r;
+//	mul(_s, l_r);
+//	return l_r;
+//}
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator *= (_T _s) {
+//	mul(_r, *this);
+//	return *this;
+//}
+//template<uint _S, typename _T>
+//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator / (_T _s) const {
+//	_matrix_row_ l_r;
+//	div(_s, l_r);
+//	return l_r;
+//}
+//template<uint _S, typename _T>
+//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator /= (_T _s) {
+//	div(_r, *this);
+//	return *this;
+//}
 template<uint _S, typename _T>
-inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator = (const _matrix_row_ &_r) {
-	parent_type::operator = (_r);
-	m_cell = _r.cell();
-	return *this;
+inline void _matrix_row_<_S, _T>::set(const _matrix_row_ &_b) {
+	parent_type::set(_b); m_cell = _b.cell();
 }
 template<uint _S, typename _T>
-inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - () const {
-	_matrix_row_ l_r;
-	neg(l_r);
-	return l_r;
-}
-template<uint _S, typename _T>
-inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator + (const _matrix_row_ &_r) const {
-	_matrix_row_ l_r;
-	add(_r, l_r);
-	return l_r;
-}
-template<uint _S, typename _T>
-inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator += (const _matrix_row_ &_r) {
-	add(_r, *this);
-	return *this;
-}
-template<uint _S, typename _T>
-inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - (const _matrix_row_ &_r) const {
-	_matrix_row_ l_r;
-	sub(_r, l_r);
-	return l_r;
-}
-template<uint _S, typename _T>
-inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator -= (const _matrix_row_ &_r) {
-	sub(_r, *this);
-	return *this;
-}
-template<uint _S, typename _T>
-inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator * (_T _s) const {
-	_matrix_row_ l_r;
-	mul(_s, l_r);
-	return l_r;
-}
-template<uint _S, typename _T>
-inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator *= (_T _s) {
-	mul(_r, *this);
-	return *this;
-}
-template<uint _S, typename _T>
-inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator / (_T _s) const {
-	_matrix_row_ l_r;
-	div(_s, l_r);
-	return l_r;
-}
-template<uint _S, typename _T>
-inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator /= (_T _s) {
-	div(_r, *this);
-	return *this;
+inline void _matrix_row_<_S, _T>::get(_matrix_row_ &_c) const {
+	parent_type::get(_c); _c.cell() = m_cell;
 }
 template<uint _S, typename _T>
 inline void _matrix_row_<_S, _T>::neg(_matrix_row_ &_c) const {
@@ -291,8 +299,7 @@ inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] 
 }
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator = (const matrix_ &_m) {
-	parent_type::operator = (_m);
-	m_row = _m.row();
+	set(_m);
 	return *this;
 }
 template<uint _H, uint _W, typename _T>
@@ -345,31 +352,39 @@ inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator /= (_T _s) {
 	div(_s, *this);
 	return *this;
 }
-template<uint _H, uint _W, typename _T>
-inline void matrix_<_H, _W, _T>::neg(matrix_ &_c) const {
-	parent_type::neg(_c); _c.row() = -m_row;
-}
-template<uint _H, uint _W, typename _T>
-inline void matrix_<_H, _W, _T>::add(const matrix_ &_b, matrix_ &_c) const {
-	parent_type::add(_b, _c); _c.row() = m_row + _b.row();
-}
-template<uint _H, uint _W, typename _T>
-inline void matrix_<_H, _W, _T>::sub(const matrix_ &_b, matrix_ &_c) const {
-	parent_type::sub(_b, _c); _c.row() = m_row - _b.row();
-}
-template<uint _H, uint _W, typename _T>
-inline void matrix_<_H, _W, _T>::mul(_T _s, matrix_ &_c) const {
-	parent_type::mul(_s, _c); _c.row() = m_row * _s;
-}
-template<uint _H, uint _W, typename _T>
-inline void matrix_<_H, _W, _T>::div(_T _s, matrix_ &_c) const {
-	parent_type::div(_s, _c); _c.row() = m_row / _s;
-}
 template<uint _H, uint _W, typename _T> template<uint _W2>
 inline const matrix_<_H, _W2, _T> matrix_<_H, _W, _T>::operator * (const matrix_<_W, _W2, _T> &_m) const {
 	matrix_<_H, _W2, _T> l_m;
 	mul(_m, l_m);
 	return l_m;
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::set(const matrix_ &_b) {
+	parent_type::set(_b); m_row.set(_b.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::get(matrix_ &_c) const {
+	parent_type::get(_c); m_row.get(_c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::neg(matrix_ &_c) const {
+	parent_type::neg(_c); m_row.neg(_c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::add(const matrix_ &_b, matrix_ &_c) const {
+	parent_type::add(_b, _c); m_row.add(_b.row(), _c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::sub(const matrix_ &_b, matrix_ &_c) const {
+	parent_type::sub(_b, _c); m_row.sub(_b.row(), _c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::mul(_T _s, matrix_ &_c) const {
+	parent_type::mul(_s, _c); m_row.mul(_s, _c.row());
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::div(_T _s, matrix_ &_c) const {
+	parent_type::div(_s, _c); m_row.div(_s, _c.row());
 }
 template<uint _H, uint _W, typename _T> template<uint _W2>
 inline void matrix_<_H, _W, _T>::mul(const matrix_<_W, _W2, _T> &_b, matrix_<_H, _W2, _T> &_c) const {
@@ -377,10 +392,12 @@ inline void matrix_<_H, _W, _T>::mul(const matrix_<_W, _W2, _T> &_b, matrix_<_H,
 	_b.mul(m_row, _c.row());
 }
 template<uint _H, uint _W, typename _T> struct _matrix_row_mul_helper_ { static inline void mul(const _matrix_row_<_W, _T> &_a, const _matrix_row_<_H, _T> &_b, _matrix_row_<_W, _T> &_c) {
-	_c += _a * _b.cell();
+	_matrix_row_<_W, _T> l_c; _a.mul(_b.cell(), l_c); l_c.add(_c, _c);
+	//_c += _a * _b.cell();
 }};
 template<uint _W, typename _T> struct _matrix_row_mul_helper_<1, _W, _T> { static inline void mul(const _matrix_row_<_W, _T> &_a, const _matrix_row_<1, _T> &_b, _matrix_row_<_W, _T> &_c) {
-	_c = _a * _b.cell();
+	_a.mul(_b.cell(), _c);
+	//_c = _a * _b.cell();
 }};
 template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::mul(const _matrix_row_<_H, _T> &_b, _matrix_row_<_W, _T> &_c) const {

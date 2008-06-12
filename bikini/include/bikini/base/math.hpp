@@ -60,16 +60,18 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	template<uint _I> inline _Type& cell();
 	inline const _Type& operator [] (uint _i) const;
 	inline _Type& operator [] (uint _i);
-	inline _matrix_row_& operator = (const _matrix_row_ &_r);
-	inline const _matrix_row_ operator - () const;
-	inline const _matrix_row_ operator + (const _matrix_row_ &_r) const;
-	inline _matrix_row_& operator += (const _matrix_row_ &_r);
-	inline const _matrix_row_ operator - (const _matrix_row_ &_r) const;
-	inline _matrix_row_& operator -= (const _matrix_row_ &_r);
-	inline const _matrix_row_ operator * (_Type _s) const;
-	inline _matrix_row_& operator *= (_Type _s);
-	inline const _matrix_row_ operator / (_Type _s) const;
-	inline _matrix_row_& operator /= (_Type _s);
+	//inline _matrix_row_& operator = (const _matrix_row_ &_r);
+	//inline const _matrix_row_ operator - () const;
+	//inline const _matrix_row_ operator + (const _matrix_row_ &_r) const;
+	//inline _matrix_row_& operator += (const _matrix_row_ &_r);
+	//inline const _matrix_row_ operator - (const _matrix_row_ &_r) const;
+	//inline _matrix_row_& operator -= (const _matrix_row_ &_r);
+	//inline const _matrix_row_ operator * (_Type _s) const;
+	//inline _matrix_row_& operator *= (_Type _s);
+	//inline const _matrix_row_ operator / (_Type _s) const;
+	//inline _matrix_row_& operator /= (_Type _s);
+	inline void set(const _matrix_row_ &_b);
+	inline void get(_matrix_row_ &_c) const;
 	inline void neg(_matrix_row_ &_c) const;
 	inline void add(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
@@ -80,6 +82,8 @@ private:
 };
 template<typename _Type>
 struct _matrix_row_<0, _Type> {
+	inline void set(const _matrix_row_ &_b) {}
+	inline void get(_matrix_row_ &_c) const {}
 	inline void neg(_matrix_row_ &_c) const {}
 	inline void add(const _matrix_row_&, _matrix_row_&) const {}
 	inline void sub(const _matrix_row_&, _matrix_row_&) const {}
@@ -121,6 +125,8 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline const matrix_ operator / (_Type _s) const;
 	inline matrix_& operator /= (_Type _s);
 	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
+	inline void set(const matrix_ &_b);
+	inline void get(matrix_ &_c) const;
 	inline void neg(matrix_ &_c) const;
 	inline void add(const matrix_ &_b, matrix_ &_c) const;
 	inline void sub(const matrix_ &_b, matrix_ &_c) const;
@@ -134,6 +140,8 @@ private:
 };
 template<uint _Width, typename _Type>
 struct matrix_<0, _Width, _Type> {
+	inline void set(const matrix_ &_b) {}
+	inline void get(matrix_ &_c) const {}
 	inline void neg(matrix_ &_c) const {}
 	inline void add(const matrix_ &_b, matrix_ &_c) const {}
 	inline void sub(const matrix_ &_b, matrix_ &_c) const {}
