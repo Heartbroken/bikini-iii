@@ -141,6 +141,7 @@ struct matrix_<0, _Width, _Type> {
 	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
 };
 
+typedef matrix_<1, 1, real> r1x1;
 typedef matrix_<1, 2, real> r1x2;
 typedef matrix_<1, 3, real> r1x3;
 typedef matrix_<1, 4, real> r1x4;
@@ -148,6 +149,8 @@ typedef matrix_<3, 3, real> r3x3;
 typedef matrix_<4, 3, real> r4x3;
 typedef matrix_<4, 4, real> r4x4;
 
+const r1x1 r1x1_0(r_0);
+const r1x1 r1x1_1(r_1);
 const r1x2 r1x2_0(r_0, r_0);
 const r1x2 r1x2_1(r_1, r_1);
 const r1x2 r1x2_x(r_1, r_0);
