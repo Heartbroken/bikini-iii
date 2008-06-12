@@ -61,6 +61,7 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	inline const _Type& operator [] (uint _i) const;
 	inline _Type& operator [] (uint _i);
 	inline _matrix_row_& operator = (const _matrix_row_ &_r);
+	inline const _matrix_row_ operator - () const;
 	inline const _matrix_row_ operator + (const _matrix_row_ &_r) const;
 	inline _matrix_row_& operator += (const _matrix_row_ &_r);
 	inline const _matrix_row_ operator - (const _matrix_row_ &_r) const;
@@ -69,6 +70,7 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	inline _matrix_row_& operator *= (_Type _s);
 	inline const _matrix_row_ operator / (_Type _s) const;
 	inline _matrix_row_& operator /= (_Type _s);
+	inline void neg(_matrix_row_ &_c) const;
 	inline void add(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void mul(_Type _s, _matrix_row_ &_c) const;
@@ -78,6 +80,7 @@ private:
 };
 template<typename _Type>
 struct _matrix_row_<0, _Type> {
+	inline void neg(_matrix_row_ &_c) const {}
 	inline void add(const _matrix_row_&, _matrix_row_&) const {}
 	inline void sub(const _matrix_row_&, _matrix_row_&) const {}
 	inline void mul(_Type, _matrix_row_&) const {}
@@ -108,6 +111,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline const row_type& operator [] (uint _i) const;
 	inline row_type& operator [] (uint _i);
 	inline matrix_& operator = (const matrix_ &_m);
+	inline const matrix_ operator - () const;
 	inline const matrix_ operator + (const matrix_ &_m) const;
 	inline matrix_& operator += (const matrix_ &_m);
 	inline const matrix_ operator - (const matrix_ &_m) const;
@@ -117,6 +121,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline const matrix_ operator / (_Type _s) const;
 	inline matrix_& operator /= (_Type _s);
 	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
+	inline void neg(matrix_ &_c) const;
 	inline void add(const matrix_ &_b, matrix_ &_c) const;
 	inline void sub(const matrix_ &_b, matrix_ &_c) const;
 	inline void mul(_Type _s, matrix_ &_c) const;
@@ -129,6 +134,7 @@ private:
 };
 template<uint _Width, typename _Type>
 struct matrix_<0, _Width, _Type> {
+	inline void neg(matrix_ &_c) const {}
 	inline void add(const matrix_ &_b, matrix_ &_c) const {}
 	inline void sub(const matrix_ &_b, matrix_ &_c) const {}
 	inline void mul(_Type _s, matrix_ &_c) const {}

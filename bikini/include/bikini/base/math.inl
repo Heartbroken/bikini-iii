@@ -143,6 +143,12 @@ inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator = (const _matrix_row
 	return *this;
 }
 template<uint _S, typename _T>
+inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - () const {
+	_matrix_row_ l_r;
+	neg(l_r);
+	return l_r;
+}
+template<uint _S, typename _T>
 inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator + (const _matrix_row_ &_r) const {
 	_matrix_row_ l_r;
 	add(_r, l_r);
@@ -185,6 +191,10 @@ template<uint _S, typename _T>
 inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator /= (_T _s) {
 	div(_r, *this);
 	return *this;
+}
+template<uint _S, typename _T>
+inline void _matrix_row_<_S, _T>::neg(_matrix_row_ &_c) const {
+	parent_type::neg(_c); _c.cell() = -m_cell;
 }
 template<uint _S, typename _T>
 inline void _matrix_row_<_S, _T>::add(const _matrix_row_ &_b, _matrix_row_ &_c) const {
@@ -286,6 +296,12 @@ inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator = (const matrix_ &_m) 
 	return *this;
 }
 template<uint _H, uint _W, typename _T>
+inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator - () const {
+	matrix_ l_m;
+	neg(l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
 inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator + (const matrix_ &_m) const {
 	matrix_ l_m;
 	add(_m, l_m);
@@ -328,6 +344,10 @@ template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator /= (_T _s) {
 	div(_s, *this);
 	return *this;
+}
+template<uint _H, uint _W, typename _T>
+inline void matrix_<_H, _W, _T>::neg(matrix_ &_c) const {
+	parent_type::neg(_c); _c.row() = -m_row;
 }
 template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::add(const matrix_ &_b, matrix_ &_c) const {

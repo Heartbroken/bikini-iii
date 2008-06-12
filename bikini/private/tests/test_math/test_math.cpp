@@ -6,15 +6,16 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	{
-	bk::real l_time = bk::sys_time();
-	bk::real3 l_b(bk::r3_1);
+	bk::real3 l_b(-bk::r3_1);
+	bk::real3x3 l_r(bk::r3_x, bk::r3_z, bk::r3_y);
 	bk::real l_00 = l_b[0][0];
 	bk::uint l_count = 1000000;
+	bk::real l_time = bk::sys_time();
 	while(--l_count) {
-		bk::real3 l_tmp = l_b * bk::r3x3_1;
+		bk::real3 l_tmp = l_b * l_r;
 		//bk::real3 l_tmp;
 		//l_b.mul(bk::r3x3_1, l_tmp);
-		l_b += l_tmp * bk::real(.00001);
+		l_b = l_tmp;// * bk::real(.00001);
 	}
 	l_time = bk::sys_time() - l_time;
 	std::cout << bk::real(l_b[0][0]) << " " << bk::real(l_b[0][1]) << " " << bk::real(l_b[0][2]) << "\n";
