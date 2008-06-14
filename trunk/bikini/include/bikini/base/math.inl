@@ -359,6 +359,12 @@ inline const matrix_<_H, _W2, _T> matrix_<_H, _W, _T>::operator * (const matrix_
 	return l_m;
 }
 template<uint _H, uint _W, typename _T>
+inline const matrix_<_W, _H, _T> matrix_<_H, _W, _T>::operator ~ () const {
+	matrix_<_W, _H, _T> l_m;
+	xgt(l_m);
+	return l_m;
+}
+template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::set(const matrix_ &_b) {
 	parent_type::set(_b); m_row.set(_b.row());
 }
@@ -404,6 +410,14 @@ inline void matrix_<_H, _W, _T>::mul(const _matrix_row_<_H, _T> &_b, _matrix_row
 	parent_type::mul(_b, _c);
 	_matrix_row_mul_helper_<_H, _W, _T>::mul(m_row, _b, _c);
 }
+template<uint _H, uint _W, typename _T> template<uint _W2> 
+inline void matrix_<_H, _W, _T>::xgt(matrix_<_W, _W2, _T> &_b) const {
+	parent_type::xgt(_b); _b.cst<_H - 1>(m_row);
+}
+template<uint _H, uint _W, typename _T> template<uint _I>
+inline void matrix_<_H, _W, _T>::cst(const _matrix_row_<_H, _T> &_b) {
+	parent_type::cst<_I>(_b); m_row.cell<_I>() = _b.cell();
+}
 
 // v2
 template<typename _T, bool _C>
@@ -417,14 +431,8 @@ template<typename _T> v2_r_<_T, true> v2(typename v2_r_<_T, true>::vector &_v) {
 }
 
 // v3
-template<typename _T, bool _C>
-inline v3_r_<_T, _C>::v3_r_(typename v3_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()) {
-}
-template<typename _T> v3_r_<_T, false> v3(typename v3_r_<_T, false>::vector &_v) {
-	return v3_r_<_T, false>(_v);
-}
-template<typename _T> v3_r_<_T, true> v3(typename v3_r_<_T, true>::vector &_v) {
-	return v3_r_<_T, true>(_v);
+template<typename _V>
+inline v3<_V>::v3(_V &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()) {
 }
 
 // v4

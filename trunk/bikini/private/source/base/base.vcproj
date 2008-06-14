@@ -286,6 +286,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\traits.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\typelist.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\types.hpp"
 				>
 			</File>
