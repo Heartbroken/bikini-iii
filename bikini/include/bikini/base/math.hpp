@@ -85,6 +85,7 @@ template<uint _Height, uint _Width, typename _Type>
 struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	typedef matrix_<_Height - 1, _Width, _Type> parent_type;
 	typedef _matrix_row_<_Width, _Type> row_type;
+	typedef _Type cell_type;
 	inline matrix_();
 	inline matrix_(const matrix_ &_m);
 	inline matrix_(const parent_type &_m);
@@ -115,6 +116,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline const matrix_ operator / (_Type _s) const;
 	inline matrix_& operator /= (_Type _s);
 	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
+	inline const matrix_<_Width, _Height, _Type> operator ~ () const; // transpose
 	inline void set(const matrix_ &_b);
 	inline void get(matrix_ &_c) const;
 	inline void neg(matrix_ &_c) const;
@@ -124,7 +126,8 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline void div(_Type _s, matrix_ &_c) const;
 	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<_Height, _W2, _Type> &_c) const;
 	inline void mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
-	inline const matrix_<_Width, _Height, _Type> transposed() const;
+	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const;
+	template<uint _I> inline void cst(const _matrix_row_<_Height, _Type> &_b);
 private:
 	row_type m_row;
 };
@@ -139,6 +142,8 @@ struct matrix_<0, _Width, _Type> {
 	inline void div(_Type _s, matrix_ &_c) const {}
 	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<0, _W2, _Type> &_c) const {}
 	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
+	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const {}
+	template<uint _I> inline void cst(const _matrix_row_<0, _Type> &_b) {}
 };
 
 typedef matrix_<1, 1, real> r1x1;
@@ -185,15 +190,15 @@ template<typename _Type> v2_r_<_Type, true> v2(typename v2_r_<_Type, true>::vect
 typedef v2_r_<real> v2_r;
 
 // v3
-template<typename _Type, bool _Const = false> struct v3_r_ {
-	typedef typename select<_Const, const _Type, _Type>::type type;
-	typedef typename select<_Const, const matrix_<1, 3, _Type>, matrix_<1, 3, _Type> >::type vector;
+template<typename _Vector> struct v3 {
+	typedef typename select<
+		traits<_Vector>::is_const,
+		const typename _Vector::cell_type,
+		typename _Vector::cell_type
+	>::type type;
 	type &x, &y, &z;
-	inline v3_r_(vector &_v);
+	inline v3(_Vector &_v);
 };
-template<typename _Type> v3_r_<_Type, false> v3(typename v3_r_<_Type, false>::vector &_v);
-template<typename _Type> v3_r_<_Type, true> v3(typename v3_r_<_Type, true>::vector &_v);
-typedef v3_r_<real> v3_r;
 
 // v4
 template<typename _Type, bool _Const = false> struct v4_r_ {

@@ -36,6 +36,8 @@ namespace bk { /*---------------------------------------------------------------
 
 #include "base/assert.hpp"
 #include "base/types.hpp"
+#include "base/typelist.hpp"
+#include "base/traits.hpp"
 #include "base/math.hpp"
 #include "base/time.hpp"
 
