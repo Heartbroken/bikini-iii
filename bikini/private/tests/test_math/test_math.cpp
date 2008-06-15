@@ -12,8 +12,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	bk::uint l_count = 1000000;
 	bk::rbig l_time = bk::sys_time();
 	while(--l_count) {
-		//l_b = l_b * l_r;
-		l_b = ~(l_r * ~l_b);
+		l_b = l_b * ~l_r;
+		//l_b = ~(l_r * ~l_b);
 	}
 	l_time = bk::sys_time() - l_time;
 	//l_b[0][0] = bk::r1x3_1[0][2];
