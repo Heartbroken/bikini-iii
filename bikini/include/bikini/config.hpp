@@ -10,5 +10,5 @@
 
 //	Math
 
-// If this is defined type bk::real is double, else float
+/// If this is defined type bk::real is double, else float
 //#define BIKINI_REAL_IS_DOUBLE

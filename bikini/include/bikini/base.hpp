@@ -32,6 +32,7 @@
 #include <iostream>
 #include <fstream>
 
+/// bikini-iii main namespace
 namespace bk { /*--------------------------------------------------------------------------------*/
 
 #include "base/assert.hpp"
