@@ -8,7 +8,7 @@
 
 #pragma once
 
-// types
+// old types
 typedef unsigned char		u8;
 typedef char				s8;
 typedef unsigned short		u16;
@@ -19,29 +19,46 @@ typedef unsigned __int64	u64;
 typedef __int64				s64;
 typedef float				f32;
 typedef double				f64;
+
+/// unsigned integer number
 typedef size_t				uint;
+/// signed integer number
 typedef ptrdiff_t			sint;
+/// big unsigned integer number
 typedef unsigned __int64	ubig;
+/// big signed integer number
 typedef __int64				sbig;
+/// big real number
 typedef double				rbig;
 #if defined(BIKINI_REAL_IS_DOUBLE)
+/// real number
 typedef double				real;
 #else
+/// real number
 typedef float				real;
 #endif
+
 typedef void*				handle;
 typedef const void*			pointer;
 
 // constants
+
+/// bad GUID
 const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
+/// bad ID
 const uint bad_ID = uint(-1);
+/// real 0
 const real r_0 = real(0);
+/// real 1
 const real r_1 = real(1);
 
 // defines
+
 #define super __super
 #define inline __forceinline
 
 // templates
+
+/// type selector template
 template<bool _C, typename _T0, typename _T1> struct select { typedef _T0 type; };
 template<typename _T0, typename _T1> struct select<false, _T0, _T1> { typedef _T1 type; };

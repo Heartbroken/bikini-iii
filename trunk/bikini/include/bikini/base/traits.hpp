@@ -1,3 +1,11 @@
+/*---------------------------------------------------------------------------------------------*//*
+
+	Binary Kinematics 3 - C++ Game Programming Library
+	Copyright (C) 2008 Viktor Reutzky
+	reutzky@bitchingames.com
+
+*//*---------------------------------------------------------------------------------------------*/
+
 #pragma once
 
 typedef make_typelist<u8, u16, u32, u64, uint, ubig>::type unsigneds;
