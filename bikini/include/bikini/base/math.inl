@@ -419,6 +419,21 @@ inline void matrix_<_H, _W, _T>::cst(const _matrix_row_<_H, _T> &_b) {
 	parent_type::cst<_I>(_b); m_row.cell<_I>() = _b.cell();
 }
 
+template<uint _H, uint _W, typename _T>
+struct _matrix_minor_helper_ {
+	template<uint _I> static void get() {}
+};
+template<uint _W, typename _T>
+struct _matrix_minor_helper_<1, _W, _T> {
+	template<uint _I> static void get() {}
+};
+template<uint _I, uint _S, typename _T>
+const matrix_<_S - 1, _S - 1, _T> minor(const matrix_<_S, _S, _T> &_m) {
+	matrix_<_S - 1, _S - 1, _T> l_m;
+	_matrix_minor_helper_<_S, _S, _T>::get<_I>(_m, l_m);
+	return l_m;
+}
+
 // v2
 template<typename _T, bool _C>
 inline v2_r_<_T, _C>::v2_r_(typename v2_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()) {
