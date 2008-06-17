@@ -209,6 +209,10 @@ struct matrix_<0, _Width, _Type> {
 	template<uint _I> inline void cst(const _matrix_row_<0, _Type> &_b) {}
 };
 
+/// get matrix minor
+template<uint _I, uint _Size, typename _Type>
+const matrix_<_Size - 1, _Size - 1, _Type> minor(const matrix_<_Size, _Size, _Type> &_m);
+
 /// 1x1 matrix type
 typedef matrix_<1, 1, real> r1x1;
 /// 1x2 matrix type
