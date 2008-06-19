@@ -451,30 +451,60 @@ template<typename _T> struct _matrix_determinant_sign_<0, _T> {
 	static inline _T value() { return _T(1); }
 };
 template<uint _C, uint _S, typename _T>
-struct _matrix_determinant_helper_ {
-	static inline _T get(const matrix_<_S, _S, _T> &_a) {
-		return
-		_matrix_determinant_helper_<_C - 1, _S, _T>::get(_a) +
-		determinant(minor<_C - 1, _S - 1>(_a)) *
-		_a.cell<_C - 1, _S - 1>() *
-		_matrix_determinant_sign_<(_C - 1 + _S - 1) % 2, _T>::value();
-	}
-};
-template<uint _C, typename _T>
-struct _matrix_determinant_helper_<_C, 1, _T> {
-	static inline _T get(const matrix_<1, 1, _T> &_a) {
-		return _a.cell<0, 0>();
-	}
-};
+struct _matrix_determinant_helper_ { static inline _T get(const matrix_<_S, _S, _T> &_a) {
+	return _matrix_determinant_helper_<_C - 1, _S, _T>::get(_a) + determinant(minor<_C - 1, _S - 1>(_a)) * _a.cell<_C - 1, _S - 1>() * _matrix_determinant_sign_<(_C - 1 + _S - 1) % 2, _T>::value();
+}};
 template<uint _S, typename _T>
-struct _matrix_determinant_helper_<0, _S, _T> {
-	static inline _T get(const matrix_<_S, _S, _T> &_a) {
-		return 0;
-	}
-};
+struct _matrix_determinant_helper_<1, _S, _T> { static inline _T get(const matrix_<_S, _S, _T> &_a) {
+	return determinant(minor<0, _S - 1>(_a)) * _a.cell<0, _S - 1>() * _matrix_determinant_sign_<(_S - 1) % 2, _T>::value();
+}};
+template<typename _T>
+struct _matrix_determinant_helper_<1, 1, _T> { static inline _T get(const matrix_<1, 1, _T> &_a) {
+	return _a.cell<0, 0>();
+}};
 template<uint _S, typename _T>
 inline const _T determinant(const matrix_<_S, _S, _T> &_m) {
 	return _matrix_determinant_helper_<_S, _S, _T>::get(_m);
+}
+
+// matrix inverse
+template<uint _I, typename _T> struct _matrix_inverse_sign_ {
+	static inline _T value() { return _T(-1); }
+};
+template<typename _T> struct _matrix_inverse_sign_<0, _T> {
+	static inline _T value() { return _T(1); }
+};
+template<uint _I, uint _J, uint _S, typename _T>
+struct _matrix_inverse_row_helper_ {
+	static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {
+		_matrix_inverse_row_helper_<_I, _J - 1, _S, _T>::get(_a, _c, _d);
+		_c.cell<_J - 1, _I - 1>() = determinant(minor<_I - 1, _J - 1>(_a)) * _d * _matrix_inverse_sign_<(_I - 1 + _J - 1) % 2, _T>::value();
+	}
+};
+template<uint _I, uint _S, typename _T>
+struct _matrix_inverse_row_helper_<_I, 0, _S, _T> {
+	static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {
+	}
+};
+template<uint _I, uint _J, uint _S, typename _T>
+struct _matrix_inverse_helper_ {
+	static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {
+		_matrix_inverse_helper_<_I - 1, _J, _S, _T>::get(_a, _c, _d);
+		_matrix_inverse_row_helper_<_I, _J, _S, _T>::get(_a, _c, _d);
+	}
+};
+template<uint _J, uint _S, typename _T>
+struct _matrix_inverse_helper_<0, _J, _S, _T> {
+	static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {
+	}
+};
+template<uint _S, typename _T>
+inline const matrix_<_S, _S, _T> inverse(const matrix_<_S, _S, _T> &_m) {
+	_T l_d = determinant(_m);
+	if(l_d == 0) return _m;
+	matrix_<_S, _S, _T> l_m;
+	_matrix_inverse_helper_<_S, _S, _S, _T>::get(_m, l_m, r_1 / l_d);
+	return l_m;
 }
 
 // v2

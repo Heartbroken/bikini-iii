@@ -17,6 +17,28 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "\n";
 	}
 	{
+	bk::r3x3 l_m(
+		bk::r1x3(4, 1, 0),
+		bk::r1x3(0, 2, 5),
+		bk::r1x3(7, 1, 9)
+	);
+	std::cout << l_m[0][0] << " " << l_m[0][1] << " " << l_m[0][2] << "\n";
+	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
+	std::cout << l_m[2][0] << " " << l_m[2][1] << " " << l_m[2][2] << "\n";
+	std::cout << "\n";
+	bk::r3x3 l_a = l_m;
+	l_m = bk::inverse(l_m);
+	std::cout << l_m[0][0] << " " << l_m[0][1] << " " << l_m[0][2] << "\n";
+	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
+	std::cout << l_m[2][0] << " " << l_m[2][1] << " " << l_m[2][2] << "\n";
+	std::cout << "\n";
+	l_m = l_m * l_a;
+	std::cout << l_m[0][0] << " " << l_m[0][1] << " " << l_m[0][2] << "\n";
+	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
+	std::cout << l_m[2][0] << " " << l_m[2][1] << " " << l_m[2][2] << "\n";
+	std::cout << "\n";
+	}
+	{
 	bk::r1x3 l_b(-bk::r1x3_1);
 	bk::r3x3 l_r(bk::r1x3_x,-bk::r1x3_z, bk::r1x3_y); //l_r = ~l_r;
 	bk::real l_00 = l_b[0][0];
