@@ -6,6 +6,17 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
 	{
+	bk::r2x2 l_r2x2 = bk::minor<0, 2>(bk::r3x3_1);
+	std::cout << l_r2x2[0][0] << " " << l_r2x2[0][1] << "\n";
+	std::cout << l_r2x2[1][0] << " " << l_r2x2[1][1] << "\n";
+	std::cout << "\n";
+	}
+	{
+	bk::real l_d = bk::determinant(bk::r3x3(bk::r1x3_x,-bk::r1x3_z, bk::r1x3_y));
+	std::cout << l_d << "\n";
+	std::cout << "\n";
+	}
+	{
 	bk::r1x3 l_b(-bk::r1x3_1);
 	bk::r3x3 l_r(bk::r1x3_x,-bk::r1x3_z, bk::r1x3_y); //l_r = ~l_r;
 	bk::real l_00 = l_b[0][0];

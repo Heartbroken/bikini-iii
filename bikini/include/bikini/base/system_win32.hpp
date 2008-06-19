@@ -46,3 +46,7 @@
 #ifdef max
 #	undef max
 #endif
+
+#ifdef _T
+#	undef _T
+#endif

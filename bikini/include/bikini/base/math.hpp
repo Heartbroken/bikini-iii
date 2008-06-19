@@ -209,9 +209,13 @@ struct matrix_<0, _Width, _Type> {
 	template<uint _I> inline void cst(const _matrix_row_<0, _Type> &_b) {}
 };
 
-/// get matrix minor
-template<uint _I, uint _Size, typename _Type>
-const matrix_<_Size - 1, _Size - 1, _Type> minor(const matrix_<_Size, _Size, _Type> &_m);
+/// matrix minor
+template<uint _I, uint _J, uint _Size, typename _Type>
+inline const matrix_<_Size - 1, _Size - 1, _Type> minor(const matrix_<_Size, _Size, _Type> &_m);
+
+/// matrix determinant
+template<uint _Size, typename _Type>
+inline const _Type determinant(const matrix_<_Size, _Size, _Type> &_m);
 
 /// 1x1 matrix type
 typedef matrix_<1, 1, real> r1x1;
@@ -221,6 +225,8 @@ typedef matrix_<1, 2, real> r1x2;
 typedef matrix_<1, 3, real> r1x3;
 /// 1x4 matrix type
 typedef matrix_<1, 4, real> r1x4;
+/// 2x2 matrix type
+typedef matrix_<2, 2, real> r2x2;
 /// 3x3 matrix type
 typedef matrix_<3, 3, real> r3x3;
 /// 4x3 matrix type
@@ -262,6 +268,10 @@ const r1x4 r1x4_y(r_0, r_1, r_0, r_0);
 const r1x4 r1x4_z(r_0, r_0, r_1, r_0);
 /// [0 0 0 1] vector
 const r1x4 r1x4_w(r_0, r_0, r_0, r_1);
+/// zero 2x2 matrix
+const r2x2 r2x2_0(r1x2_0, r1x2_0);
+/// unit 2x2 matrix
+const r2x2 r2x2_1(r1x2_x, r1x2_y);
 /// zero 3x3 matrix
 const r3x3 r3x3_0(r1x3_0, r1x3_0, r1x3_0);
 /// unit 3x3 matrix
