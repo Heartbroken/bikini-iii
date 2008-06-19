@@ -217,6 +217,10 @@ inline const matrix_<_Size - 1, _Size - 1, _Type> minor(const matrix_<_Size, _Si
 template<uint _Size, typename _Type>
 inline const _Type determinant(const matrix_<_Size, _Size, _Type> &_m);
 
+/// matrix inverse
+template<uint _Size, typename _Type>
+inline const matrix_<_Size, _Size, _Type> inverse(const matrix_<_Size, _Size, _Type> &_m);
+
 /// 1x1 matrix type
 typedef matrix_<1, 1, real> r1x1;
 /// 1x2 matrix type
