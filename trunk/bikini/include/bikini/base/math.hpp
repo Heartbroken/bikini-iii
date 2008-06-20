@@ -219,6 +219,8 @@ inline const _Type determinant(const matrix_<_Size, _Size, _Type> &_m);
 
 /// matrix inverse
 template<uint _Size, typename _Type>
+inline bool inverse(const matrix_<_Size, _Size, _Type> &_a, matrix_<_Size, _Size, _Type> &_c);
+template<uint _Size, typename _Type>
 inline const matrix_<_Size, _Size, _Type> inverse(const matrix_<_Size, _Size, _Type> &_m);
 
 /// 1x1 matrix type
