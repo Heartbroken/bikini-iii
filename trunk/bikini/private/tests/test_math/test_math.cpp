@@ -18,9 +18,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	{
 	bk::r3x3 l_m(
-		bk::r1x3(4, 1, 0),
-		bk::r1x3(0, 2, 5),
-		bk::r1x3(7, 1, 9)
+		bk::r1x3(4, 1, 3),
+		bk::r1x3(6, 2, 5),
+		bk::r1x3(7, 8, 9)
 	);
 	std::cout << l_m[0][0] << " " << l_m[0][1] << " " << l_m[0][2] << "\n";
 	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
@@ -32,7 +32,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
 	std::cout << l_m[2][0] << " " << l_m[2][1] << " " << l_m[2][2] << "\n";
 	std::cout << "\n";
-	l_m = l_m * l_a;
+	l_m = l_a * l_m;
 	std::cout << l_m[0][0] << " " << l_m[0][1] << " " << l_m[0][2] << "\n";
 	std::cout << l_m[1][0] << " " << l_m[1][1] << " " << l_m[1][2] << "\n";
 	std::cout << l_m[2][0] << " " << l_m[2][1] << " " << l_m[2][2] << "\n";
