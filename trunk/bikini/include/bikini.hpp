@@ -8,4 +8,6 @@
 
 #pragma once
 
+#include "config.hpp"
+
 #include "bikini/base.hpp"

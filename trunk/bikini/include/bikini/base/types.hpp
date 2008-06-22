@@ -21,7 +21,7 @@ typedef float				f32;
 typedef double				f64;
 
 /// unsigned integer number
-typedef size_t				uint;
+typedef uintptr_t			uint;
 /// signed integer number
 typedef ptrdiff_t			sint;
 /// big unsigned integer number

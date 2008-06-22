@@ -15,27 +15,27 @@ template<typename _First, typename _Second, typename _Third> struct typelist<_Fi
 	typedef _First first;
 	typedef typelist<_Second, _Third> rest;
 
-	static const u32 count = 1 + rest::count;
-	static const u32 max_size = sizeof(first) > rest::max_size ? sizeof(first) : rest::max_size;
+	static const uint count = 1 + rest::count;
+	static const uint max_size = sizeof(first) > rest::max_size ? sizeof(first) : rest::max_size;
 
-	template<u32 _Index> struct item {
+	template<uint _Index> struct item {
 		typedef typename rest::item<_Index - 1>::type type;
-		static const u32 size = sizeof(type);
+		static const uint size = sizeof(type);
 	};
 	template<> struct item<0> {
 		typedef first type;
-		static const u32 size = sizeof(type);
+		static const uint size = sizeof(type);
 	};
 
 	template<typename _Type> struct type {
 	private:
 		typedef typename rest::type<_Type> check_rest;
 	public:
-		static const u32 index = check_rest::index == bad_ID ? bad_ID : 1 + (s32)check_rest::index;
+		static const uint index = check_rest::index == bad_ID ? bad_ID : 1 + (s32)check_rest::index;
 		static const bool exists = check_rest::exists;
 	};
 	template<> struct type<first> {
-		static const u32 index = 0;
+		static const uint index = 0;
 		static const bool exists = true;
 	};
 
@@ -43,78 +43,78 @@ template<typename _First, typename _Second, typename _Third> struct typelist<_Fi
 
 	template<typename _Otherlist> struct otherlist {
 		static const bool belong = type<typename _Otherlist::first>::exists && otherlist<typename _Otherlist::rest>::belong;
-		inline static u32 remap(u32 _i) {
+		inline static uint remap(uint _i) {
 			return _i ? otherlist<typename _Otherlist::rest>::remap(_i - 1) : type<typename _Otherlist::first>::index;
 		}
 	};
 	template<> struct otherlist<typelist<notype> > {
 		static const bool belong = true;
-		inline static u32 remap(u32 _i) { return bad_id; }
+		inline static uint remap(uint _i) { return bad_id; }
 	};
 
-	inline static u32 size(u32 _i) {
-		__bk_assert(_i < count);
+	inline static uint size(uint _i) {
+		assert(_i < count);
 		if(_i) return rest::size(_i - 1);
 		return sizeof(first);
 	}
-	inline static handle construct(u32 _i) {
-		__bk_assert(_i < count);
+	inline static handle construct(uint _i) {
+		assert(_i < count);
 		if(_i) return rest::construct(_i - 1);
 //		else return new first;
 		return construct(malloc(sizeof(first)), _i);
 	}
-	inline static handle construct(u32 _i, pointer _v) {
-		__bk_assert(_i < count);
+	inline static handle construct(uint _i, pointer _v) {
+		assert(_i < count);
 		if(_i) return rest::construct(_i - 1, _v);
 		return construct(malloc(sizeof(first)), _i, _v);
 	}
-	inline static handle construct(handle _h, u32 _i) {
-		__bk_assert(_i < count);
+	inline static handle construct(handle _h, uint _i) {
+		assert(_i < count);
 		if(_i) return rest::construct(_h, _i - 1);
 		return new(_h) first;
 	}
-	inline static handle construct(handle _h, u32 _i, pointer _v) {
-		__bk_assert(_i < count);
+	inline static handle construct(handle _h, uint _i, pointer _v) {
+		assert(_i < count);
 		if(_i) return rest::construct(_h, _i - 1, _v);
 		return new(_h) first(*reinterpret_cast<const first*>(_v));
 	}
-	inline static void destruct(handle _h, u32 _i, bool _and_free = true) {
-		__bk_assert(_i < count);
+	inline static void destruct(handle _h, uint _i, bool _and_free = true) {
+		assert(_i < count);
 		if(_i) return rest::destruct(_h, _i - 1, _and_free);
 		reinterpret_cast<first*>(_h)->~first();
 		if(_and_free) free(_h);
 	}
-	inline static bool compare(u32 _i, pointer _a, pointer _b) {
-		__bk_assert(_i < count);
+	inline static bool compare(uint _i, pointer _a, pointer _b) {
+		assert(_i < count);
 		if(_i) return rest::compare(_i - 1, _a, _b);
 		return *reinterpret_cast<const first*>(_a) == *reinterpret_cast<const first*>(_b);
 	}
 };
 
 template<> struct typelist<notype> {
-	static const u32 count = 0;
-	static const u32 max_size = 0;
+	static const uint count = 0;
+	static const uint max_size = 0;
 
-	template<u32 _Index> struct item {
+	template<uint _Index> struct item {
 		typedef typename notype type;
-		static const u32 size = 0;
+		static const uint size = 0;
 	};
 
 	template<typename _Type> struct type {
-		static const u32 index = bad_ID;
+		static const uint index = bad_ID;
 		static const bool exists = false;
 	};
 
 	template<typename _Type> struct append { typedef typelist<_Type, typelist<notype> > result; };
 	template<typename _First, typename _Rest> struct append<typelist<_First, _Rest> > { typedef typelist<_First, _Rest> result; };
 
-	inline static u32 size(u32 _i) { return 0; }
-	inline static handle construct(u32 _i) { return 0; }
-	inline static handle construct(u32 _i, pointer _v) { return 0; }
-	inline static handle construct(handle _h, u32 _i, pointer _v) { return 0; }
-	inline static handle construct(handle _h, u32 _i) { return 0; }
-	inline static void destruct(handle _h, u32 _i, bool _and_free = true) {}
-	inline static bool compare(u32 _i, pointer _a, pointer _b) { return false; }
+	inline static uint size(uint _i) { return 0; }
+	inline static handle construct(uint _i) { return 0; }
+	inline static handle construct(uint _i, pointer _v) { return 0; }
+	inline static handle construct(handle _h, uint _i, pointer _v) { return 0; }
+	inline static handle construct(handle _h, uint _i) { return 0; }
+	inline static void destruct(handle _h, uint _i, bool _and_free = true) {}
+	inline static bool compare(uint _i, pointer _a, pointer _b) { return false; }
 };
 
 template<
