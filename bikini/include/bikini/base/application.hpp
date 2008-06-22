@@ -17,5 +17,5 @@ struct application {
 	virtual ~application();
 	void run();
 private:
-	void test_run();
+	void test_run(sint);
 };

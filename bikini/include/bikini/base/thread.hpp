@@ -12,17 +12,18 @@ namespace thread { /*-----------------------------------------------------------
 
 /// task_
 template<typename _R>
-struct task_ {
+struct task_ : dont_copy {
 	inline task_();
-	template<typename _Function>
-	inline bool run_function(_Function &_f);
-	template<typename _Function, typename _A0>
-	inline bool run_function(_Function &_f, _A0 _a0);
-	template<typename _Object, typename _Method>
-	inline bool run_method(_Object &_o, const _Method &_m);
+	explicit inline task_(sint _priority);
+	inline void set_priority(sint _priority);
+	inline bool run(_R(&_f)());
+	template<typename _A0> inline bool run(_R(&_f)(_A0), _A0 _a0);
+	template<typename _Object> inline bool run(_Object &_o, _R(_Object::*_m)());
+	inline bool done();
 	inline _R wait();
 private:
 	handle m_thread_h;
+	sint m_priority;
 	_R m_result;
 };
 typedef task_<void> task;
