@@ -14,13 +14,16 @@
 #	pragma comment(lib, "base")
 #endif
 
-#include "config.hpp"
+#pragma warning(disable:4355)	// warning C4355: 'this' : used in base member initializer list
+
+#include "../config.hpp"
 
 #if defined(_WIN32)
 #	include "base/system_win32.hpp"
 #endif
 
 #include <math.h>
+#include <process.h>
 
 #include <vector>
 #include <list>
@@ -41,5 +44,9 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/traits.hpp"
 #include "base/math.hpp"
 #include "base/time.hpp"
+#include "base/functor.hpp"
+#include "base/variant.hpp"
+#include "base/thread.hpp"
+#include "base/application.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/

@@ -8,5 +8,14 @@
 
 #pragma once
 
-rbig sys_time();
-void sleep(real _t);
+///	base application class
+/**	
+ *	
+ */
+struct application {
+	application();
+	virtual ~application();
+	void run();
+private:
+	void test_run();
+};

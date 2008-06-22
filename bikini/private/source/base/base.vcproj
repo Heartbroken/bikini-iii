@@ -218,6 +218,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\application.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\assert.cpp"
 				>
 			</File>
@@ -246,6 +250,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\thread.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\time.cpp"
 				>
 			</File>
@@ -266,6 +274,10 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\..\..\include\bikini\base\application.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\assert.hpp"
 				>
 			</File>
@@ -274,11 +286,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\functor.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\math.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\system_win32.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\thread.hpp"
 				>
 			</File>
 			<File
@@ -295,6 +315,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\types.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\variant.hpp"
 				>
 			</File>
 		</Filter>

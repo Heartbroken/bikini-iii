@@ -12,6 +12,7 @@ typedef make_typelist<u8, u16, u32, u64, uint, ubig>::type unsigneds;
 typedef make_typelist<s8, s16, s32, s64, sint, sbig>::type signeds;
 typedef make_typelist<bool>::type boolean;
 typedef make_typelist<f32, f64, real, rbig>::type floats;
+typedef make_typelist<bool, u8, u16, u32, u64, uint, ubig, s8, s16, s32, s64, sint, sbig, f32, f64, real, rbig>::type fundamentals;
 
 template<typename _Type> struct traits {
 private:

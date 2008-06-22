@@ -21,4 +21,8 @@ rbig sys_time() {
 	return l_time;
 }
 
+void sleep(real _t) {
+	Sleep(DWORD(_t * real(1000)));
+}
+
 } /* namespace bk -------------------------------------------------------------------------------*/
