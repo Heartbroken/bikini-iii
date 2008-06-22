@@ -16,11 +16,47 @@ struct task_ : dont_copy {
 	inline task_();
 	explicit inline task_(sint _priority);
 	inline void set_priority(sint _priority);
-	inline bool run(_R(&_f)());
-	template<typename _A0> inline bool run(_R(&_f)(_A0), _A0 _a0);
-	template<typename _Object> inline bool run(_Object &_o, _R(_Object::*_m)());
 	inline bool done();
 	inline _R wait();
+	// function call
+	inline bool run(_R(&_f)());
+	template<typename _A0>
+	inline bool run(_R(&_f)(_A0), _A0 _a0);
+	template<typename _A0, typename _A1>
+	inline bool run(_R(&_f)(_A0, _A1), _A0 _a0, _A1 _a1);
+	template<typename _A0, typename _A1, typename _A2>
+	inline bool run(_R(&_f)(_A0, _A1, _A2), _A0 _a0, _A1 _a1, _A2 _a2);
+	template<typename _A0, typename _A1, typename _A2, typename _A3>
+	inline bool run(_R(&_f)(_A0, _A1, _A2, _A3), _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3);
+	template<typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
+	inline bool run(_R(&_f)(_A0, _A1, _A2, _A3, _A4), _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4);
+	// member function call
+	template<typename _Object>
+	inline bool run(_Object &_o, _R(_Object::*_m)());
+	template<typename _Object, typename _A0>
+	inline bool run(_Object &_o, _R(_Object::*_m)(_A0), _A0 _a0);
+	template<typename _Object, typename _A0, typename _A1>
+	inline bool run(_Object &_o, _R(_Object::*_m)(_A0, _A1), _A0 _a0, _A1 _a1);
+	template<typename _Object, typename _A0, typename _A1, typename _A2>
+	inline bool run(_Object &_o, _R(_Object::*_m)(_A0, _A1, _A2), _A0 _a0, _A1 _a1, _A2 _a2);
+	template<typename _Object, typename _A0, typename _A1, typename _A2, typename _A3>
+	inline bool run(_Object &_o, _R(_Object::*_m)(_A0, _A1, _A2, _A3), _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3);
+	template<typename _Object, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
+	inline bool run(_Object &_o, _R(_Object::*_m)(_A0, _A1, _A2, _A3, _A4), _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4);
+	// functor call
+	template<typename _Functor>
+	inline bool run(const _Functor &_f);
+	template<typename _Functor, typename _A0>
+	inline bool run(const _Functor &_f, _A0 _a0);
+	template<typename _Functor, typename _A0, typename _A1>
+	inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1);
+	template<typename _Functor, typename _A0, typename _A1, typename _A2>
+	inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1, _A2 _a2);
+	template<typename _Functor, typename _A0, typename _A1, typename _A2, typename _A3>
+	inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3);
+	template<typename _Functor, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
+	inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4);
+	//
 private:
 	handle m_thread_h;
 	sint m_priority;
@@ -30,58 +66,4 @@ typedef task_<void> task;
 
 #include "thread.inl"
 
-} /*---------------------------------------------------------------------------------------------*/
-
-//
-//
-//
-//
-///// TODO
-//template<typename _Restype>
-//struct thread_ {
-//	inline thread_();
-//	template<typename _Function> bool run(_Function &_f);
-//	template<typename _Object, typename _Function> bool run(_Object &_o, const _Function &_f);
-//	inline const _Restype& wait() const;
-//private:
-//	handle m_thread_h;
-//	_Restype m_result;
-//};
-//typedef thread_<bool> thread;
-//
-//
-//// inline
-//template<typename _R>
-//inline thread_<_R>::thread_() : m_thread_h(0) {
-//}
-//template<typename _R> template<typename _F>
-//inline bool thread_<_R>::run(_F &_f) {
-//	struct _l {
-//		_R &r; _F &f; _l(_R &_r, _F &_f) : r(_r), f(_f) {}
-//		static DWORD WINAPI thread_proc(handle _data) {
-//			_l &l = *reinterpret_cast<_l*>(_data);
-//			l.r = l.f();
-//			return 0;
-//		}
-//	};
-//	m_thread_h = CreateThread(0, 0, &_l::thread_proc, &_l(m_result, _f), 0, 0);
-//	return m_thread_h != 0;
-//}
-//template<typename _R> template<typename _O, typename _F>
-//bool thread_<_R>::run(_O &_o, const _F &_f) {
-//	struct _l {
-//		_R &r; _O &o; const _F &f; _l(_R &_r, _O &_o, const _F &_f) : r(_r), o(_o), f(_f) {}
-//		static DWORD WINAPI thread_proc(handle _data) {
-//			_l &l = *reinterpret_cast<_l*>(_data);
-//			l.r = ((l.o).*(l.f))();
-//			return 0;
-//		}
-//	};
-//	m_thread_h = CreateThread(0, 0, &_l::thread_proc, &_l(m_result, _o, _f), 0, 0);
-//	return m_thread_h != 0;
-//}
-//template<typename _R>
-//inline const _R& thread_<_R>::wait() const {
-//	WaitForSingleObject(m_thread_h, INFINITE);
-//	return m_result;
-//}
+} /* namespace thread ---------------------------------------------------------------------------*/
