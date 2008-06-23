@@ -36,6 +36,33 @@ struct _task_helper_ {
 		}
 	};
 
+	template<typename _O> struct o0 {
+		typedef _R(_O::*_M)();
+		struct data {
+			_O &o; _M _m;
+			inline data(_O &_o, _M _m) : o(_o), m(_m) {}
+		};
+		static DWORD WINAPI thread_proc(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = ((d.o).(d.m))(); delete &d; return 0;
+		}
+		static inline handle run(_R &_r, _O _o, _M _m) {
+			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m), 0, 0);
+		}
+	};
+	template<typename _O, typename _A0> struct o1 {
+		typedef _R(_O::*_M)(_A0);
+		struct data {
+			_O &o; _M _m; _A0 a0;
+			inline data(_O &_o, _M _m, _A0 _a0) : o(_o), m(_m), a0(_a0) {}
+		};
+		static DWORD WINAPI thread_proc(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = ((d.o).(d.m))(d.a0); delete &d; return 0;
+		}
+		static inline handle run(_R &_r, _O _o, _M _m, _A0 _a0) {
+			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m, _a0), 0, 0);
+		}
+	};
+
 	//template<typename _F> struct data_;
 	//// function call
 	//	// _R
@@ -236,6 +263,48 @@ inline bool task_<_R>::run(_O &_o, _R(_O::*_m)(_A0, _A1, _A2, _A3), _A0 _a0, _A1
 }
 template<typename _R> template<typename _O, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
 inline bool task_<_R>::run(_O &_o, _R(_O::*_m)(_A0, _A1, _A2, _A3, _A4), _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m, _a0, _a1, _a2, _a3, _a4);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)() const) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O, typename _A0>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)(_A0) const, _A0 _a0) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::o1<_O, _A0>::run(m_result, _o, _m, _a0);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O, typename _A0, typename _A1>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)(_A0, _A1) const, _A0 _a0, _A1 _a1) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m, _a0, _a1);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O, typename _A0, typename _A1, typename _A2>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)(_A0, _A1, _A2) const, _A0 _a0, _A1 _a1, _A2 _a2) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m, _a0, _a1, _a2);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O, typename _A0, typename _A1, typename _A2, typename _A3>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)(_A0, _A1, _A2, _A3) const, _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3) {
+	assert(m_thread_h == 0);
+	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m, _a0, _a1, _a2, _a3);
+	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	return m_thread_h != 0;
+}
+template<typename _R> template<typename _O, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
+inline bool task_<_R>::run(const _O &_o, _R(_O::*_m)(_A0, _A1, _A2, _A3, _A4) const, _A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::run(m_result, _o, _m, _a0, _a1, _a2, _a3, _a4);
 	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
