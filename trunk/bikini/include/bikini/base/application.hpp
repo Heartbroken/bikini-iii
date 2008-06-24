@@ -17,5 +17,5 @@ struct application {
 	virtual ~application();
 	void run();
 private:
-	int test_run(/*sint*/) /*const*/;
+	int test_run(uint) const;
 };
