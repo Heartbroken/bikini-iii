@@ -20,7 +20,7 @@ struct _task_helper_ {
 			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(); delete &d; return 0;
 		}
 		static inline handle run(_R &_r, _F _f) {
-			return CreateThread(0, 0, &thread_proc, new data(_r, _f), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_r, _f), CREATE_SUSPENDED, 0);
 		}
 	};
 	template<typename _F, typename _A0> struct f1 {
@@ -32,7 +32,7 @@ struct _task_helper_ {
 			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(d.a0); delete &d; return 0;
 		}
 		static inline handle run(_R &_r, _F _f, _A0 _a0) {
-			return CreateThread(0, 0, &thread_proc, new data(_r, _f, _a0), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_r, _f, _a0), CREATE_SUSPENDED, 0);
 		}
 	};
 
@@ -50,7 +50,7 @@ struct _task_helper_ {
 			data &d = *reinterpret_cast<data*>(_data); d.r = ((d.o).*(d.m))(); delete &d; return 0;
 		}
 		static inline handle run(_R &_r, _O _o, _M _m) {
-			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m), CREATE_SUSPENDED, 0);
 		}
 	};
 	template<typename _O, typename _A0> struct o1 {
@@ -67,7 +67,7 @@ struct _task_helper_ {
 			data &d = *reinterpret_cast<data*>(_data); d.r = ((d.o).*(d.m))(d.a0); delete &d; return 0;
 		}
 		static inline handle run(_R &_r, _O _o, _M _m, _A0 _a0) {
-			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m, _a0), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_r, _o, _m, _a0), CREATE_SUSPENDED, 0);
 		}
 	};
 };
@@ -82,7 +82,7 @@ struct _task_helper_<void> {
 			data &d = *reinterpret_cast<data*>(_data); d.f(); delete &d; return 0;
 		}
 		static inline handle run(_F _f) {
-			return CreateThread(0, 0, &thread_proc, new data(_f), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_f), CREATE_SUSPENDED, 0);
 		}
 	};
 	template<typename _F, typename _A0> struct f1 {
@@ -94,7 +94,7 @@ struct _task_helper_<void> {
 			data &d = *reinterpret_cast<data*>(_data); d.f(d.a0); delete &d; return 0;
 		}
 		static inline handle run(_F _f, _A0 _a0) {
-			return CreateThread(0, 0, &thread_proc, new data(_f, _a0), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_f, _a0), CREATE_SUSPENDED, 0);
 		}
 	};
 
@@ -112,7 +112,7 @@ struct _task_helper_<void> {
 			data &d = *reinterpret_cast<data*>(_data); ((d.o).*(d.m))(); delete &d; return 0;
 		}
 		static inline handle run(_O _o, _M _m) {
-			return CreateThread(0, 0, &thread_proc, new data(_o, _m), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_o, _m), CREATE_SUSPENDED, 0);
 		}
 	};
 	template<typename _O, typename _A0> struct o1 {
@@ -129,25 +129,26 @@ struct _task_helper_<void> {
 			data &d = *reinterpret_cast<data*>(_data); ((d.o).*(d.m))(d.a0); delete &d; return 0;
 		}
 		static inline handle run(_O _o, _M _m, _A0 _a0) {
-			return CreateThread(0, 0, &thread_proc, new data(_o, _m, _a0), 0, 0);
+			return CreateThread(0, 0, &thread_proc, new data(_o, _m, _a0), CREATE_SUSPENDED, 0);
 		}
 	};
 };
 
+// _start
+inline void _start(handle _thread_h, sint _priority, uint _processor) {
+	if(_thread_h == 0) return;
+	SetThreadPriority(_thread_h, (int)_priority);
+	SetThreadIdealProcessor(_thread_h, (DWORD)_processor);
+	ResumeThread(_thread_h);
+}
+
 // task_
 template<typename _R>
-inline task_<_R>::task_() : m_thread_h(0), m_priority(THREAD_PRIORITY_NORMAL) {
-}
-template<typename _R>
-inline task_<_R>::task_(sint _priority) : m_thread_h(0), m_priority(_priority) {
-}
-template<typename _R>
-inline void task_<_R>::set_priority(sint _p) {
-	m_priority = clamp(_p, THREAD_PRIORITY_IDLE, THREAD_PRIORITY_TIME_CRITICAL);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+inline task_<_R>::task_(sint _priority, uint _processor) : m_thread_h(0), m_priority(_priority), m_processor(_processor) {
 }
 template<typename _R>
 inline bool task_<_R>::done() {
+	assert(m_thread_h != 0);
 	if(WaitForSingleObject(m_thread_h, 0) == WAIT_TIMEOUT) return false;
 	return true;
 }
@@ -162,14 +163,14 @@ template<typename _R> template<typename _F>
 inline bool task_<_R>::run(const _F &_f) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::f0<_F>::run(m_result, _f);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _R> template<typename _F, typename _A0>
 inline bool task_<_R>::run(const _F &_f, _A0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::f1<_F, _A0>::run(m_result, _f, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // function call
@@ -177,14 +178,14 @@ template<typename _R>
 inline bool task_<_R>::run(_R(&_f)()) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::f0<_R(&)()>::run(m_result, _f);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _R> template<typename _A0, typename _P0>
 inline bool task_<_R>::run(_R(&_f)(_A0), _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::f1<_R(&)(_A0), _A0>::run(m_result, _f, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // member function call
@@ -192,14 +193,14 @@ template<typename _R> template<typename _O, typename _C>
 inline bool task_<_R>::run(_O &_o, _R(_C::*_m)()) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::o0<_C>::run(m_result, _o, _m);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _R> template<typename _O, typename _C, typename _A0, typename _P0>
 inline bool task_<_R>::run(_O &_o, _R(_C::*_m)(_A0), _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::o1<_C, _A0>::run(m_result, _o, _m, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // const member function call
@@ -207,23 +208,21 @@ template<typename _R> template<typename _O, typename _C>
 inline bool task_<_R>::run(const _O &_o, _R(_C::*_m)() const) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::o0<const _C>::run(m_result, _o, _m);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _R> template<typename _O, typename _C, typename _A0, typename _P0>
 inline bool task_<_R>::run(const _O &_o, _R(_C::*_m)(_A0) const, _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<_R>::o1<const _C, _A0>::run(m_result, _o, _m, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 
 // task_<void> specialization
 template<>
 struct task_<void> : dont_copy {
-	inline task_();
-	inline task_(sint _priority);
-	inline void set_priority(sint _priority);
+	inline task_(sint _priority = THREAD_PRIORITY_NORMAL, uint _processor = bad_ID);
 	inline bool done();
 	inline void wait();
 	// functor call
@@ -249,19 +248,15 @@ struct task_<void> : dont_copy {
 private:
 	handle m_thread_h;
 	sint m_priority;
+	uint m_processor;
 };
 
 
 // task_<void>
-inline task_<void>::task_() : m_thread_h(0), m_priority(THREAD_PRIORITY_NORMAL) {
-}
-inline task_<void>::task_(sint _priority) : m_thread_h(0), m_priority(_priority) {
-}
-inline void task_<void>::set_priority(sint _p) {
-	m_priority = clamp(_p, THREAD_PRIORITY_IDLE, THREAD_PRIORITY_TIME_CRITICAL);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+inline task_<void>::task_(sint _priority, uint _processor) : m_thread_h(0), m_priority(_priority), m_processor(_processor) {
 }
 inline bool task_<void>::done() {
+	assert(m_thread_h != 0);
 	if(WaitForSingleObject(m_thread_h, 0) == WAIT_TIMEOUT) return false;
 	return true;
 }
@@ -274,28 +269,28 @@ template<typename _F>
 inline bool task_<void>::run(const _F &_f) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::f0<_F>::run(_f);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _F, typename _A0>
 inline bool task_<void>::run(const _F &_f, _A0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::f1<_F, _A0>::run(_f, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // function call
 inline bool task_<void>::run(void(&_f)()) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::f0<void(&)()>::run(_f);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _A0, typename _P0>
 inline bool task_<void>::run(void(&_f)(_A0), _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::f1<void(&)(_A0), _A0>::run(_f, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // member function call
@@ -303,14 +298,14 @@ template<typename _O, typename _C>
 inline bool task_<void>::run(_O &_o, void(_C::*_m)()) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::o0<_C>::run(_o, _m);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _O, typename _C, typename _A0, typename _P0>
 inline bool task_<void>::run(_O &_o, void(_C::*_m)(_A0), _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::o1<_C, _A0>::run(_o, _m, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 // const member function call
@@ -318,13 +313,13 @@ template<typename _O, typename _C>
 inline bool task_<void>::run(const _O &_o, void(_C::*_m)() const) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::o0<const _C>::run(_o, _m);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }
 template<typename _O, typename _C, typename _A0, typename _P0>
 inline bool task_<void>::run(const _O &_o, void(_C::*_m)(_A0) const, _P0 _a0) {
 	assert(m_thread_h == 0);
 	m_thread_h = _task_helper_<void>::o1<const _C, _A0>::run(_o, _m, _a0);
-	if(m_thread_h != 0) SetThreadPriority(m_thread_h, (int)m_priority);
+	_start(m_thread_h, m_priority, m_processor);
 	return m_thread_h != 0;
 }

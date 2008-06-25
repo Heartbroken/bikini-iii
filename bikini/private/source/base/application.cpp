@@ -16,15 +16,16 @@ application::application() {
 application::~application() {
 }
 
-void test_run(int) {
-	std::cout << " !!!!!!!!!!!!!!!!!\n";
+void test_run(/*uint _i*/) {
+	std::cout << /*_i <<*/ " !!!!!!!!!!!!!!!!!\n";
 //	return 1;
 }
 void application::run() {
-	thread::task_<int> l_t0; l_t0.run((const application&)*this, &application::test_run, 0);
+	thread::task_<int> l_t0;
+	l_t0.run((const application&)*this, &application::test_run, 0);
 	thread::task l_t1;
-	functor<void, int> l_f(bk::test_run);
-	l_t1.run(l_f, -1);
+	functor/*_<void, uint>*/ l_f(bk::test_run);
+	l_t1.run(l_f/*, -1*/);
 	//l_t1.run(bk::test_run, -1);
 	l_t0.wait();
 	l_t1.wait();
