@@ -13,9 +13,8 @@ namespace thread { /*-----------------------------------------------------------
 /// task_
 template<typename _R>
 struct task_ : dont_copy {
-	inline task_();
-	inline task_(sint _priority);
-	inline void set_priority(sint _priority);
+	//inline task_();
+	inline task_(sint _priority = THREAD_PRIORITY_NORMAL, uint _processor = bad_ID);
 	inline bool done();
 	inline _R wait();
 	// functor call
@@ -41,6 +40,7 @@ struct task_ : dont_copy {
 private:
 	handle m_thread_h;
 	sint m_priority;
+	uint m_processor;
 	_R m_result;
 };
 typedef task_<void> task;

@@ -189,7 +189,7 @@ template<
 	typename _R = void,
 	typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype,
 	typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype
-> struct functor {
+> struct functor_ {
 	typedef _R rettype;
 	typedef make_typelist<_A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> arglist;
 	typedef functor_core<rettype, arglist> core;
@@ -204,12 +204,12 @@ template<
 	typedef typename core::arg8 arg8;
 	typedef typename core::arg9 arg9;
 
-	inline functor() : m_core_p(0) {}
-	template<typename _Fn> inline functor(_Fn _fn) : m_core_p(new functor_handler<functor, _Fn>(_fn)) {}
-	template<typename _Object, typename _Method> inline functor(_Object &_object, const _Method &_method) : m_core_p(new functor_method_handler<functor, _Object, _Method>(_object, _method)) {}
-	inline functor(const functor &_f) : m_core_p(static_cast<core*>(&_f.m_core_p->clone())) {}
-	inline functor& operator = (const functor &_f) { if(m_core_p) delete m_core_p; m_core_p = static_cast<core*>(&_f.m_core_p->clone()); return *this; }
-	~functor() { delete m_core_p; }
+	inline functor_() : m_core_p(0) {}
+	template<typename _Fn> inline functor_(_Fn _fn) : m_core_p(new functor_handler<functor_, _Fn>(_fn)) {}
+	template<typename _Object, typename _Method> inline functor_(_Object &_object, const _Method &_method) : m_core_p(new functor_method_handler<functor_, _Object, _Method>(_object, _method)) {}
+	inline functor_(const functor_ &_f) : m_core_p(static_cast<core*>(&_f.m_core_p->clone())) {}
+	inline functor_& operator = (const functor_ &_f) { if(m_core_p) delete m_core_p; m_core_p = static_cast<core*>(&_f.m_core_p->clone()); return *this; }
+	~functor_() { delete m_core_p; }
 
 	inline rettype operator () () const {
 		return (*m_core_p)();
@@ -234,7 +234,7 @@ template<
 	}
 
 private:
-	friend functor;
+	friend functor_;
 	core *m_core_p;
 };
-
+typedef functor_<> functor;
