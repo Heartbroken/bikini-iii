@@ -47,6 +47,7 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/functor.hpp"
 #include "base/variant.hpp"
 #include "base/thread.hpp"
+#include "base/manager.hpp"
 #include "base/application.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/
