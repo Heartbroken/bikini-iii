@@ -8,9 +8,9 @@
 
 #pragma once
 
-// functor_base ///////////////////////////////////////////////////////////////////////////////////
+// _functor_base
 
-struct functor_base {
+struct _functor_base {
 	typedef notype arg0;
 	typedef notype arg1;
 	typedef notype arg2;
@@ -22,34 +22,34 @@ struct functor_base {
 	typedef notype arg8;
 	typedef notype arg9;
 
-	virtual ~functor_base() {}
-	virtual functor_base& clone() const = 0;
+	virtual ~_functor_base() {}
+	virtual _functor_base& clone() const = 0;
 };
 
-// functor_core ///////////////////////////////////////////////////////////////////////////////////
+// _functor_core_
 
-template<typename _Rettype, typename _Arglist> struct functor_core;
+template<typename _Rettype, typename _Arglist> struct _functor_core_;
 
 template<typename _R>
-struct functor_core<_R, make_typelist<notype> > : functor_base {
+struct _functor_core_<_R, make_typelist<notype> > : _functor_base {
 	typedef _R rettype;
 	virtual rettype operator () () const = 0;
 };
 template<typename _R, typename _A0>
-struct functor_core<_R, make_typelist<_A0> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	virtual rettype operator () (arg0) const = 0;
 };
 template<typename _R, typename _A0, typename _A1>
-struct functor_core<_R, make_typelist<_A0, _A1> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0, _A1> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	typedef typename traits<_A1>::parameter arg1;
 	virtual rettype operator () (arg0, arg1) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2>
-struct functor_core<_R, make_typelist<_A0, _A1, _A2> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0, _A1, _A2> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	typedef typename traits<_A1>::parameter arg1;
@@ -57,7 +57,7 @@ struct functor_core<_R, make_typelist<_A0, _A1, _A2> > : functor_base {
 	virtual rettype operator () (arg0, arg1, arg2) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3>
-struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	typedef typename traits<_A1>::parameter arg1;
@@ -66,7 +66,7 @@ struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3> > : functor_base {
 	virtual rettype operator () (arg0, arg1, arg2, arg3) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
-struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3, _A4> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3, _A4> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	typedef typename traits<_A1>::parameter arg1;
@@ -76,7 +76,7 @@ struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3, _A4> > : functor_base 
 	virtual rettype operator () (arg0, arg1, arg2, arg3, arg4) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5>
-struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3, _A4, _A5> > : functor_base {
+struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3, _A4, _A5> > : _functor_base {
 	typedef _R rettype;
 	typedef typename traits<_A0>::parameter arg0;
 	typedef typename traits<_A1>::parameter arg1;
@@ -87,9 +87,9 @@ struct functor_core<_R, make_typelist<_A0, _A1, _A2, _A3, _A4, _A5> > : functor_
 	virtual rettype operator () (arg0, arg1, arg2, arg3, arg4, arg5) const = 0;
 };
 
-// functor_handler ////////////////////////////////////////////////////////////////////////////////
+// _functor_handler_
 
-template<typename _Functor, typename _Fn> struct functor_handler : _Functor::core {
+template<typename _Functor, typename _Fn> struct _functor_handler_ : _Functor::core {
 	typedef typename _Functor::core core;
 	typedef typename core::rettype rettype;
 	typedef typename core::arg0 arg0;
@@ -103,10 +103,10 @@ template<typename _Functor, typename _Fn> struct functor_handler : _Functor::cor
 	typedef typename core::arg8 arg8;
 	typedef typename core::arg9 arg9;
 
-	inline functor_handler(_Fn _fn) : m_fn(_fn) {}
-	inline functor_handler(const functor_handler &_f) : m_fn(_f.m_fn) {}
+	inline _functor_handler_(_Fn _fn) : m_fn(_fn) {}
+	inline _functor_handler_(const _functor_handler_ &_f) : m_fn(_f.m_fn) {}
 
-	virtual functor_handler& clone() const { return * new functor_handler(*this); }
+	virtual _functor_handler_& clone() const { return * new _functor_handler_(*this); }
 
 	inline rettype operator () () const {
 		return m_fn();
@@ -131,13 +131,13 @@ template<typename _Functor, typename _Fn> struct functor_handler : _Functor::cor
 	}
 
 private:
-	friend functor_handler;
+	friend _functor_handler_;
 	_Fn m_fn;
 };
 
-// functor_method_handler /////////////////////////////////////////////////////////////////////////
+// _functor_method_handler_
 
-template<typename _Functor, typename _Object, typename _Method> struct functor_method_handler : _Functor::core {
+template<typename _Functor, typename _Object, typename _Method> struct _functor_method_handler_ : _Functor::core {
 	typedef typename _Functor::core core;
 	typedef typename core::rettype rettype;
 	typedef typename core::arg0 arg0;
@@ -151,10 +151,10 @@ template<typename _Functor, typename _Object, typename _Method> struct functor_m
 	typedef typename core::arg8 arg8;
 	typedef typename core::arg9 arg9;
 
-	inline functor_method_handler(_Object &_object, const _Method &_method) : m_object(_object), m_method(_method) {}
-	inline functor_method_handler(const functor_method_handler &_f) : m_object(_f.m_object), m_method(_f.m_method) {}
+	inline _functor_method_handler_(_Object &_object, const _Method &_method) : m_object(_object), m_method(_method) {}
+	inline _functor_method_handler_(const _functor_method_handler_ &_f) : m_object(_f.m_object), m_method(_f.m_method) {}
 
-	virtual functor_method_handler& clone() const { return * new functor_method_handler(*this); }
+	virtual _functor_method_handler_& clone() const { return * new _functor_method_handler_(*this); }
 
 	inline rettype operator () () const {
 		return (m_object.*m_method)();
@@ -179,11 +179,14 @@ template<typename _Functor, typename _Object, typename _Method> struct functor_m
 	}
 
 private:
-	friend functor_method_handler;
+	friend _functor_method_handler_;
 	_Object &m_object; _Method m_method;
 };
 
-// functor ////////////////////////////////////////////////////////////////////////////////////////
+///	functor_ [TODO]
+/*	
+ *	
+ */
 
 template<
 	typename _R = void,
@@ -192,7 +195,7 @@ template<
 > struct functor_ {
 	typedef _R rettype;
 	typedef make_typelist<_A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> arglist;
-	typedef functor_core<rettype, arglist> core;
+	typedef _functor_core_<rettype, arglist> core;
 	typedef typename core::arg0 arg0;
 	typedef typename core::arg1 arg1;
 	typedef typename core::arg2 arg2;
@@ -205,8 +208,8 @@ template<
 	typedef typename core::arg9 arg9;
 
 	inline functor_() : m_core_p(0) {}
-	template<typename _Fn> inline functor_(_Fn _fn) : m_core_p(new functor_handler<functor_, _Fn>(_fn)) {}
-	template<typename _Object, typename _Method> inline functor_(_Object &_object, const _Method &_method) : m_core_p(new functor_method_handler<functor_, _Object, _Method>(_object, _method)) {}
+	template<typename _Fn> inline functor_(_Fn _fn) : m_core_p(new _functor_handler_<functor_, _Fn>(_fn)) {}
+	template<typename _Object, typename _Method> inline functor_(_Object &_object, const _Method &_method) : m_core_p(new _functor_method_handler_<functor_, _Object, _Method>(_object, _method)) {}
 	inline functor_(const functor_ &_f) : m_core_p(static_cast<core*>(&_f.m_core_p->clone())) {}
 	inline functor_& operator = (const functor_ &_f) { if(m_core_p) delete m_core_p; m_core_p = static_cast<core*>(&_f.m_core_p->clone()); return *this; }
 	~functor_() { delete m_core_p; }

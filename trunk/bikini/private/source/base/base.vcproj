@@ -48,7 +48,7 @@
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="header.hpp"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -246,6 +246,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\manager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\math.inl"
 				>
 			</File>
@@ -287,6 +291,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\functor.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\manager.hpp"
 				>
 			</File>
 			<File

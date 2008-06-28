@@ -63,9 +63,9 @@ const real r_1 = real(1);
 template<bool _C, typename _T0, typename _T1> struct select { typedef _T0 type; };
 template<typename _T0, typename _T1> struct select<false, _T0, _T1> { typedef _T1 type; };
 
-struct dont_copy {
-	inline dont_copy() {}
+struct uncopyble {
+	inline uncopyble() {}
 private:
-	inline dont_copy(const dont_copy&);
-	inline dont_copy& operator = (const dont_copy&);
+	inline uncopyble(const uncopyble&);
+	inline uncopyble& operator = (const uncopyble&);
 };
