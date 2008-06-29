@@ -14,8 +14,10 @@ namespace thread { /*-----------------------------------------------------------
 template<typename _R>
 struct task_ : uncopyble {
 	inline task_(sint _priority = THREAD_PRIORITY_NORMAL, uint _processor = bad_ID);
-	inline bool done();
-	inline _R wait();
+	inline ~task_();
+	inline bool done() const;
+	inline _R wait() const;
+	inline void clear();
 	// functor call
 	template<typename _Functor>
 	inline bool run(const _Functor &_f);
@@ -45,7 +47,7 @@ struct task_ : uncopyble {
 	inline bool run(const _Object &_o, _R(_Class::*_m)(_A0, _A1) const, _P0 _a0, _P1 _a1);
 	//
 private:
-	handle m_thread_h;
+	handle m_handle;
 	sint m_priority;
 	uint m_processor;
 	_R m_result;

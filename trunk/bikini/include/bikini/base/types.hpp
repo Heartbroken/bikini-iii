@@ -23,7 +23,7 @@ typedef double				f64;
 /// unsigned integer number
 typedef uintptr_t			uint;
 /// signed integer number
-typedef ptrdiff_t			sint;
+typedef intptr_t			sint;
 /// big unsigned integer number
 typedef unsigned __int64	ubig;
 /// big signed integer number
@@ -40,6 +40,9 @@ typedef float				real;
 
 typedef void*				handle;
 typedef const void*			pointer;
+
+typedef std::string			str;
+typedef std::wstring		wstr;
 
 // constants
 

@@ -48,6 +48,7 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/variant.hpp"
 #include "base/thread.hpp"
 #include "base/manager.hpp"
+#include "base/window.hpp"
 #include "base/application.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/
