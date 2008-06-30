@@ -16,6 +16,9 @@ manager::manager() : m_counter(0) {
 }
 
 manager::~manager() {
+	for(u32 i = 0, s = m_objects.size(); i < s; i++) if(m_objects[i] != 0) {
+		delete m_objects[i];
+	}
 }
 
 uint manager::add(object &_object) {
@@ -89,7 +92,7 @@ bool manager::update(real _dt) {
 }
 
 void manager::clear() {
-	for(u32 i = 0; i < m_objects.size(); i++) if(m_objects[i] != 0) {
+	for(u32 i = 0, s = m_objects.size(); i < s; i++) if(m_objects[i] != 0) {
 		delete m_objects[i];
 	}
 	m_objects.resize(0);

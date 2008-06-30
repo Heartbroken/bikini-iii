@@ -131,6 +131,10 @@ inline _R task_<_R>::wait() const {
 	return m_result;
 }
 template<typename _R>
+inline void task_<_R>::terminate() {
+	if(m_handle != 0) { TerminateThread(m_handle, 0); CloseHandle(m_handle); }
+}
+template<typename _R>
 inline void task_<_R>::clear() {
 	if(m_handle != 0) CloseHandle(m_handle);
 }
@@ -219,6 +223,7 @@ struct task_<void> : uncopyble {
 	inline ~task_();
 	inline bool done() const;
 	inline void wait() const;
+	inline void terminate();
 	inline void clear();
 	// functor call
 	template<typename _Functor>
@@ -363,6 +368,9 @@ inline void task_<void>::wait() const {
 }
 inline void task_<void>::clear() {
 	if(m_handle != 0) CloseHandle(m_handle);
+}
+inline void task_<void>::terminate() {
+	if(m_handle != 0) { TerminateThread(m_handle, 0); CloseHandle(m_handle); }
 }
 // functor call
 template<typename _F>
