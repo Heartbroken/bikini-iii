@@ -35,6 +35,10 @@ application::task::task(const info &_info, application &_application) : manager:
 	m_task.run(*this, &application::task::main);
 }
 
+application::task::~task() {
+	if(!m_task.done()) m_task.terminate();
+}
+
 // application::task::info
 
 application::task::info::info(uint _type) : manager::object::info(_type) {}

@@ -46,6 +46,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	bk::application l_app;
 	task0::info l_task0; l_app.spawn(l_task0);
 	l_app.run();
+	//bk::sleep(3.f);
 	}
 	return 0;
 }

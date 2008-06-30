@@ -17,6 +17,7 @@ struct task_ : uncopyble {
 	inline ~task_();
 	inline bool done() const;
 	inline _R wait() const;
+	inline void terminate();
 	inline void clear();
 	// functor call
 	template<typename _Functor>
