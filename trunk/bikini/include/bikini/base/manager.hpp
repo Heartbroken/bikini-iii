@@ -8,19 +8,19 @@
 
 #pragma once
 
-/// manager [TODO]
-/**
- *
+/// manager
+/**	[TODO]
+ *	
  */
 struct manager : uncopyble {
-	/// manager::object [TODO]
-	/**
-	 *
+	/// manager::object
+	/**	[TODO]
+	 *	
 	 */
 	struct object : uncopyble {
-		/// manager::object::info [TODO]
-		/**
-		 *
+		/// manager::object::info
+		/**	[TODO]
+		 *	
 		 */
 		struct info : uncopyble {
 			info(uint _type);

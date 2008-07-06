@@ -183,11 +183,10 @@ private:
 	_Object &m_object; _Method m_method;
 };
 
-///	functor_ [TODO]
-/*	
+///	A functor with up to ten arguments
+/**	[TODO]
  *	
  */
-
 template<
 	typename _R = void,
 	typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype,

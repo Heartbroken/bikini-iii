@@ -13,6 +13,10 @@
  *	
  */
 struct application : manager {
+	/// base application task class
+	/**	[TODO]
+	 *	
+	 */
 	struct task : manager::object {
 		struct info : manager::object::info {
 			typedef task object;
