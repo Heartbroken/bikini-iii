@@ -19,6 +19,7 @@ typedef unsigned __int64	u64;
 typedef __int64				s64;
 typedef float				f32;
 typedef double				f64;
+typedef std::string			str;
 
 /// unsigned integer number
 typedef uintptr_t			uint;
@@ -41,7 +42,7 @@ typedef float				real;
 typedef void*				handle;
 typedef const void*			pointer;
 
-typedef std::string			str;
+typedef std::string			astr;
 typedef std::wstring		wstr;
 
 // constants
