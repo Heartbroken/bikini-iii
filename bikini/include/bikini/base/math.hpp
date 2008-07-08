@@ -44,6 +44,12 @@ template<typename _T> inline void swap(_T &_a, _T &_b);
 template<uint _A, uint _B> struct c_min { static const uint result = _A > _B ? _B : _A; };
 template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _A : _B; };
 
+int rand() 
+{
+  random_seed = random_seed * 1103515245 +12345; 
+  return (unsigned int)(random_seed / 65536) % 32768; 
+}
+
 // types
 
 ///	Uber-matrix row template. Used internally by matrix_ template.
