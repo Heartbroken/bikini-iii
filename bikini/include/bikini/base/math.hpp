@@ -46,29 +46,9 @@ template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _
 
 // types
 
-//int rand() 
-//{
-//  random_seed = random_seed * 1103515245 +12345; 
-//  return (unsigned int)(random_seed / 65536) % 32768; 
-//}
-
-/// random
-/**	
-	
- */
-template<uint _ID> struct random_ {
-	static const uint ID = _ID;
-	static sint seed;
-	static inline real get() { seed = seed * 1103515245 + 12345; return real(uint(seed / 65536) % 32768) / real(32768); }
-	static inline real get(real _max) { return get() * _max; }
-	static inline real get(real _min, real _max) { return _min + get(_max - _min); }
-};
-template<uint _ID> uint random_<_ID>::seed;
-typedef random_<0> random;
-
 ///	Uber-matrix row template. Used internally by matrix_ template.
 /**	Each _matrix_row_<_Size, _Type> struct has one member varable m_cell of cell_type type,
- *	and also inherits _Size - 1 cells from it's parent type _matrix_row_<_Size - 1, _Type>
+	and also inherits _Size - 1 cells from it's parent type _matrix_row_<_Size - 1, _Type>
  */
 template<uint _Size, typename _Type>
 struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
@@ -354,5 +334,19 @@ template<typename _Type, bool _Const = false> struct quat_r_ {
 template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, false>::vector &_v);
 template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
 typedef quat_r_<real> quat_r;
+
+/// random number generator
+/**	Template parametre _ID is used to create a set
+	of independent random number generators
+ */
+template<uint _ID> struct random_ {
+	static const uint ID = _ID;
+	static const uint max = 32768;
+	static sint seed;
+	static inline uint get(uint _max = max);
+	static inline real get(real _max);
+	static inline real get(real _min, real _max);
+};
+typedef random_<0> random;
 
 #include "math.inl"
