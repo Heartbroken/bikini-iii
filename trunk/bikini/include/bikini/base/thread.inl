@@ -12,6 +12,18 @@
 
 struct _task_helper {
 	template<typename _R> struct ret {
+		template<typename _F, uint _N> struct fn : fn<_F, _N - 1> {
+			typedef fn<_F, _N - 1> parent;
+			struct data : parent::data {
+			};
+		};
+		template<typename _F> struct fn<_F, 0> {
+			struct data {
+				typedef typename _F::arglist::item<0>::type _A0;
+				_F &f; _A0 a0;
+				inline data(_F &_f) : f(_f), a0(_a0) {}
+			};
+		};
 		template<typename _F> struct f0 {
 			struct data {
 				_R &r; _F &f;
