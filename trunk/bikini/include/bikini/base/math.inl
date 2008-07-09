@@ -541,3 +541,21 @@ template<typename _T> quat_r_<_T, false> quat(typename quat_r_<_T, false>::vecto
 template<typename _T> quat_r_<_T, true> quat(typename quat_r_<_T, true>::vector &_v) {
 	return quat_r_<_T, true>(_v);
 }
+
+// random
+template<uint _ID>
+uint random_<_ID>::seed;
+template<uint _ID>
+inline uint random_<_ID>::get(uint _max /*= max*/) {
+	seed = seed * 1103515245 + 12345;
+	return uint(seed / 65536) % _max;
+}
+template<uint _ID>
+inline real random_<_ID>::get(real _max) {
+	return real(get(max)) / real(max) * _max;
+}
+template<uint _ID>
+inline real random_<_ID>::get(real _min, real _max) {
+	if(_max < _min) swap(_min, _max);
+	return _min + get(_max - _min);
+}
