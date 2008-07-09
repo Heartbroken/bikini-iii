@@ -19,15 +19,22 @@ struct task0 : bk::application::task {
 		m_window.create(GetModuleHandle(0), 1024U, 640U, 0);
 		m_window.set_caption(L".application ");
 		m_window.show();
+		struct _l {
+			static bool step(bk::real _sleep, bk::thread::event &_event) {
+				while(true) { bk::sleep(_sleep); _event.set(); }
+			}
+		};
+		bool l_run = true;
+		bk::thread::task_<bool> l_step(THREAD_PRIORITY_TIME_CRITICAL); bk::thread::event l_wait;
+		l_step.run(_l::step, 0.03f, l_wait);
 		bk::rbig l_time = bk::sys_time();
-		while(true) {
-			bk::thread::task l_step(THREAD_PRIORITY_TIME_CRITICAL);
-			l_step.run(bk::sleep, 0.03f);
-			if(!m_window.update(bk::real(bk::sys_time() - l_time))) break;
-			// do something useful
-			l_step.wait();
+		while(l_run) {
+			l_run = m_window.update(bk::real(bk::sys_time() - l_time));
 			l_time = bk::sys_time();
+			// do something useful
+			l_wait.wait();
 		}
+		l_step.terminate();
 	}
 private:
 	bk::window m_window;

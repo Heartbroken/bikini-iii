@@ -139,25 +139,25 @@ inline void task_<_R>::clear() {
 	if(m_handle != 0) CloseHandle(m_handle);
 }
 
-// functor call
-template<typename _R> template<typename _F>
-inline bool task_<_R>::run(const _F &_f) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<_R>::f0<_F>::run(m_result, _f);
-	return _start(m_handle, m_priority, m_processor);
-}
-template<typename _R> template<typename _F, typename _A0>
-inline bool task_<_R>::run(const _F &_f, _A0 _a0) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<_R>::f1<_F, _A0>::run(m_result, _f, _a0);
-	return _start(m_handle, m_priority, m_processor);
-}
-template<typename _R> template<typename _F, typename _A0, typename _A1>
-inline bool task_<_R>::run(const _F &_f, _A0 _a0, _A1 _a1) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<_R>::f2<_F, _A0, _A1>::run(m_result, _f, _a0, _a1);
-	return _start(m_handle, m_priority, m_processor);
-}
+//////// functor call
+//////template<typename _R> template<typename _F>
+//////inline bool task_<_R>::run(const _F &_f) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<_R>::f0<_F>::run(m_result, _f);
+//////	return _start(m_handle, m_priority, m_processor);
+//////}
+//////template<typename _R> template<typename _F, typename _A0>
+//////inline bool task_<_R>::run(const _F &_f, _A0 _a0) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<_R>::f1<_F, _A0>::run(m_result, _f, _a0);
+//////	return _start(m_handle, m_priority, m_processor);
+//////}
+//////template<typename _R> template<typename _F, typename _A0, typename _A1>
+//////inline bool task_<_R>::run(const _F &_f, _A0 _a0, _A1 _a1) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<_R>::f2<_F, _A0, _A1>::run(m_result, _f, _a0, _a1);
+//////	return _start(m_handle, m_priority, m_processor);
+//////}
 // function call
 template<typename _R>
 inline bool task_<_R>::run(_R(&_f)()) {
@@ -171,8 +171,8 @@ inline bool task_<_R>::run(_R(&_f)(_A0), _P0 _a0) {
 	m_handle = _task_helper_<_R>::f1<_R(&)(_A0), _A0>::run(m_result, _f, _a0);
 	return _start(m_handle, m_priority, m_processor);
 }
-template<typename _R> template<typename _A0, typename _A1, typename _P0, typename _P1>
-inline bool task_<_R>::run(_R(&_f)(_A0, _A1), _P0 _a0, _P1 _a1) {
+template<typename _R> template<typename _A0, typename _A1/*, typename _P0, typename _P1*/>
+inline bool task_<_R>::run(_R(&_f)(_A0, _A1), _A0 _a0, _A1 _a1) {
 	assert(m_handle == 0);
 	m_handle = _task_helper_<_R>::f2<_R(&)(_A0, _A1), _A0, _A1>::run(m_result, _f, _a0, _a1);
 	return _start(m_handle, m_priority, m_processor);
@@ -225,19 +225,21 @@ struct task_<void> : uncopyble {
 	inline void wait() const;
 	inline void terminate();
 	inline void clear();
-	// functor call
-	template<typename _Functor>
-	inline bool run(const _Functor &_f);
-	template<typename _Functor, typename _A0>
-	inline bool run(const _Functor &_f, _A0 _a0);
-	template<typename _Functor, typename _A0, typename _A1>
-	inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1);
+	//////// functor call
+	//////template<typename _Functor>
+	//////inline bool run(const _Functor &_f);
+	//////template<typename _Functor, typename _A0>
+	//////inline bool run(const _Functor &_f, _A0 _a0);
+	//////template<typename _Functor, typename _A0, typename _A1>
+	//////inline bool run(const _Functor &_f, _A0 _a0, _A1 _a1);
 	// function call
 	inline bool run(void(&_f)());
 	template<typename _A0, typename _P0>
 	inline bool run(void(&_f)(_A0), _P0 _a0);
-	template<typename _A0, typename _A1, typename _P0, typename _P1>
-	inline bool run(void(&_f)(_A0, _A1), _P0 _a0, _P1 _a1);
+	template<typename _A0, typename _A1/*, typename _P0, typename _P1*/>
+	inline bool run(void(&_f)(_A0, _A1), _A0 _a0, _A1 _a1);
+	template<typename _A0, typename _A1, typename _A2/*, typename _P0, typename _P1, typename _P2*/>
+	inline bool run(void(&_f)(_A0, _A1, _A2), _A0 _a0, _A1 _a1, _A2 _a2);
 	// member function call
 	template<typename _Object, typename _Class>
 	inline bool run(_Object &_o, void(_Class::*_m)());
@@ -293,8 +295,20 @@ struct _task_helper_<void> {
 		static DWORD __stdcall thread_proc(handle _data) {
 			data &d = *reinterpret_cast<data*>(_data); d.f(d.a0, d.a1); delete &d; return 0;
 		}
-		static inline handle run(_F _f, _A0 _a0, _A0 _a1) {
+		static inline handle run(_F _f, _A0 _a0, _A1 _a1) {
 			return CreateThread(0, 0, &thread_proc, new data(_f, _a0, _a1), CREATE_SUSPENDED, 0);
+		}
+	};
+	template<typename _F, typename _A0, typename _A1, typename _A2> struct f3 {
+		struct data {
+			_F f; _A0 a0; _A1 a1; _A2 a2;
+			inline data(_F _f, _A0 _a0, _A1 _a1, _A2 _a2) : f(_f), a0(_a0), a1(_a1), a2(_a2) {}
+		};
+		static DWORD __stdcall thread_proc(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(d.a0, d.a1, d.a2); delete &d; return 0;
+		}
+		static inline handle run(_F _f, _A0 _a0, _A1 _a1, _A2 _a2) {
+			return CreateThread(0, 0, &thread_proc, new data(_f, _a0, _a1, _a2), CREATE_SUSPENDED, 0);
 		}
 	};
 
@@ -370,27 +384,31 @@ inline void task_<void>::clear() {
 	if(m_handle != 0) CloseHandle(m_handle);
 }
 inline void task_<void>::terminate() {
-	if(m_handle != 0) { TerminateThread(m_handle, 0); CloseHandle(m_handle); }
+	if(m_handle != 0) {
+		TerminateThread(m_handle, 0);
+		CloseHandle(m_handle);
+		m_handle = 0;
+	}
 }
-// functor call
-template<typename _F>
-inline bool task_<void>::run(const _F &_f) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<void>::f0<_F>::run(_f);
-	return_start(m_handle, m_priority, m_processor);
-}
-template<typename _F, typename _A0>
-inline bool task_<void>::run(const _F &_f, _A0 _a0) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<void>::f1<_F, _A0>::run(_f, _a0);
-	return _start(m_handle, m_priority, m_processor);
-}
-template<typename _F, typename _A0, typename _A1>
-inline bool task_<void>::run(const _F &_f, _A0 _a0, _A1 _a1) {
-	assert(m_handle == 0);
-	m_handle = _task_helper_<void>::f2<_F, _A0, _A1>::run(_f, _a0, _a1);
-	return _start(m_handle, m_priority, m_processor);
-}
+//////// functor call
+//////template<typename _F>
+//////inline bool task_<void>::run(const _F &_f) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<void>::f0<_F>::run(_f);
+//////	return_start(m_handle, m_priority, m_processor);
+//////}
+//////template<typename _F, typename _A0>
+//////inline bool task_<void>::run(const _F &_f, _A0 _a0) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<void>::f1<_F, _A0>::run(_f, _a0);
+//////	return _start(m_handle, m_priority, m_processor);
+//////}
+//////template<typename _F, typename _A0, typename _A1>
+//////inline bool task_<void>::run(const _F &_f, _A0 _a0, _A1 _a1) {
+//////	assert(m_handle == 0);
+//////	m_handle = _task_helper_<void>::f2<_F, _A0, _A1>::run(_f, _a0, _a1);
+//////	return _start(m_handle, m_priority, m_processor);
+//////}
 // function call
 inline bool task_<void>::run(void(&_f)()) {
 	assert(m_handle == 0);
@@ -403,10 +421,16 @@ inline bool task_<void>::run(void(&_f)(_A0), _P0 _a0) {
 	m_handle = _task_helper_<void>::f1<void(&)(_A0), _A0>::run(_f, _a0);
 	return _start(m_handle, m_priority, m_processor);
 }
-template<typename _A0, typename _A1, typename _P0, typename _P1>
-inline bool task_<void>::run(void(&_f)(_A0, _A1), _P0 _a0, _P1 _a1) {
+template<typename _A0, typename _A1/*, typename _P0, typename _P1*/>
+inline bool task_<void>::run(void(&_f)(_A0, _A1), _A0 _a0, _A1 _a1) {
 	assert(m_handle == 0);
 	m_handle = _task_helper_<void>::f2<void(&)(_A0, _A1), _A0, _A1>::run(_f, _a0, _a1);
+	return _start(m_handle, m_priority, m_processor);
+}
+template<typename _A0, typename _A1, typename _A2/*, typename _P0, typename _P1, typename _P2*/>
+inline bool task_<void>::run(void(&_f)(_A0, _A1, _A2), _A0 _a0, _A1 _a1, _A2 _a2) {
+	assert(m_handle == 0);
+	m_handle = _task_helper_<void>::f3<void(&)(_A0, _A1, _A2), _A0, _A1, _A2>::run(_f, _a0, _a1, _a2);
 	return _start(m_handle, m_priority, m_processor);
 }
 // member function call
@@ -446,4 +470,22 @@ inline bool task_<void>::run(const _O &_o, void(_C::*_m)(_A0, _A1) const, _P0 _a
 	assert(m_handle == 0);
 	m_handle = _task_helper_<void>::o2<const _C, _A0, _A1>::run(_o, _m, _a0, _a1);
 	return _start(m_handle, m_priority, m_processor);
+}
+
+// event
+
+inline event::event(bool _reset, bool _state) : m_handle(CreateEvent(0, 0, 0, 0)) {
+}
+inline event::~event() {
+	if(m_handle != 0) CloseHandle(m_handle);
+}
+inline void event::set() {
+	if(m_handle != 0) SetEvent(m_handle);
+}
+inline bool event::wait(real _time) {
+	if(m_handle != 0) {
+		if(WaitForSingleObject(m_handle, _time < infinity ? DWORD(_time * 1000.f) : INFINITE) == WAIT_TIMEOUT) return false;
+		return true;
+	}
+	return false;
 }

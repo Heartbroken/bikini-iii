@@ -33,6 +33,10 @@ private:
 	template<typename _T> struct const_traits { static const bool yes = false; typedef _T type; };
 	template<typename _T> struct const_traits<const _T> { static const bool yes = true; typedef _T type; };
 
+	template<typename _T> struct function_traits { static const bool yes = false; };
+	template<typename _T> struct function_traits<_T (&)> { static const bool yes = true; };
+	template<typename _T> struct function_traits<_T (*)> { static const bool yes = true; };
+
 public:
 	static const bool is_pointer = pointer_traits<_Type>::yes;
 	typedef typename pointer_traits<_Type>::type pointed;
@@ -58,4 +62,6 @@ public:
 		_Type,
 		typename parameter_traits<_Type>::type
 	>::type parameter;
+
+	static const bool is_function = function_traits<_Type>::yes;
 };
