@@ -33,9 +33,9 @@ inline real r2d(real _r);
 inline real pow(real _a, real _b);
 inline bool is_tiny(real _a);
 inline uint next_pow2(uint _a);
-inline real random();
-inline real random(real _max);
-inline real random(real _min, real _max);
+//inline real random();
+//inline real random(real _max);
+//inline real random(real _min, real _max);
 template<typename _T> inline const _T& min(const _T &_a, const _T &_b);
 template<typename _T> inline const _T& max(const _T &_a, const _T &_b);
 template<typename _T> inline const _T& clamp(const _T &_a, const _T &_min, const _T &_max);
@@ -44,13 +44,27 @@ template<typename _T> inline void swap(_T &_a, _T &_b);
 template<uint _A, uint _B> struct c_min { static const uint result = _A > _B ? _B : _A; };
 template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _A : _B; };
 
-int rand() 
-{
-  random_seed = random_seed * 1103515245 +12345; 
-  return (unsigned int)(random_seed / 65536) % 32768; 
-}
-
 // types
+
+//int rand() 
+//{
+//  random_seed = random_seed * 1103515245 +12345; 
+//  return (unsigned int)(random_seed / 65536) % 32768; 
+//}
+
+/// random
+/**	
+	
+ */
+template<uint _ID> struct random_ {
+	static const uint ID = _ID;
+	static sint seed;
+	static inline real get() { seed = seed * 1103515245 + 12345; return real(uint(seed / 65536) % 32768) / real(32768); }
+	static inline real get(real _max) { return get() * _max; }
+	static inline real get(real _min, real _max) { return _min + get(_max - _min); }
+};
+template<uint _ID> uint random_<_ID>::seed;
+typedef random_<0> random;
 
 ///	Uber-matrix row template. Used internally by matrix_ template.
 /**	Each _matrix_row_<_Size, _Type> struct has one member varable m_cell of cell_type type,

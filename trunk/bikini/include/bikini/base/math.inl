@@ -55,15 +55,15 @@ inline uint next_pow2(uint _a) {
 	uint l_a = _a; l_a |= l_a>>1; l_a |= l_a>>2; l_a |= l_a>>4; l_a |= l_a>>8; l_a |= l_a>>16;
 	return (_a&(l_a>>1)) ? l_a + 1 : _a;
 }
-inline real random() {
-	return (real)rand() / (real)RAND_MAX;
-}
-inline real random(real _max) {
-	return _max * random();
-}
-inline real random(real _min, real _max) {
-	return _min + random(_max - _min);
-}
+//inline real random() {
+//	return (real)rand() / (real)RAND_MAX;
+//}
+//inline real random(real _max) {
+//	return _max * random();
+//}
+//inline real random(real _min, real _max) {
+//	return _min + random(_max - _min);
+//}
 template<typename _T> inline const _T& min(const _T &_a, const _T &_b) {
 	return _a <= _b ? _a : _b;
 }
