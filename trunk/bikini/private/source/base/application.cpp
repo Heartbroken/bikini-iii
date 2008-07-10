@@ -15,8 +15,8 @@ namespace bk { /*---------------------------------------------------------------
 bool application::run() {
 	bool l_done = false;
 	while(!l_done) {
-		thread::task_<void, real> l_step(sleep, THREAD_PRIORITY_TIME_CRITICAL);
-		l_step.run(0.1f);
+		//thread::task_<void, real> l_step(sleep, THREAD_PRIORITY_TIME_CRITICAL);
+		//l_step.run(0.1f);
 		l_done = true;
 		uint l_ID = get_first_ID();
 		while(l_ID != bad_ID) {
@@ -24,7 +24,7 @@ bool application::run() {
 			else l_done = false;
 			l_ID = get_next_ID(l_ID);
 		}
-		l_step.wait();
+		//l_step.wait();
 	}
 	return false;
 }
