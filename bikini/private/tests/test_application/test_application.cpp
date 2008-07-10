@@ -19,11 +19,11 @@ struct task0 : bk::application::task {
 		m_window.create(GetModuleHandle(0), 1024U, 640U, 0);
 		m_window.set_caption(L".application ");
 		m_window.show();
-		struct _l { static void step(bool &_run, bk::real _sleep, bk::thread::event &_event) {
-			while(_run) { bk::sleep(_sleep); _event.set(); }
+		struct _l { static bool step(bool &_run, bk::real _sleep, bk::thread::event &_event) {
+			while(_run) { bk::sleep(_sleep); _event.set(); } return true;
 		}};
 		bool l_run = true;
-		bk::thread::task_<void, bool&, bk::real, bk::thread::event&> l_step(_l::step, THREAD_PRIORITY_TIME_CRITICAL);
+		bk::thread::task_<bool, bool&, bk::real, bk::thread::event&> l_step(_l::step, THREAD_PRIORITY_TIME_CRITICAL);
 		bk::thread::event l_wait;
 		l_step.run(l_run, 0.03f, l_wait);
 		bk::rbig l_time = bk::sys_time();

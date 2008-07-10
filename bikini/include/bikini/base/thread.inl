@@ -28,26 +28,31 @@ struct _task_helper_ {
 	template<typename _L> struct args_ : args_<typename _L::rest> {
 		typedef typename _L::first type;
 		typedef args_<typename _L::rest> parent;
-		template<uint _I> struct parent_ {
-			typedef typename select<_I == 0, parent, typename parent::parent_<_I - 1>::type>::type type;
+		template<uint _I> struct arg_ {
+			typedef typename select<_I == 0, type, typename parent::arg_<_I - 1>::type>::type type;
+			typedef typename select<_I == 0, args_, typename parent::arg_<_I - 1>::level>::type level;
 		};
 		type a;
 		inline args_(type _a, parent &_parent) : parent(_parent), a(_a) {}
-		typedef typename select<(_L::count > 0), typename _L::item<0>::type, notype>::type A0;
-		typedef typename select<(_L::count > 1), typename _L::item<1>::type, notype>::type A1;
-		typedef typename select<(_L::count > 2), typename _L::item<2>::type, notype>::type A2;
-		typedef typename select<(_L::count > 3), typename _L::item<3>::type, notype>::type A3;
-		typedef typename select<(_L::count > 4), typename _L::item<4>::type, notype>::type A4;
-		typedef typename select<(_L::count > 5), typename _L::item<5>::type, notype>::type A5;
-		typedef typename select<(_L::count > 6), typename _L::item<6>::type, notype>::type A6;
-		typedef typename select<(_L::count > 7), typename _L::item<7>::type, notype>::type A7;
-		typedef typename select<(_L::count > 8), typename _L::item<8>::type, notype>::type A8;
-		typedef typename select<(_L::count > 9), typename _L::item<9>::type, notype>::type A9;
+		typedef typename arg_<0>::type A0;
+		typedef typename arg_<1>::type A1;
+		typedef typename arg_<2>::type A2;
+		typedef typename arg_<3>::type A3;
+		typedef typename arg_<4>::type A4;
+		typedef typename arg_<5>::type A5;
+		typedef typename arg_<6>::type A6;
+		typedef typename arg_<7>::type A7;
+		typedef typename arg_<8>::type A8;
+		typedef typename arg_<9>::type A9;
 		static inline args_ build(A0 _a0, A1 _a1, A2 _a2, A3 _a3, A4 _a4, A5 _a5, A6 _a6, A7 _a7, A8 _a8, A9 _a9) {
 			return args_(_a0, parent::build(_a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9, notype()));
 		}
 	};
 	template<> struct args_<typelist<notype> > {
+		template<uint _I> struct arg_ {
+			typedef notype type;
+			typedef arg_ level;
+		};
 		static inline args_ build(notype, notype, notype, notype, notype, notype, notype, notype, notype, notype) {
 			return args_();
 		}
@@ -58,10 +63,43 @@ struct _task_helper_ {
 		R &r; _F &f; args a;
 		inline data(R &_r, _F &_f, const args &_a) : r(_r), f(_f), a(_a) {}
 	};
+	template<uint _I> static inline typename args::arg_<_I>::type a(args &_a) {
+		return static_cast<args::arg_<_I>::level&>(_a).a;
+	};
 	template<typename _R> struct ret_ {
 		template<uint _N> static DWORD __stdcall proc_(handle _data);
 		template<> static DWORD __stdcall proc_<0>(handle _data) {
 			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<1>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<2>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<3>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<4>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<5>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<6>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<7>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<8>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<9>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a), a<8>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<10>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.r = d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a), a<8>(d.a), a<9>(d.a)); delete &d; return 0;
 		}
 	};
 	template<> struct ret_<void> {
@@ -70,7 +108,34 @@ struct _task_helper_ {
 			data &d = *reinterpret_cast<data*>(_data); d.f(); delete &d; return 0;
 		}
 		template<> static DWORD __stdcall proc_<1>(handle _data) {
-			data &d = *reinterpret_cast<data*>(_data); d.f(d.a); delete &d; return 0;
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<2>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<3>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<4>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<5>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<6>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<7>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<8>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<9>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a), a<8>(d.a)); delete &d; return 0;
+		}
+		template<> static DWORD __stdcall proc_<10>(handle _data) {
+			data &d = *reinterpret_cast<data*>(_data); d.f(a<0>(d.a), a<1>(d.a), a<2>(d.a), a<3>(d.a), a<4>(d.a), a<5>(d.a), a<6>(d.a), a<7>(d.a), a<8>(d.a), a<9>(d.a)); delete &d; return 0;
 		}
 	};
 	typedef typename _F::arg0 A0;
