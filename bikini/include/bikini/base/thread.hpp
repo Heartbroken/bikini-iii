@@ -11,10 +11,7 @@
 namespace thread { /*----------------------------------------------------------------------------*/
 
 /// task_
-template<
-	typename _R,
-	typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype, typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype
->
+template<typename _R, typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype, typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype>
 struct task_ : uncopyble {
 	typedef functor_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> functor;
 	template<typename _F> inline task_(_F &_f, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
@@ -25,7 +22,6 @@ struct task_ : uncopyble {
 	inline _R wait() const;
 	inline void terminate();
 	inline void clear();
-
 private:
 	functor m_functor;
 	handle m_handle;
