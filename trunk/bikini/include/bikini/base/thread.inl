@@ -10,6 +10,28 @@
 
 // task
 
+template<typename _F>
+struct _task_helper_ {
+	typedef typename _F::arglist::type arglist;
+	typedef typename _F::arg0 _A0;
+	typedef typename _F::arg1 _A1;
+	typedef typename _F::arg2 _A2;
+	typedef typename _F::arg3 _A3;
+	typedef typename _F::arg4 _A4;
+	typedef typename _F::arg5 _A5;
+	typedef typename _F::arg6 _A6;
+	typedef typename _F::arg7 _A7;
+	typedef typename _F::arg8 _A8;
+	typedef typename _F::arg9 _A9;
+	template<uint _N> struct args : args<_N - 1> {
+		typedef typename _F::arglist::type::item<_N>::type type; type a;
+		inline args(typename arglist::item<_N - 1>::type _a, args<_N - 1> &_parent) : args<_N - 1>(_parent), a(_a) {}
+	};
+	template<> struct args<0> {};
+	handle create(_A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4, _A5 _a5, _A6 _a6, _A7 _a7, _A8 _a8, _A9 _a9) {
+	}
+};
+
 struct _task_helper {
 	template<typename _R> struct ret {
 		template<typename _F, uint _N> struct fn : fn<_F, _N - 1> {
