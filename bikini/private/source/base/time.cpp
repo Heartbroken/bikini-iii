@@ -27,7 +27,7 @@ void sleep(real _t) {
 
 // ticker
 
-ticker::ticker(real _period) : m_period(_period), m_run(true), m_event(false, false), m_task(*this, &ticker::m_proc, THREAD_PRIORITY_TIME_CRITICAL) {
+ticker::ticker(real _period) : m_period(_period), m_run(true), m_tick(false, false), m_task(*this, &ticker::m_proc, THREAD_PRIORITY_TIME_CRITICAL) {
 	m_task.run();
 }
 ticker::~ticker() {
@@ -40,13 +40,13 @@ real ticker::period() {
 void ticker::set_period(real _period) {
 	m_period = _period;
 }
-void ticker::wait() {
-	m_event.wait();
+void ticker::tick() {
+	m_tick.wait();
 }
 void ticker::m_proc() {
 	while(m_run) {
 		sleep(m_period);
-		m_event.set();
+		m_tick.set();
 	}
 }
 
