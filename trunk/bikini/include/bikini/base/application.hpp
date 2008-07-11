@@ -33,18 +33,3 @@ struct application : manager {
 	};
 	virtual bool run();
 };
-
-/// ticker
-/**
- */
-struct ticker {
-	ticker(real _t);
-	~ticker();
-	void wait();
-private:
-	real m_time;
-	bool m_run;
-	thread::event m_event;
-	thread::task m_task;
-	void m_proc();
-};
