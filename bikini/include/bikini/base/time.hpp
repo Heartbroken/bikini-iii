@@ -15,11 +15,13 @@ void sleep(real _t);
 /**
  */
 struct ticker {
-	ticker(real _t);
+	ticker(real _period);
 	~ticker();
+	real period();
+	void set_period(real _period);
 	void wait();
 private:
-	real m_time;
+	real m_period;
 	bool m_run;
 	thread::event m_event;
 	thread::task m_task;
