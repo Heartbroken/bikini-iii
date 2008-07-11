@@ -45,23 +45,4 @@ application::task::~task() {
 
 application::task::info::info(uint _type) : manager::object::info(_type) {}
 
-// ticker
-
-ticker::ticker(real _t) : m_time(_t), m_run(true), m_event(false, false), m_task(*this, &ticker::m_proc, THREAD_PRIORITY_TIME_CRITICAL) {
-	m_task.run();
-}
-ticker::~ticker() {
-	m_run = false;
-	m_task.wait();
-}
-void ticker::wait() {
-	m_event.wait();
-}
-void ticker::m_proc() {
-	while(m_run) {
-		sleep(m_time);
-		m_event.set();
-	}
-}
-
 } /* namespace bk -------------------------------------------------------------------------------*/
