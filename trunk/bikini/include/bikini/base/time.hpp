@@ -12,7 +12,7 @@ rbig sys_time();
 void sleep(real _t);
 
 /// ticker
-/**
+/** [TODO]
  */
 struct ticker {
 	ticker(real _period);

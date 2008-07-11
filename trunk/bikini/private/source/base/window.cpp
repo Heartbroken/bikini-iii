@@ -94,11 +94,11 @@ bool window::update(real _dt) {
 
 LRESULT CALLBACK window::window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	window &l_window = *reinterpret_cast<window*>((LONG_PTR)GetWindowLong(_handle, GWL_USERDATA));
-	if(&l_window != 0) return l_window.proc(_message, _wparam, _lparam);
+	if(&l_window != 0) return l_window.m_proc(_message, _wparam, _lparam);
 	return DefWindowProc(_handle, _message, _wparam, _lparam);
 }
 
-LRESULT window::proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
+LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	switch(_message) {
 		case WM_CLOSE : {
 			DestroyWindow(m_handle);

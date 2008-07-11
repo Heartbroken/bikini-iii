@@ -14,6 +14,9 @@ typedef make_typelist<bool>::type boolean;
 typedef make_typelist<f32, f64, real, rbig>::type floats;
 typedef make_typelist<bool, u8, u16, u32, u64, uint, ubig, s8, s16, s32, s64, sint, sbig, f32, f64, real, rbig>::type fundamentals;
 
+/// traits
+/**	[TODO]
+ */
 template<typename _Type> struct traits {
 private:
 	template<typename _T> struct pointer_traits { static const bool yes = false; typedef notype type; };

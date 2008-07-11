@@ -10,17 +10,14 @@
 
 /// manager
 /**	[TODO]
- *	
  */
 struct manager : uncopyble {
 	/// manager::object
 	/**	[TODO]
-	 *	
 	 */
 	struct object : uncopyble {
 		/// manager::object::info
 		/**	[TODO]
-		 *	
 		 */
 		struct info : uncopyble {
 			info(uint _type);

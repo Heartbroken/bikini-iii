@@ -25,5 +25,5 @@ private:
 	HWND m_handle;
 	WNDPROC m_oldproc;
 	static LRESULT CALLBACK window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam);
-	LRESULT proc(UINT _message, WPARAM _wparam, LPARAM _lparam);
+	LRESULT m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam);
 };
