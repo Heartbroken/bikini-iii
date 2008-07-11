@@ -10,7 +10,7 @@
 
 namespace thread { /*----------------------------------------------------------------------------*/
 
-//
+///	_task_result_ - used internally by task_
 template<typename _T> struct _task_result_ {
 	inline _task_result_() {}
 	inline _task_result_(const _T &_r) : r(_r) {}
@@ -20,19 +20,30 @@ private:
 	_T r;
 };
 
-/// task_
+///	Thread task class template. Serves to start and manage seperate thread.
+/**	Encloses a function, member function or functor with up to ten arguments.
+	Allows to check if enclosed function finished execution and to get execution result.
+ */
 template<typename _R, typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype, typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype>
 struct task_ : uncopyble {
-	typedef functor_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> functor;
+	/// construct a task from a function or a functor
 	template<typename _F> inline task_(_F &_f, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
+	/// construct a task ftom a member function
 	template<typename _O, typename _M> inline task_(_O &_o, const _M &_m, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
+	/// destructor
 	inline ~task_();
+	/// start execution
 	inline bool run(_A0 _a0 = _A0(), _A1 _a1 = _A1(), _A2 _a2 = _A2(), _A3 _a3 = _A3(), _A4 _a4 = _A4(), _A5 _a5 = _A5(), _A6 _a6 = _A6(), _A7 _a7 = _A7(), _A8 _a8 = _A8(), _A9 _a9 = _A9());
+	/// check if execution is finished
 	inline bool done() const;
+	/// wait while execution will be finished and return the result
 	inline _R wait() const;
+	/// terminate execution (dont use this)
 	inline void terminate();
+	/// clear a task after execution is finished
 	inline void clear();
 private:
+	typedef functor_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> functor;
 	functor m_functor;
 	handle m_handle;
 	sint m_priority;
@@ -42,14 +53,27 @@ private:
 };
 typedef task_<void> task;
 
-/// event
+///	Thead event class. Event synchronization object wrapper.
+/**	Allows to create event, to set event signaled and nonsignaled state,
+	and to wait for event signaled state is set.
+ */
 struct event : uncopyble {
+	/// constructor
 	inline event(bool _reset = false, bool _state = false);
+	/// destructor
 	inline ~event();
+	/// set event signaled state
 	inline void set();
+	/// set event nonsignaled state
+	inline void reset();
+	/// a calling thead will wait for event signaled state is set
 	inline bool wait(real _time = infinity);
 private:
-	HANDLE m_handle;
+	handle m_handle;
+};
+
+///
+struct criticalsection {
 };
 
 #include "thread.inl"

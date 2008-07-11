@@ -10,12 +10,10 @@
 
 ///	base application class
 /**	[TODO]
- *	
  */
 struct application : manager {
-	/// base application task class
+	///	base application task class
 	/**	[TODO]
-	 *	
 	 */
 	struct task : manager::object {
 		struct info : manager::object::info {
@@ -34,4 +32,19 @@ struct application : manager {
 		thread::task m_task;
 	};
 	virtual bool run();
+};
+
+/// ticker
+/**
+ */
+struct ticker {
+	ticker(real _t);
+	~ticker();
+	void wait();
+private:
+	real m_time;
+	bool m_run;
+	thread::event m_event;
+	thread::task m_task;
+	void m_proc();
 };
