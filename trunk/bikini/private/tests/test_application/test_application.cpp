@@ -25,7 +25,7 @@ struct task0 : bk::application::task {
 			if(!m_window.update(bk::real(bk::sys_time() - l_time))) break;
 			l_time = bk::sys_time();
 			// do something useful
-			l_ticker.wait();
+			l_ticker.tick();
 		}
 	}
 private:

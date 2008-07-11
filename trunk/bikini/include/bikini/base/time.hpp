@@ -19,11 +19,11 @@ struct ticker {
 	~ticker();
 	real period();
 	void set_period(real _period);
-	void wait();
+	void tick();
 private:
 	real m_period;
 	bool m_run;
-	thread::event m_event;
+	thread::event m_tick;
 	thread::task m_task;
 	void m_proc();
 };
