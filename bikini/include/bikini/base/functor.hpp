@@ -185,7 +185,6 @@ private:
 
 ///	A functor with up to ten arguments
 /**	[TODO]
- *	
  */
 template<
 	typename _R = void,

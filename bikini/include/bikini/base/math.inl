@@ -55,15 +55,6 @@ inline uint next_pow2(uint _a) {
 	uint l_a = _a; l_a |= l_a>>1; l_a |= l_a>>2; l_a |= l_a>>4; l_a |= l_a>>8; l_a |= l_a>>16;
 	return (_a&(l_a>>1)) ? l_a + 1 : _a;
 }
-//inline real random() {
-//	return (real)rand() / (real)RAND_MAX;
-//}
-//inline real random(real _max) {
-//	return _max * random();
-//}
-//inline real random(real _min, real _max) {
-//	return _min + random(_max - _min);
-//}
 template<typename _T> inline const _T& min(const _T &_a, const _T &_b) {
 	return _a <= _b ? _a : _b;
 }
@@ -136,62 +127,6 @@ inline _T& _matrix_row_<_S, _T>::operator [] (uint _i) {
 	assert(_i < _S);
 	return *(&cell<0>() + _i);
 }
-//template<uint _S, typename _T>
-//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator = (const _matrix_row_ &_r) {
-//	parent_type::operator = (_r);
-//	m_cell = _r.cell();
-//	return *this;
-//}
-//template<uint _S, typename _T>
-//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - () const {
-//	_matrix_row_ l_r;
-//	neg(l_r);
-//	return l_r;
-//}
-//template<uint _S, typename _T>
-//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator + (const _matrix_row_ &_r) const {
-//	_matrix_row_ l_r;
-//	add(_r, l_r);
-//	return l_r;
-//}
-//template<uint _S, typename _T>
-//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator += (const _matrix_row_ &_r) {
-//	add(_r, *this);
-//	return *this;
-//}
-//template<uint _S, typename _T>
-//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator - (const _matrix_row_ &_r) const {
-//	_matrix_row_ l_r;
-//	sub(_r, l_r);
-//	return l_r;
-//}
-//template<uint _S, typename _T>
-//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator -= (const _matrix_row_ &_r) {
-//	sub(_r, *this);
-//	return *this;
-//}
-//template<uint _S, typename _T>
-//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator * (_T _s) const {
-//	_matrix_row_ l_r;
-//	mul(_s, l_r);
-//	return l_r;
-//}
-//template<uint _S, typename _T>
-//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator *= (_T _s) {
-//	mul(_r, *this);
-//	return *this;
-//}
-//template<uint _S, typename _T>
-//inline const _matrix_row_<_S, _T> _matrix_row_<_S, _T>::operator / (_T _s) const {
-//	_matrix_row_ l_r;
-//	div(_s, l_r);
-//	return l_r;
-//}
-//template<uint _S, typename _T>
-//inline _matrix_row_<_S, _T>& _matrix_row_<_S, _T>::operator /= (_T _s) {
-//	div(_r, *this);
-//	return *this;
-//}
 template<uint _S, typename _T>
 inline void _matrix_row_<_S, _T>::set(const _matrix_row_ &_b) {
 	parent_type::set(_b); m_cell = _b.cell();

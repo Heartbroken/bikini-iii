@@ -52,7 +52,6 @@ manager::object& manager::get(uint _ID) const {
 
 void manager::remove(uint _ID) {
 	assert(exists(_ID));
-	//delete m_objects[_ID & index_mask];
 	m_objects[_ID & index_mask] = 0;
 	m_free_IDs.push_back(_ID & index_mask);
 }
