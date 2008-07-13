@@ -8,48 +8,48 @@
 
 #pragma once
 
-#if defined(BIKNI_VARIANT_DYNAMIC)
+#if defined(BIKNI_VARIANT_IS_DYNAMIC)
 #	define VARIANT_DYN_ALOC
 #endif
 
-template<typename _Typelist> struct variant {
+template<typename _Typelist> struct variant_ {
 	typedef _Typelist typelist;
 
-	inline variant() : m_type(bad_ID) {
+	inline variant_() : m_type(bad_ID) {
 #ifdef VARIANT_DYN_ALOC
 		m_data = 0;
 #endif
 	}
-	inline variant(const variant &_v) : m_type(bad_ID) {
+	inline variant_(const variant_ &_v) : m_type(bad_ID) {
 		construct(_v.type(), _v.data());
 	}
-	template<typename _Type> inline variant(const _Type &_v) : m_type(bad_ID) {
-		__bk_c_assert(typelist::type<_Type>::exists);
+	template<typename _Type> inline variant_(const _Type &_v) : m_type(bad_ID) {
+		c_assert(typelist::type<_Type>::exists);
 		construct(typelist::type<_Type>::index, &_v);
 	}
-	template<typename _Otherlist> inline variant(const variant<_Otherlist> &_v) : m_type(bad_ID) {
-		__bk_c_assert(typelist::otherlist<_Otherlist>::belong);
+	template<typename _Otherlist> inline variant_(const variant_<_Otherlist> &_v) : m_type(bad_ID) {
+		c_assert(typelist::otherlist<_Otherlist>::belong);
 		construct(typelist::otherlist<_Otherlist>::remap(_v.type()), _v.data());
 	}
-	inline ~variant() {
+	inline ~variant_() {
 		destruct();
 	}
 
-	inline variant& operator = (const variant &_v) {
+	inline variant_& operator = (const variant_ &_v) {
 		construct(_v.type(), _v.data());
 		return *this;
 	}
-	template<typename _Type> inline variant& operator = (const _Type &_v) {
-		__bk_c_assert(typelist::type<_Type>::exists);
+	template<typename _Type> inline variant_& operator = (const _Type &_v) {
+		c_assert(typelist::type<_Type>::exists);
 		construct(typelist::type<_Type>::index, &_v);
 		return *this;
 	}
-	template<typename _Otherlist> inline variant& operator = (const variant<_Otherlist> &_v) {
+	template<typename _Otherlist> inline variant_& operator = (const variant_<_Otherlist> &_v) {
 		construct(typelist::otherlist<_Otherlist>::remap(_v.type()), _v.data());
 		return *this;
 	}
 
-	inline bool operator == (const variant &_v) const {
+	inline bool operator == (const variant_ &_v) const {
 		//return m_type != bad_ID && m_type == _v.type() && memcmp(m_data, _v.data(), typelist::size(m_type)) == 0;
 		return m_type != bad_ID && m_type == _v.type() && typelist::compare(m_type, m_data, _v.data());
 	}
@@ -57,7 +57,7 @@ template<typename _Typelist> struct variant {
 		//return typelist::type<_Type>::exists && m_type == typelist::type<_Type>::index && memcmp(m_data, &_v, typelist::size(m_type)) == 0;
 		return m_type != bad_ID && m_type == m_type == typelist::type<_Type>::index && typelist::compare(m_type, m_data, &_v);
 	}
-	template<typename _Otherlist> inline bool operator == (const variant<_Otherlist> &_v) {
+	template<typename _Otherlist> inline bool operator == (const variant_<_Otherlist> &_v) {
 		//return m_type != bad_ID && m_type == typelist::otherlist<_Otherlist>::remap(_v.type()) && memcmp(m_data, _v.data(), typelist::size(m_type)) == 0;
 		return m_type != bad_ID && m_type == typelist::otherlist<_Otherlist>::remap(_v.type()) && typelist::compare(m_type, m_data, _v.data());
 	}
@@ -107,7 +107,7 @@ template<typename _Typelist> struct variant {
 	template<typename _Type> inline static bool can_take(const _Type &_v) {
 		return typelist::type<_Type>::exists;
 	}
-	template<typename _Otherlist> inline static bool can_take(const variant<_Otherlist> &_v) {
+	template<typename _Otherlist> inline static bool can_take(const variant_<_Otherlist> &_v) {
 		return typelist::otherlist<_Otherlist>::remap(_v.type()) != bad_ID;
 	}
 	inline bool is_none() const {
@@ -143,6 +143,7 @@ private:
 	u8 m_data[typelist::max_size];
 #endif
 };
+typedef variant_<fundamentals> variant;
 
 #ifdef VARIANT_DYN_ALOC
 #	undef VARIANT_DYN_ALOC
