@@ -54,7 +54,11 @@ bool window::create(HWND _handle) {
 	m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
 	SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
-	return false;
+	return true;
+}
+
+HWND window::handle() {
+	return m_handle;
 }
 
 void window::show(bool _yes) {
@@ -66,7 +70,7 @@ void window::hide() {
 }
 
 void window::set_caption(const wstr &_s) {
-	SetWindowText(m_handle, _s.c_str());
+	SetWindowTextW(m_handle, _s.c_str());
 }
 
 void window::set_size(uint _width, uint _height) {
@@ -104,7 +108,7 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			DestroyWindow(m_handle);
 		} break;
 		case WM_DESTROY : {
-			PostQuitMessage(0);
+			if(m_oldproc == 0) PostQuitMessage(0);
 		} break;
 		case WM_GETMINMAXINFO : {
 			MINMAXINFO &l_minmax = *(MINMAXINFO*)(void*)_lparam;

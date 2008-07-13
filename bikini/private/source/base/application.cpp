@@ -12,11 +12,22 @@ namespace bk { /*---------------------------------------------------------------
 
 // application
 
+application::application() {
+	//
+	typedef HWND (WINAPI *GetConsoleWindow_fn)(void);
+	HMODULE l_kernel32_h = GetModuleHandleA("kernel32.dll");
+	GetConsoleWindow_fn GetConsoleWindow = (GetConsoleWindow_fn)GetProcAddress(l_kernel32_h, "GetConsoleWindow");
+	if(GetConsoleWindow != 0) ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
+	//
+	SetConsoleTitleA(" bikini-iii");
+}
+application::~application() {
+}
+
 bool application::run() {
+	ticker l_ticker(0.1f);
 	bool l_done = false;
 	while(!l_done) {
-		thread::task_<void, real> l_step(sleep, THREAD_PRIORITY_TIME_CRITICAL);
-		l_step.run(0.1f);
 		l_done = true;
 		uint l_ID = get_first_ID();
 		while(l_ID != bad_ID) {
@@ -24,7 +35,7 @@ bool application::run() {
 			else l_done = false;
 			l_ID = get_next_ID(l_ID);
 		}
-		l_step.wait();
+		l_ticker.sync();
 	}
 	return false;
 }

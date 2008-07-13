@@ -20,7 +20,7 @@ private:
 	_T r;
 };
 
-///	Thread task class template. Serves to start and manage seperate thread.
+///	Thread task class template. Serves to start and manage separate thread.
 /**	Encloses a function, member function or functor with up to ten arguments.
 	Allows to check if enclosed function finished execution and to get execution result.
  */
@@ -38,7 +38,7 @@ struct task_ : uncopyble {
 	inline bool done() const;
 	/// wait while execution will be finished and return the result
 	inline _R wait() const;
-	/// terminate execution (dont use this)
+	/// terminate execution (don't use this)
 	inline void terminate();
 	/// clear a task after execution is finished
 	inline void clear();
@@ -53,27 +53,48 @@ private:
 };
 typedef task_<void> task;
 
-///	Thead event class. Event synchronization object wrapper.
+///	Event synchronization object wrapper.
 /**	Allows to create event, to set event signaled and nonsignaled state,
 	and to wait for event signaled state is set.
  */
-struct event : uncopyble {
+struct signal : uncopyble {
 	/// constructor
-	inline event(bool _reset = false, bool _state = false);
+	inline signal(bool _reset = false, bool _state = false, const astr &_name = "");
 	/// destructor
-	inline ~event();
+	inline ~signal();
 	/// set event signaled state
 	inline void set();
 	/// set event nonsignaled state
 	inline void reset();
 	/// a calling thead will wait for event signaled state is set
-	inline bool wait(real _time = infinity);
+	inline bool wait(real _timeout = infinity);
 private:
 	handle m_handle;
 };
 
-///
-struct criticalsection {
+///	Mutex synchronization object wrapper.
+/**	
+ */
+struct mutex {
+	inline mutex(bool _owned = false, const astr &_name = "");
+	inline ~mutex();
+	inline bool take(real _timeout = infinity);
+	inline void drop();
+private:
+	handle m_handle;
+};
+
+///	
+/**	
+ */
+struct section {
+	inline section();
+	inline ~section();
+	inline void enter();
+	inline bool try_enter();
+	inline void leave();
+private:
+	CRITICAL_SECTION m_criticalsection;
 };
 
 #include "thread.inl"

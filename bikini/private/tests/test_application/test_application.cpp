@@ -19,33 +19,35 @@ struct task0 : bk::application::task {
 		m_window.create(GetModuleHandle(0), 1024U, 640U, 0);
 		m_window.set_caption(L".application ");
 		m_window.show();
-		bk::ticker l_ticker(0.03f);
+		m_video.create();
+		m_video.activate(m_window.handle());
+		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
 			if(!m_window.update(bk::real(bk::sys_time() - l_time))) break;
+			m_video.begin_scene();
+			m_video.clear_viewport();
+			m_video.end_scene();
+			m_video.present();
 			l_time = bk::sys_time();
 			// do something useful
-			l_ticker.tick();
+			//
+			l_ticker.sync();
 		}
 	}
 private:
 	bk::window m_window;
+	bk::video m_video;
 };
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	//
-	typedef HWND (WINAPI *GetConsoleWindow_fn)(void);
-	HMODULE l_kernel32_h = GetModuleHandle(L"kernel32.dll");
-	GetConsoleWindow_fn GetConsoleWindow = (GetConsoleWindow_fn)GetProcAddress(l_kernel32_h, "GetConsoleWindow");
-	ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
-	//
 	{
-	SetConsoleTitle(L" bikini-iii");
 	bk::application l_app;
-	task0::info l_task0; l_app.spawn(l_task0);
+	task0::info l_task0;
+	l_app.spawn(l_task0);
+	//l_app.spawn(l_task0);
 	l_app.run();
-	//bk::sleep(3.f);
 	}
 	return 0;
 }

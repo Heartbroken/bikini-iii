@@ -8,7 +8,9 @@
 
 #pragma once
 
+/// Returns current system time
 rbig sys_time();
+/// Make thread to sleep during next _t seconds (!!! not milliseconds !!!)
 void sleep(real _t);
 
 /// ticker
@@ -19,11 +21,11 @@ struct ticker {
 	~ticker();
 	real period();
 	void set_period(real _period);
-	void tick();
+	void sync();
 private:
 	real m_period;
 	bool m_run;
-	thread::event m_tick;
+	thread::signal m_sync;
 	thread::task m_task;
 	void m_proc();
 };

@@ -2,10 +2,10 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8,00"
-	Name="base"
-	ProjectGUID="{537FCF05-5BA7-43CB-9652-35FBF764B18E}"
-	RootNamespace="base"
-	Keyword="Win32Proj"
+	Name="test_MFC"
+	ProjectGUID="{17932C15-15B0-42DF-BE6C-7B099B18CDBF}"
+	RootNamespace="test_MFC"
+	Keyword="MFCProj"
 	>
 	<Platforms>
 		<Platform
@@ -19,7 +19,8 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			UseOfMFC="1"
 			CharacterSet="1"
 			>
 			<Tool
@@ -36,18 +37,19 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="false"
+				ValidateParameters="false"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="header.hpp"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
@@ -57,16 +59,26 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\base_d.lib"
+				Name="VCLinkerTool"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\..\library"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -78,6 +90,12 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -85,7 +103,8 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
+			ConfigurationType="1"
+			UseOfMFC="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -103,16 +122,19 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+				ValidateParameters="false"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
+				MinimalRebuild="false"
 				RuntimeLibrary="0"
-				EnableEnhancedInstructionSet="0"
+				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="header.hpp"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
@@ -122,16 +144,28 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\base.lib"
+				Name="VCLinkerTool"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\..\library"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -143,70 +177,10 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Profile|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="4"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
+				Name="VCAppVerifierTool"
 			/>
 			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="header.hpp"
-				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
-				DebugInformationFormat="4"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\base_d.lib"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -222,15 +196,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\application.cpp"
+				RelativePath=".\ChildFrm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\assert.cpp"
+				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\base.cpp"
+				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -248,37 +222,17 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\manager.cpp"
+				RelativePath=".\test_MFC.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base\manager.inl"
+				RelativePath=".\test_MFCDoc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base\math.inl"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\thread.inl"
-				>
-			</File>
-			<File
-				RelativePath=".\time.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\window.cpp"
+				RelativePath=".\test_MFCView.cpp"
 				>
 			</File>
 		</Filter>
@@ -288,73 +242,69 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\header.hpp"
+				RelativePath=".\ChildFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\test_MFC.h"
+				>
+			</File>
+			<File
+				RelativePath=".\test_MFCDoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\test_MFCView.h"
 				>
 			</File>
 		</Filter>
 		<Filter
-			Name="Interface Files"
+			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\include\bikini\base\application.hpp"
+				RelativePath=".\res\test_MFC.ico"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base\assert.hpp"
+				RelativePath=".\test_MFC.rc"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base.hpp"
+				RelativePath=".\res\test_MFC.rc2"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base\functor.hpp"
+				RelativePath=".\res\test_MFCDoc.ico"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\base\manager.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\math.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\system_win32.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\thread.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\time.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\traits.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\typelist.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\types.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\variant.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\window.hpp"
+				RelativePath=".\res\Toolbar.bmp"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="test_MFC.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
