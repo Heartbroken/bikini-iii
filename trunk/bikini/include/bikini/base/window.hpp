@@ -13,6 +13,7 @@ struct window {
 	virtual ~window();
 	bool create(HINSTANCE _instance, uint _width, uint _height, HICON _icon);
 	bool create(HWND _handle);
+	HWND handle();
 	void show(bool _yes = true);
 	void hide();
 	void set_caption(const wstr &_s);

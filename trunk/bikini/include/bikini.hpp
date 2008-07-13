@@ -11,3 +11,4 @@
 #include "config.hpp"
 
 #include "bikini/base.hpp"
+#include "bikini/render.hpp"

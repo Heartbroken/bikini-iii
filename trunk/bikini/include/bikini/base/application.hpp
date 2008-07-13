@@ -31,5 +31,7 @@ struct application : manager {
 	private:
 		thread::task m_task;
 	};
+	application();
+	~application();
 	virtual bool run();
 };

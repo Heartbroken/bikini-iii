@@ -203,23 +203,59 @@ inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::clear()
 	m_handle = 0;
 }
 
-// event
+// signal
 
-inline event::event(bool _reset, bool _state) : m_handle(CreateEvent(0, 0, 0, 0)) {
+inline signal::signal(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, 0, 0, 0)) {
 }
-inline event::~event() {
+inline signal::~signal() {
 	if(m_handle != 0) CloseHandle(m_handle);
 }
-inline void event::set() {
+inline void signal::set() {
 	if(m_handle != 0) SetEvent(m_handle);
 }
-inline void event::reset() {
+inline void signal::reset() {
 	if(m_handle != 0) ResetEvent(m_handle);
 }
-inline bool event::wait(real _time) {
+inline bool signal::wait(real _timeout) {
 	if(m_handle != 0) {
-		if(WaitForSingleObject(m_handle, _time < infinity ? DWORD(_time * 1000.f) : INFINITE) == WAIT_TIMEOUT) return false;
+		if(WaitForSingleObject(m_handle, _timeout < infinity ? DWORD(_timeout * 1000.f) : INFINITE) == WAIT_TIMEOUT) return false;
 		return true;
 	}
 	return false;
+}
+
+// mutex
+
+inline mutex::mutex(bool _owned, const astr &_name) : m_handle(CreateMutexA(0, _owned, _name.c_str())) {
+}
+inline mutex::~mutex() {
+	if(m_handle != 0) CloseHandle(m_handle);
+}
+inline bool mutex::take(real _timeout) {
+	if(m_handle != 0) {
+		if(WaitForSingleObject(m_handle, _timeout < infinity ? DWORD(_timeout * 1000.f) : INFINITE) == WAIT_TIMEOUT) return false;
+		return true;
+	}
+	return false;
+}
+inline void mutex::drop() {
+	if(m_handle != 0) ReleaseMutex(m_handle);
+}
+
+// section
+
+inline section::section() {
+	InitializeCriticalSection(&m_criticalsection);
+}
+inline section::~section() {
+	DeleteCriticalSection(&m_criticalsection);
+}
+inline void section::enter() {
+	EnterCriticalSection(&m_criticalsection);
+}
+inline bool section::try_enter() {
+	return TryEnterCriticalSection(&m_criticalsection) != 0;
+}
+inline void section::leave() {
+	LeaveCriticalSection(&m_criticalsection);
 }
