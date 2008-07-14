@@ -73,6 +73,10 @@ void window::set_caption(const wstr &_s) {
 	SetWindowTextW(m_handle, _s.c_str());
 }
 
+void window::set_caption(const astr &_s) {
+	SetWindowTextA(m_handle, _s.c_str());
+}
+
 void window::set_size(uint _width, uint _height) {
 	RECT l_drect, l_wrect, l_crect;
 	GetWindowRect(GetDesktopWindow(), &l_drect);

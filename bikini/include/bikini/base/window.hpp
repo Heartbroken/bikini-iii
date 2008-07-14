@@ -17,6 +17,7 @@ struct window {
 	void show(bool _yes = true);
 	void hide();
 	void set_caption(const wstr &_s);
+	void set_caption(const astr &_s);
 	void set_size(uint _width, uint _height);
 	bool update(real _dt);
 
