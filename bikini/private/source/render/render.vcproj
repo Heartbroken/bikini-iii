@@ -178,6 +178,10 @@
 				RelativePath=".\video.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\window.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header"
@@ -204,6 +208,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\render\video.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\render\window.hpp"
 				>
 			</File>
 		</Filter>

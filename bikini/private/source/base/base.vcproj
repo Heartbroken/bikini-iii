@@ -277,10 +277,6 @@
 				RelativePath=".\time.cpp"
 				>
 			</File>
-			<File
-				RelativePath=".\window.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header"
@@ -347,10 +343,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\variant.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\include\bikini\base\window.hpp"
 				>
 			</File>
 		</Filter>
