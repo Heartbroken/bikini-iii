@@ -11,8 +11,9 @@
 struct window {
 	window();
 	virtual ~window();
-	bool create(HINSTANCE _instance, uint _width, uint _height, HICON _icon);
+	bool create(uint _width, uint _height, HICON _icon = 0);
 	bool create(HWND _handle);
+	void destroy();
 	HWND handle();
 	void show(bool _yes = true);
 	void hide();

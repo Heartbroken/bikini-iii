@@ -16,7 +16,7 @@ struct task0 : bk::application::task {
 		bk::application::task(_info, _application)
 	{}
 	void main() {
-		m_window.create(GetModuleHandle(0), 1024U, 640U, 0);
+		m_window.create(1024U, 640U);
 		m_window.set_caption("test_application ");
 		m_window.show();
 		m_video.create();

@@ -16,20 +16,21 @@ window::window() : m_handle(0), m_oldproc(0) {
 window::~window() {
 }
 
-bool window::create(HINSTANCE _instance, uint _width, uint _height, HICON _icon) {
-    WNDCLASS l_window_class = { 
+bool window::create(uint _width, uint _height, HICON _icon) {
+	HINSTANCE l_instance = GetModuleHandle(0);
+    WNDCLASSW l_window_class = { 
 		CS_HREDRAW|CS_VREDRAW,
 		window::window_proc,
 		0,
 		0,
-		_instance,
+		l_instance,
         _icon,
         LoadCursor(NULL, IDC_ARROW), 
         (HBRUSH)GetStockObject(BLACK_BRUSH), NULL,
         L"bikini-iii window"
 	};
-    RegisterClass(&l_window_class);
-	m_handle = CreateWindowEx(
+    RegisterClassW(&l_window_class);
+	m_handle = CreateWindowExW(
 		WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT,
 		L"bikini-iii window",
 		0,
@@ -40,7 +41,7 @@ bool window::create(HINSTANCE _instance, uint _width, uint _height, HICON _icon)
 		(int)_height,
 		0,
 		0,
-		_instance,
+		l_instance,
 		0
 	);
 	if(m_handle == 0) return false;
@@ -55,6 +56,10 @@ bool window::create(HWND _handle) {
 	SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	return true;
+}
+
+void window::destroy() {
+	if(m_handle != 0) DestroyWindow(m_handle);
 }
 
 HWND window::handle() {
@@ -91,6 +96,7 @@ void window::set_size(uint _width, uint _height) {
 }
 
 bool window::update(real _dt) {
+	if(m_handle == 0) return false;
 	MSG l_message;
 	while(PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
 		TranslateMessage(&l_message);
@@ -113,6 +119,7 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 		} break;
 		case WM_DESTROY : {
 			if(m_oldproc == 0) PostQuitMessage(0);
+			m_handle = 0;
 		} break;
 		case WM_GETMINMAXINFO : {
 			MINMAXINFO &l_minmax = *(MINMAXINFO*)(void*)_lparam;
