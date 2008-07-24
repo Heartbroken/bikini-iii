@@ -18,6 +18,7 @@ struct video {
 
 	inline bool ready() const { return m_fsm.state_is(m_ready); }
 	inline bool failed() const { return m_fsm.state_is(m_failed); }
+	inline bool lost() const { return m_fsm.state_is(m_lost); }
 
 private:
 	static IDirect3D9 *sm_direct3d9_p;
