@@ -48,6 +48,7 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/thread.hpp"
 #include "base/time.hpp"
 #include "base/manager.hpp"
+#include "base/fsm.hpp"
 #include "base/application.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/

@@ -39,6 +39,8 @@
 
 #include <windows.h>
 
+#include <d3d9.h>
+
 #ifdef min
 #	undef min
 #endif
