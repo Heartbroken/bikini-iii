@@ -153,7 +153,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\application.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\audio.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\device.cpp"
 				>
 			</File>
 			<File
@@ -181,7 +189,23 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\system\thread.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\ticker.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\time.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\video.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\window.cpp"
 				>
 			</File>
 		</Filter>
@@ -201,7 +225,15 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
+				RelativePath="..\..\..\include\bikini\system\application.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\system\audio.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\system\device.hpp"
 				>
 			</File>
 			<File
@@ -213,7 +245,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\system\system_win32.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\system\thread.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\system\ticker.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\system\time.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\system\video.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\system\window.hpp"
 				>
 			</File>
 		</Filter>

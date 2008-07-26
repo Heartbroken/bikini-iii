@@ -47,8 +47,6 @@ typedef std::wstring		wstr;
 
 // constants
 
-/// bad GUID
-const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
 /// bad ID
 const uint bad_ID = uint(-1);
 /// real 0
@@ -66,6 +64,8 @@ const real r_1 = real(1);
 /// type selector template
 template<bool _C, typename _T0, typename _T1> struct select { typedef _T0 type; };
 template<typename _T0, typename _T1> struct select<false, _T0, _T1> { typedef _T1 type; };
+
+//classes
 
 struct uncopyble {
 	inline uncopyble() {}

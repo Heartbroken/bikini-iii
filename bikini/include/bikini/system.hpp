@@ -16,12 +16,20 @@
 
 #include "base.hpp"
 
-#include <d3d9.h>
+#if defined(_WIN32)
+#	include "system/system_win32.hpp"
+#endif
 
 namespace bk { /*--------------------------------------------------------------------------------*/
 
+#include "system/time.hpp"
+#include "system/thread.hpp"
+#include "system/ticker.hpp"
+#include "system/application.hpp"
+#include "system/device.hpp"
 #include "system/video.hpp"
 #include "system/audio.hpp"
 #include "system/input.hpp"
+#include "system/window.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/

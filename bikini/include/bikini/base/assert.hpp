@@ -21,7 +21,7 @@ bool ARI2(char* _expression, char* _file, int _line, char* _function, char* _mes
 #define halt { Sleep(1); __asm int 3 }
 
 #ifdef _DEBUG
-#	define assert(E)	while(!(E)) { if(bk::ARI(#E, __FILE__, __LINE__, __FUNCTION__)) break; halt; }
+#	define assert(E)	while(!(E)) { Sleep(1); if(bk::ARI(#E, __FILE__, __LINE__, __FUNCTION__)) break; halt; }
 #else
 #	define assert(E)
 #endif

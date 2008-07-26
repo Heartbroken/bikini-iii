@@ -8,7 +8,24 @@
 
 #pragma once
 
-struct video {
+struct video : device {
+	struct rt { enum resource_type {
+		swapchain, vbuffer, ibuffer, texture
+	};};
+	struct resource : device::resource {
+		resource(video &_video, uint _type);
+		inline video& get_video() const { return static_cast<video&>(get_device()); }
+	};
+	// swapchain
+	struct swapchain : resource {
+		swapchain(video &_video);
+		virtual ~swapchain();
+		bool create();
+		void destroy();
+	private:
+		IDirect3DSwapChain9 *m_direct3dswapchain9_p;
+	};
+
 	video();
 	~video();
 
