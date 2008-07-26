@@ -39,7 +39,8 @@
 
 #include <windows.h>
 
-#include <d3d9.h>
+//#define D3D_DEBUG_INFO
+//#include <d3d9.h>
 
 #ifdef min
 #	undef min
@@ -56,3 +57,6 @@
 #ifdef UNICODE
 #	undef UNICODE
 #endif
+
+/// bad GUID
+const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };
