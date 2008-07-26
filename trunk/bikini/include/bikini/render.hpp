@@ -22,6 +22,5 @@ namespace bk { /*---------------------------------------------------------------
 
 #include "render/resource.hpp"
 #include "render/video.hpp"
-#include "render/window.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/

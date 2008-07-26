@@ -6,8 +6,21 @@
 
 *//*---------------------------------------------------------------------------------------------*/
 
-#include "header.hpp"
+#pragma once
 
-namespace bk { /*--------------------------------------------------------------------------------*/
-
-} /* namespace bk -------------------------------------------------------------------------------*/
+/// ticker
+/** [TODO]
+ */
+struct ticker {
+	ticker(real _period);
+	~ticker();
+	real period();
+	void set_period(real _period);
+	void sync();
+private:
+	real m_period;
+	bool m_run;
+	thread::signal m_sync;
+	thread::task m_task;
+	void m_proc();
+};

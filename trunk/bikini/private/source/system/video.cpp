@@ -8,6 +8,8 @@
 
 #include "header.hpp"
 
+#pragma comment(lib, "d3d9")
+
 namespace bk { /*--------------------------------------------------------------------------------*/
 
 // _video_helper
@@ -17,32 +19,10 @@ struct _video_helper {
 	static const int dummy_window_heigth = 100;
 	static HWND create_dummy_window() {
 		HINSTANCE l_instance = GetModuleHandle(0);
-		WNDCLASSW l_window_class = { 
-			CS_HREDRAW|CS_VREDRAW,
-			0,
-			0,
-			0,
-			l_instance,
-			0,
-			LoadCursor(NULL, IDC_ARROW), 
-			(HBRUSH)GetStockObject(BLACK_BRUSH), NULL,
-			L"bikini-iii video dummy window"
-		};
+		wchar_t* l_window_class_name = L"bikini-iii video dummy window";
+		WNDCLASSW l_window_class = { 0, DefWindowProcW, 0, 0, l_instance, 0, 0, 0, 0, l_window_class_name };
 		RegisterClassW(&l_window_class);
-		HWND l_handle = CreateWindowExW(
-			0,//WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT,
-			L"bikini-iii video dummy window",
-			0,
-			0,//WS_BORDER|WS_CAPTION,
-			CW_USEDEFAULT,
-			CW_USEDEFAULT,
-			dummy_window_width,
-			dummy_window_heigth,
-			0,
-			0,
-			l_instance,
-			0
-		);
+		HWND l_handle = CreateWindowExW(0, l_window_class_name, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, dummy_window_width, dummy_window_heigth, 0, 0, l_instance, 0);
 		if(l_handle == 0) std::cerr << "ERROR: Can't create dummy window\n";
 		return l_handle;
 	}
@@ -61,13 +41,16 @@ video::video() :
 	m_fsm(*this, m_void)
 {}
 video::~video() {
-	assert(m_direct3ddevice9_p == 0 && "Call video::destroy() before exit");
+	if(m_direct3ddevice9_p != 0) {
+		std::cerr << "ERROR: Destroy video device before deleting\n";
+		assert(m_direct3ddevice9_p == 0);
+	}
 }
 bool video::create() {
 	if(sm_direct3d9_p == 0) {
 		sm_direct3d9_p = Direct3DCreate9(D3D_SDK_VERSION);
 		if(sm_direct3d9_p == 0) {
-			std::cerr << "ERROR: Direct3DCreate9 failed.\n";
+			std::cerr << "ERROR: Can't create Direct3D object.\n";
 			m_fsm.set_state(m_failed);
 			return false;
 		}
@@ -80,7 +63,6 @@ bool video::create() {
 	m_d3dpresent_parameters.BackBufferWidth = _video_helper::dummy_window_width;
 	m_d3dpresent_parameters.BackBufferHeight = _video_helper::dummy_window_heigth;
     m_d3dpresent_parameters.EnableAutoDepthStencil = false;
-	//m_d3dpresent_parameters.AutoDepthStencilFormat = D3DFMT_D24S8;
 	m_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	if(FAILED(sm_direct3d9_p->CreateDevice(
@@ -91,7 +73,6 @@ bool video::create() {
 		&m_d3dpresent_parameters,
 		&m_direct3ddevice9_p
 	))) {
-		//MessageBoxA(_window, "ERROR: Can't create D3D device", "bikini-iii", MB_OK|MB_ICONSTOP);
 		std::cerr << "ERROR: Can't create D3D device\n";
 		m_fsm.set_state(m_failed);
 		return false;
@@ -124,5 +105,26 @@ void video::m_failed_e() {}
 void video::m_lost_b() {}
 void video::m_lost_u(real _dt) {}
 void video::m_lost_e() {}
+
+// video::resource
+
+video::resource::resource(video &_video, uint _type) :
+	device::resource(_video, _type)
+{}
+
+// video::swapchain
+
+video::swapchain::swapchain(video &_video) :
+	resource(_video, rt::swapchain),
+	m_direct3dswapchain9_p(0)
+{}
+video::swapchain::~swapchain() {
+}
+bool video::swapchain::create() {
+	return true;
+}
+void video::swapchain::destroy() {
+	super::destroy();
+}
 
 } /* namespace bk -------------------------------------------------------------------------------*/

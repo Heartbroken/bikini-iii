@@ -19,7 +19,7 @@
 #include "../config.hpp"
 
 #if defined(_WIN32)
-#	include "base/system_win32.hpp"
+#	include "base/base_win32.hpp"
 #endif
 
 #include <math.h>
@@ -38,17 +38,14 @@
 /// bikini-iii main namespace
 namespace bk { /*--------------------------------------------------------------------------------*/
 
-#include "base/assert.hpp"
 #include "base/types.hpp"
+#include "base/assert.hpp"
 #include "base/typelist.hpp"
 #include "base/traits.hpp"
 #include "base/math.hpp"
 #include "base/functor.hpp"
 #include "base/variant.hpp"
-#include "base/thread.hpp"
-#include "base/time.hpp"
 #include "base/manager.hpp"
 #include "base/fsm.hpp"
-#include "base/application.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/

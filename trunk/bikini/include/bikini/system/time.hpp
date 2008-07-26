@@ -6,8 +6,9 @@
 
 *//*---------------------------------------------------------------------------------------------*/
 
-#include "header.hpp"
+#pragma once
 
-namespace bk { /*--------------------------------------------------------------------------------*/
-
-} /* namespace bk -------------------------------------------------------------------------------*/
+/// Returns current system time
+rbig sys_time();
+/// Make thread to sleep during next _t seconds (!!! not milliseconds !!!)
+void sleep(real _t);
