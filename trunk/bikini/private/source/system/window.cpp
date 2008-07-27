@@ -10,7 +10,7 @@
 
 namespace bk { //----------------------------------------------------------------------------------
 
-window::window() : m_handle(0), m_oldproc(0) {
+window::window(video &_video) : m_handle(0), m_oldproc(0), m_video(_video), m_screen_ID(bad_ID) {
 }
 
 window::~window() {
@@ -47,7 +47,8 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	if(m_handle == 0) return false;
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
-	if(!m_video.create()) return false;
+	if(!m_video.ready()) return false;
+	m_create_video_screen();
 	return true;
 }
 
@@ -56,12 +57,40 @@ bool window::create(HWND _handle) {
 	m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
 	SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
-	m_video.create();
+	if(!m_video.ready()) return false;
+	m_create_video_screen();
+	return true;
+}
+
+bool window::update(real _dt) {
+	if(m_oldproc == 0) {
+		MSG l_message;
+		while(PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
+			TranslateMessage(&l_message);
+			DispatchMessage(&l_message);
+			if(l_message.message == WM_QUIT) return false;
+		}
+	}
+	m_video.lock();
+	if(m_video.ready()) {
+		if(!m_video.exists(m_screen_ID)) m_create_video_screen();
+		if(m_video.exists(m_screen_ID)) {
+			vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+			if(l_screen.valid()) {
+				l_screen.present();
+				if(l_screen.begin()) {
+					l_screen.clear(bk::cf::color, bk::magenta);
+					l_screen.end();
+				}
+			}
+		}
+	}
+	m_video.unlock();
 	return true;
 }
 
 void window::destroy() {
-	m_video.destroy();
+	m_destroy_video_screen();
 	DestroyWindow(m_handle);
 }
 
@@ -98,17 +127,6 @@ void window::set_size(uint _width, uint _height) {
 	MoveWindow(m_handle, l_left, l_top, l_width, l_height, TRUE);
 }
 
-bool window::update(real _dt) {
-	if(m_handle == 0) return false;
-	MSG l_message;
-	while(PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
-		TranslateMessage(&l_message);
-		DispatchMessage(&l_message);
-		if(l_message.message == WM_QUIT) return false;
-	}
-	return true;
-}
-
 LRESULT CALLBACK window::window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	window &l_window = *reinterpret_cast<window*>((LONG_PTR)GetWindowLong(_handle, GWL_USERDATA));
 	if(&l_window != 0) return l_window.m_proc(_message, _wparam, _lparam);
@@ -121,8 +139,19 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			DestroyWindow(m_handle);
 		} break;
 		case WM_DESTROY : {
-			if(m_oldproc == 0) PostQuitMessage(0);
-			m_handle = 0;
+			if(m_oldproc == 0) {
+				PostQuitMessage(0);
+				//SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)0);
+				//m_handle = 0;
+			} else {
+				SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)m_oldproc);
+			}
+		} break;
+		case WM_SIZE : {
+			m_video.lock();
+			m_destroy_video_screen();
+			m_create_video_screen();
+			m_video.unlock();
 		} break;
 		case WM_GETMINMAXINFO : {
 			MINMAXINFO &l_minmax = *(MINMAXINFO*)(void*)_lparam;
@@ -136,6 +165,32 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	}
 	if(m_oldproc != 0) return m_oldproc(m_handle, _message, _wparam, _lparam);
 	return DefWindowProcW(m_handle, _message, _wparam, _lparam);
+}
+
+bool window::m_create_video_screen() {
+	RECT l_crect; GetClientRect(m_handle, &l_crect);
+	if(l_crect.right > 0 && l_crect.bottom > 0) {
+		m_screen.window = m_handle;
+		m_screen.fullscreen = false;
+		m_screen.width = l_crect.right;
+		m_screen.height = l_crect.bottom;
+		m_screen_ID = m_video.spawn(m_screen);
+		vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+		l_screen.create();
+		if(l_screen.begin()) {
+			l_screen.clear(bk::cf::color, bk::magenta);
+			l_screen.end();
+		}
+	}
+	return true;
+}
+
+void window::m_destroy_video_screen() {
+	if(m_video.exists(m_screen_ID)) {
+		m_video.get<vr::screen>(m_screen_ID).destroy();
+		m_video.kill(m_screen_ID);
+		m_screen_ID = bad_ID;
+	}
 }
 
 } // namespace bk //-------------------------------------------------------------------------------

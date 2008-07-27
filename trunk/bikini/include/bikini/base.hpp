@@ -25,6 +25,7 @@
 #include <math.h>
 #include <process.h>
 
+#include <bitset>
 #include <vector>
 #include <list>
 #include <set>

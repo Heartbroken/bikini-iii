@@ -332,6 +332,27 @@ template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, fals
 template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
 typedef quat_r_<real> quat_r;
 
+/// color
+struct color : r1x4 {
+	inline color() {}
+	inline color(real _r, real _g, real _b, real _a = r_1) : r1x4(_r, _g, _b, _a) {}
+	inline color(u32 _c) : r1x4(real((_c>>16)&0xff)/real(255), real((_c>>8)&0xff)/real(255), real((_c>>0)&0xff)/real(255), real((_c>>24)&0xff)/real(255)) {}
+	inline real r() const { return cell<0, 0>(); }
+	inline real g() const { return cell<0, 1>(); }
+	inline real b() const { return cell<0, 2>(); }
+	inline real a() const { return cell<0, 3>(); }
+	inline operator u32 () const { return (u32(a()*real(255))<<24)|(u32(r()*real(255))<<16)|(u32(g()*real(255))<<8)|(u32(b()*real(255))<<0); }
+};
+
+const color white(r_1, r_1, r_1);
+const color black(r_0, r_0, r_0);
+const color red(r_1, r_0, r_0);
+const color green(r_0, r_1, r_0);
+const color blue(r_0, r_0, r_1);
+const color yellow(r_1, r_1, r_0);
+const color cyan(r_0, r_1, r_1);
+const color magenta(r_1, r_0, r_1);
+
 /// random number generator
 /**	Template parametre _ID is used to create a set
 	of independent random number generators

@@ -34,11 +34,9 @@ public:
 
 // bikini-iii
 private:
-	bk::window m_window;
-	bk::video m_video;
 	bool m_run;
+	//bk::window m_window;
 	bk::thread::task m_update_task;
-	bk::thread::section m_update_section;
 	void update();
 
 protected:
@@ -52,6 +50,12 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 public:
 	afx_msg void OnDestroy();
+protected:
+	virtual void OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/);
+public:
+	afx_msg void OnPaint();
+public:
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 #ifndef _DEBUG  // debug version in test_MFCView.cpp

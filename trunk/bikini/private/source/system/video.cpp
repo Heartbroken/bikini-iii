@@ -15,14 +15,12 @@ namespace bk { /*---------------------------------------------------------------
 // _video_helper
 
 struct _video_helper {
-	static const int dummy_window_width = 100;
-	static const int dummy_window_heigth = 100;
 	static HWND create_dummy_window() {
 		HINSTANCE l_instance = GetModuleHandle(0);
 		wchar_t* l_window_class_name = L"bikini-iii video dummy window";
 		WNDCLASSW l_window_class = { 0, DefWindowProcW, 0, 0, l_instance, 0, 0, 0, 0, l_window_class_name };
 		RegisterClassW(&l_window_class);
-		HWND l_handle = CreateWindowExW(0, l_window_class_name, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, dummy_window_width, dummy_window_heigth, 0, 0, l_instance, 0);
+		HWND l_handle = CreateWindowExW(0, l_window_class_name, 0, 0, CW_USEDEFAULT, CW_USEDEFAULT, 10, 10, 0, 0, l_instance, 0);
 		if(l_handle == 0) std::cerr << "ERROR: Can't create dummy window\n";
 		return l_handle;
 	}
@@ -60,8 +58,8 @@ bool video::create() {
 	memset(&m_d3dpresent_parameters, 0, sizeof(m_d3dpresent_parameters));
 	m_d3dpresent_parameters.hDeviceWindow = _video_helper::create_dummy_window();
 	m_d3dpresent_parameters.Windowed = true;
-	m_d3dpresent_parameters.BackBufferWidth = _video_helper::dummy_window_width;
-	m_d3dpresent_parameters.BackBufferHeight = _video_helper::dummy_window_heigth;
+	m_d3dpresent_parameters.BackBufferWidth = 0;
+	m_d3dpresent_parameters.BackBufferHeight = 0;
     m_d3dpresent_parameters.EnableAutoDepthStencil = false;
 	m_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -69,7 +67,7 @@ bool video::create() {
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		0,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE|D3DCREATE_MULTITHREADED,
 		&m_d3dpresent_parameters,
 		&m_direct3ddevice9_p
 	))) {
@@ -78,6 +76,7 @@ bool video::create() {
 		return false;
 	}
 	m_fsm.set_state(m_ready);
+	m_fsm.update(0);
 	return true;
 }
 bool video::update(real _dt) {
@@ -87,44 +86,192 @@ bool video::update(real _dt) {
 void video::destroy() {
 	if(m_direct3ddevice9_p != 0) { while(m_direct3ddevice9_p->Release() != 0); m_direct3ddevice9_p = 0; }
 	if(sm_direct3d9_p != 0 && sm_direct3d9_p->Release() == 0) sm_direct3d9_p = 0;
-	DestroyWindow(m_d3dpresent_parameters.hDeviceWindow);
+	//DestroyWindow(m_d3dpresent_parameters.hDeviceWindow);
+	m_fsm.set_state(m_void);
+	m_fsm.update(0);
 }
+//bool video::begin_scene() {
+//	if(!ready()) return false;
+//	if(FAILED(m_direct3ddevice9_p->BeginScene())) return false;
+//	return true;
+//}
+//bool video::end_scene() {
+//	if(!ready()) return false;
+//	if(FAILED(m_direct3ddevice9_p->EndScene())) return false;
+//	return true;
+//}
+//bool video::clear_viewport() {
+//	if(!ready()) return false;
+//	if(FAILED(m_direct3ddevice9_p->Clear(0, 0, D3DCLEAR_TARGET, 0xffff0000, 1.f, 0))) return false;
+//	return true;
+//}
 // void state
 void video::m_void_b() {}
 void video::m_void_u(real _dt) {}
 void video::m_void_e() {}
 // ready state
 void video::m_ready_b() {}
-void video::m_ready_u(real _dt) {}
+void video::m_ready_u(real _dt) {
+	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
+	if(l_result == D3DERR_DEVICELOST) return m_fsm.set_state(m_lost);
+}
 void video::m_ready_e() {}
 // failed state
 void video::m_failed_b() {}
 void video::m_failed_u(real _dt) {}
 void video::m_failed_e() {}
 // lost state
-void video::m_lost_b() {}
-void video::m_lost_u(real _dt) {}
+void video::m_lost_b() {
+	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+		get<resource>(l_ID).destroy();
+		kill(l_ID);
+	}
+}
+void video::m_lost_u(real _dt) {
+	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
+	if(l_result == D3DERR_DEVICENOTRESET) {
+		if(FAILED(m_direct3ddevice9_p->Reset(&m_d3dpresent_parameters))) return m_fsm.set_state(m_failed);
+		return m_fsm.set_state(m_ready);
+	}
+	if(l_result == D3DERR_DRIVERINTERNALERROR) {
+		return m_fsm.set_state(m_failed);
+	}
+}
 void video::m_lost_e() {}
+
+// video::resource::info
+
+video::resource::info::info(uint _type) :
+	device::resource::info(_type)
+{}
 
 // video::resource
 
-video::resource::resource(video &_video, uint _type) :
-	device::resource(_video, _type)
+video::resource::resource(const info &_info, video &_video) :
+	device::resource(_info, _video)
 {}
 
-// video::swapchain
+namespace vr { /* video resources ---------------------------------------------------------------*/
 
-video::swapchain::swapchain(video &_video) :
-	resource(_video, rt::swapchain),
-	m_direct3dswapchain9_p(0)
+// screen::info
+
+screen::info::info() :
+	video::resource::info(video::rt::screen), window(0), fullscreen(false), width(0), height(0)
 {}
-video::swapchain::~swapchain() {
+
+// screen
+
+screen *screen::sm_activescreen_p = 0;
+screen::screen(const info &_info, video &_video) :
+	video::resource(_info, _video), m_swapchain_p(0), m_depthstencil_p(0)
+{}
+bool screen::create() {
+	destroy();
+	if(!get_video().ready()) return false;
+	const info &l_info = get_info();
+	D3DPRESENT_PARAMETERS l_d3dpresent_parameters;
+	memset(&l_d3dpresent_parameters, 0, sizeof(l_d3dpresent_parameters));
+	l_d3dpresent_parameters.hDeviceWindow = l_info.window;
+	l_d3dpresent_parameters.Windowed = !l_info.fullscreen;
+	l_d3dpresent_parameters.BackBufferWidth = l_info.width;
+	l_d3dpresent_parameters.BackBufferHeight = l_info.height;
+    l_d3dpresent_parameters.EnableAutoDepthStencil = false;
+	l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	if(FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(&l_d3dpresent_parameters, &m_swapchain_p))) {
+		std::cerr << "ERROR: Can't create swap chain\n";
+		return false;
+	}
+	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(l_info.width, l_info.height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, 0, &m_depthstencil_p, 0))) {
+		m_swapchain_p->Release();
+		std::cerr << "ERROR: Can't create depth buffer\n";
+		return false;
+	}
+	return super::create();
 }
-bool video::swapchain::create() {
-	return true;
-}
-void video::swapchain::destroy() {
+void screen::destroy() {
+	assert(sm_activescreen_p != this);
+	if(m_swapchain_p != 0) {
+		m_swapchain_p->Release();
+		m_swapchain_p = 0;
+	}
+	if(m_depthstencil_p != 0) {
+		m_depthstencil_p->Release();
+		m_depthstencil_p = 0;
+	}
 	super::destroy();
 }
+bool screen::begin() {
+	if(!valid() || !get_video().ready() || sm_activescreen_p != 0) return false;
+	HRESULT l_result = S_OK;
+	IDirect3DSurface9 *l_bbuffer_p = 0;
+	l_result = m_swapchain_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_bbuffer_p); if(FAILED(l_result)) return false;
+	l_result = get_video().get_direct3ddevice9().SetRenderTarget(0, l_bbuffer_p); l_bbuffer_p->Release(); if(FAILED(l_result)) return false;
+	l_result = get_video().get_direct3ddevice9().SetDepthStencilSurface(m_depthstencil_p); if(FAILED(l_result)) return false;
+	l_result = get_video().get_direct3ddevice9().BeginScene(); if(FAILED(l_result)) return false;
+	sm_activescreen_p = this;
+	return true;
+}
+bool screen::clear(uint _flags, const color &_color, real _depth, uint _stencil) {
+	if(!valid() || !get_video().ready() || sm_activescreen_p != this) return false;
+	DWORD l_flags = 0;
+	if(_flags&cf::color) l_flags |= D3DCLEAR_TARGET;
+	if(_flags&cf::depth) l_flags |= D3DCLEAR_ZBUFFER;
+	if(_flags&cf::stencil) l_flags |= D3DCLEAR_STENCIL;
+	if(FAILED(get_video().get_direct3ddevice9().Clear(0, 0, l_flags, _color, (float)_depth, (DWORD)_stencil))) return false;
+	return true;
+}
+bool screen::end() {
+	if(!valid() || !get_video().ready() || sm_activescreen_p != this) return false;
+	sm_activescreen_p = 0;
+	HRESULT l_result = S_OK;
+	l_result = get_video().get_direct3ddevice9().EndScene(); if(FAILED(l_result)) return false;
+	IDirect3DSurface9 *l_bbuffer_p = 0;
+	l_result = get_video().get_direct3ddevice9().GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &l_bbuffer_p); if(FAILED(l_result)) return false;
+	l_result = get_video().get_direct3ddevice9().SetRenderTarget(0, l_bbuffer_p); l_bbuffer_p->Release(); if(FAILED(l_result)) return false;
+	l_result = get_video().get_direct3ddevice9().SetDepthStencilSurface(0); if(FAILED(l_result)) return false;
+	return true;
+}
+bool screen::present() {
+	if(!valid() || !get_video().ready()) return false;
+	if(FAILED(m_swapchain_p->Present(0, 0, 0, 0, 0))) return false;
+	return true;
+}
+
+//// dbuffer::info
+//
+//dbuffer::info::info() :
+//	video::resource::info(video::rt::dbuffer), width(0), height(0)
+//{}
+//
+//// dbuffer
+//
+//dbuffer::dbuffer(const info &_info, video &_video) :
+//	video::resource(_info, _video), m_direct3dsurface9_p(0)
+//{}
+//bool dbuffer::create() {
+//	destroy();
+//	if(!get_video().ready()) return false;
+//	const info &l_info = get_info();
+//	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(l_info.width, l_info.height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, 0, &m_direct3dsurface9_p, 0))) {
+//		std::cerr << "ERROR: Can't create depth buffer\n";
+//		return false;
+//	}
+//	return super::create();
+//}
+//void dbuffer::destroy() {
+//	if(m_direct3dsurface9_p != 0) {
+//		m_direct3dsurface9_p->Release();
+//		m_direct3dsurface9_p = 0;
+//	}
+//	super::destroy();
+//}
+//bool dbuffer::set() {
+//	if(m_direct3dsurface9_p == 0 || !get_video().ready()) return false;
+//	if(FAILED(get_video().get_direct3ddevice9().SetDepthStencilSurface(m_direct3dsurface9_p))) return false;
+//	return true;
+//}
+
+} /* video resources ----------------------------------------------------------------------------*/
 
 } /* namespace bk -------------------------------------------------------------------------------*/
