@@ -20,10 +20,9 @@ device::~device() {
 
 // device::resource
 
-device::resource::resource(device &_device, uint _type) :
-	m_device(_device),
-	m_version(bad_ID),
-	m_type(_type)
+device::resource::resource(const info &_info, device &_device) :
+	manager::object(_info, _device),
+	m_version(bad_ID)
 {}
 device::resource::~resource() {
 	if(m_version != bad_ID) {
@@ -41,5 +40,11 @@ bool device::resource::load() {
 void device::resource::destroy() {
 	m_version = bad_ID;
 }
+
+// device::resource::info
+
+device::resource::info::info(uint _type) :
+	manager::object::info(_type)
+{}
 
 } /* namespace bk -------------------------------------------------------------------------------*/

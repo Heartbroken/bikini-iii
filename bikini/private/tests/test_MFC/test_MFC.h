@@ -18,6 +18,11 @@ class Ctest_MFCApp : public CWinApp
 public:
 	Ctest_MFCApp();
 
+// bikini-iii
+	bk::video m_video;
+	bool m_run;
+	bk::thread::task m_update_task;
+	void update();
 
 // Overrides
 public:
@@ -26,6 +31,10 @@ public:
 // Implementation
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual BOOL OnIdle(LONG lCount);
+public:
+	virtual int ExitInstance();
 };
 
 extern Ctest_MFCApp theApp;

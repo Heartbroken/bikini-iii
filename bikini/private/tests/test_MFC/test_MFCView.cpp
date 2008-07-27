@@ -20,6 +20,8 @@ BEGIN_MESSAGE_MAP(Ctest_MFCView, CView)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_DESTROY()
+	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 // Ctest_MFCView construction/destruction
@@ -85,8 +87,9 @@ int Ctest_MFCView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	if(!m_window.create(m_hWnd)) return -1;
-	if(!m_video.create()) return -1;
+	//if(!m_window.create(m_hWnd)) return -1;
+	m_run = true;
+	m_update_task.run();
 
 	return 0;
 }
@@ -96,38 +99,51 @@ void Ctest_MFCView::OnSize(UINT nType, int cx, int cy)
 	CView::OnSize(nType, cx, cy);
 
 	// TODO: Add your message handler code here
-	if(cx > 0 && cy > 0) {
-		if(&m_video.get_device() == 0) {
-			m_video.activate(m_hWnd);
-			m_run = true;
-			m_update_task.run();
-		} else {
-			m_update_section.enter();
-			m_video.reset();
-			m_update_section.leave();
-		}
-	}
 }
 
 void Ctest_MFCView::OnDestroy()
 {
+	m_run = false;
+	m_update_task.wait();
+
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
-	m_run = false;
-	m_update_task.wait();
-	m_video.destroy();
+	//m_window.destroy();
 }
 
 void Ctest_MFCView::update() {
-	bk::ticker l_ticker(1.f / 30.f);
+	bk::thread::signal l_signal(false, false, "video_update");
+	bk::window l_window(theApp.m_video);
+	l_window.create(m_hWnd);
+	//bk::ticker l_ticker(1.f / 30.f);
+	bk::rbig l_time = bk::sys_time();
 	while(m_run) {
-		m_update_section.enter();
-		m_video.begin_scene();
-		m_video.clear_viewport();
-		m_video.end_scene();
-		m_video.present();
-		m_update_section.leave();
-		l_ticker.sync();
+		l_signal.wait();
+		l_window.update(bk::sys_time() - l_time);
+		l_time = bk::sys_time();
+		//l_ticker.sync();
+		l_signal.set();
 	}
+	l_window.destroy();
+}
+
+void Ctest_MFCView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)
+{
+	// TODO: Add your specialized code here and/or call the base class
+}
+
+void Ctest_MFCView::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: Add your message handler code here
+	// Do not call CView::OnPaint() for painting messages
+}
+
+BOOL Ctest_MFCView::OnEraseBkgnd(CDC* pDC)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	return FALSE;
+	//return CView::OnEraseBkgnd(pDC);
 }

@@ -205,7 +205,7 @@ inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::clear()
 
 // signal
 
-inline signal::signal(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, 0, 0, 0)) {
+inline signal::signal(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, _reset, _state, _name.c_str())) {
 }
 inline signal::~signal() {
 	if(m_handle != 0) CloseHandle(m_handle);

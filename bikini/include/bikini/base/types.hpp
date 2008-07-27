@@ -45,6 +45,8 @@ typedef const void*			pointer;
 typedef std::string			astr;
 typedef std::wstring		wstr;
 
+typedef std::bitset<sizeof(uint)>	flags;
+
 // constants
 
 /// bad ID

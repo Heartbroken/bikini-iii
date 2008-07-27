@@ -26,7 +26,8 @@ END_MESSAGE_MAP()
 
 // Ctest_MFCApp construction
 
-Ctest_MFCApp::Ctest_MFCApp()
+Ctest_MFCApp::Ctest_MFCApp() :
+	m_update_task(*this, &Ctest_MFCApp::update)
 {
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
@@ -42,6 +43,9 @@ Ctest_MFCApp theApp;
 
 BOOL Ctest_MFCApp::InitInstance()
 {
+	m_run = true;
+	m_update_task.run();
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -102,6 +106,22 @@ BOOL Ctest_MFCApp::InitInstance()
 	return TRUE;
 }
 
+void Ctest_MFCApp::update() {
+	bk::thread::signal l_signal(false, false, "video_update");
+	m_video.create();
+	bk::ticker l_ticker(1.f / 30.f);
+	bk::rbig l_time = bk::sys_time();
+	l_signal.set();
+	while(m_run) {
+		l_signal.wait();
+		m_video.update(bk::sys_time() - l_time);
+		l_time = bk::sys_time();
+		l_ticker.sync();
+		l_signal.set();
+	}
+	m_video.destroy();
+}
+
 
 
 // CAboutDlg dialog used for App About
@@ -144,3 +164,20 @@ void Ctest_MFCApp::OnAppAbout()
 
 // Ctest_MFCApp message handlers
 
+
+BOOL Ctest_MFCApp::OnIdle(LONG lCount)
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	return CWinApp::OnIdle(lCount);
+	//return TRUE;
+}
+
+int Ctest_MFCApp::ExitInstance()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	m_run = false;
+	m_update_task.wait();
+
+	return CWinApp::ExitInstance();
+}

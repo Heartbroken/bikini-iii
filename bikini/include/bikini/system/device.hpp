@@ -8,19 +8,22 @@
 
 #pragma once
 
-struct device : uncopyble {
-	struct resource : uncopyble {
-		resource(device &_device, uint _type);
+struct device : manager {
+	struct resource : manager::object {
+		struct info : manager::object::info {
+			typedef resource object;
+			typedef device manager;
+			info(uint _type);
+		};
+		resource(const info &_info, device &_device);
 		virtual ~resource();
 		bool create();
 		virtual bool load();
 		virtual void destroy();
-		inline device& get_device() const { return m_device; }
-		inline uint type() const { return m_type; }
+		inline device& get_device() const { return static_cast<device&>(get_manager()); }
+		inline bool valid() const { return m_version != bad_ID; }
 	private:
-		device &m_device;
 		uint m_version;
-		uint m_type;
 	};
 	device();
 	virtual ~device();

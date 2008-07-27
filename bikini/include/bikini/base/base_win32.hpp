@@ -39,9 +39,6 @@
 
 #include <windows.h>
 
-//#define D3D_DEBUG_INFO
-//#include <d3d9.h>
-
 #ifdef min
 #	undef min
 #endif
