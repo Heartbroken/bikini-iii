@@ -18,7 +18,9 @@
 
 #include "../config.hpp"
 
-#if defined(_WIN32)
+#if defined(XBOX)
+#	include "base/base_xbox.hpp"
+#elif defined(WIN32)
 #	include "base/base_win32.hpp"
 #endif
 

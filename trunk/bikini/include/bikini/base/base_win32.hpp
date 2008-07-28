@@ -8,7 +8,7 @@
 
 #pragma once
 
-#if !defined(_WIN32)
+#if !defined(WIN32)
 #	error Wrong system include!!!
 #endif
 

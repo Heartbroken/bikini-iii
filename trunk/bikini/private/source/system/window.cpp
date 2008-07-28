@@ -10,14 +10,19 @@
 
 namespace bk { //----------------------------------------------------------------------------------
 
-window::window(video &_video) : m_handle(0), m_oldproc(0), m_video(_video), m_screen_ID(bad_ID) {
+window::window(video &_video) :
+#if defined(WIN32)
+	m_handle(0), m_oldproc(0),
+#endif
+	m_video(_video), m_screen_ID(bad_ID) {
 }
 
 window::~window() {
 }
 
 bool window::create(uint _width, uint _height, HICON _icon) {
-	HINSTANCE l_instance = GetModuleHandle(0);
+#if defined(WIN32)
+	HINSTANCE l_instance = GetModuleHandleA(0);
     WNDCLASSW l_window_class = { 
 		CS_HREDRAW|CS_VREDRAW,
 		window::window_proc,
@@ -47,11 +52,13 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	if(m_handle == 0) return false;
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
+#endif
 	if(!m_video.ready()) return false;
 	m_create_video_screen();
 	return true;
 }
 
+#if defined(WIN32)
 bool window::create(HWND _handle) {
 	m_handle = _handle;
 	m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
@@ -61,8 +68,10 @@ bool window::create(HWND _handle) {
 	m_create_video_screen();
 	return true;
 }
+#endif
 
 bool window::update(real _dt) {
+#if defined(WIN32)
 	if(m_oldproc == 0) {
 		MSG l_message;
 		while(PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
@@ -71,6 +80,7 @@ bool window::update(real _dt) {
 			if(l_message.message == WM_QUIT) return false;
 		}
 	}
+#endif
 	m_video.lock();
 	if(m_video.ready()) {
 		if(!m_video.exists(m_screen_ID)) m_create_video_screen();
@@ -91,9 +101,12 @@ bool window::update(real _dt) {
 
 void window::destroy() {
 	m_destroy_video_screen();
+#if defined(WIN32)
 	DestroyWindow(m_handle);
+#endif
 }
 
+#if defined(WIN32)
 HWND window::handle() {
 	return m_handle;
 }
@@ -126,7 +139,9 @@ void window::set_size(uint _width, uint _height) {
 	sint l_top = (l_drect.bottom - (sint)_height) / 2 + l_shift.y;
 	MoveWindow(m_handle, l_left, l_top, l_width, l_height, TRUE);
 }
+#endif
 
+#if defined(WIN32)
 LRESULT CALLBACK window::window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	window &l_window = *reinterpret_cast<window*>((LONG_PTR)GetWindowLong(_handle, GWL_USERDATA));
 	if(&l_window != 0) return l_window.m_proc(_message, _wparam, _lparam);
@@ -166,11 +181,17 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	if(m_oldproc != 0) return m_oldproc(m_handle, _message, _wparam, _lparam);
 	return DefWindowProcW(m_handle, _message, _wparam, _lparam);
 }
+#endif
 
 bool window::m_create_video_screen() {
-	RECT l_crect; GetClientRect(m_handle, &l_crect);
+	RECT l_crect = { 0, 0, 0, 0 };
+#if defined(WIN32)
+	GetClientRect(m_handle, &l_crect);
+#endif
 	if(l_crect.right > 0 && l_crect.bottom > 0) {
+#if defined(WIN32)
 		m_screen.window = m_handle;
+#endif
 		m_screen.fullscreen = false;
 		m_screen.width = l_crect.right;
 		m_screen.height = l_crect.bottom;
