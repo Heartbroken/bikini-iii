@@ -97,6 +97,14 @@ private:
 	CRITICAL_SECTION m_criticalsection;
 };
 
+///
+struct locker {
+	inline locker(section &_section) : m_section(_section) { m_section.enter(); }
+	inline ~locker() { m_section.leave(); }
+private:
+	section &m_section;
+};
+
 #include "thread.inl"
 
 } /* namespace thread ---------------------------------------------------------------------------*/
