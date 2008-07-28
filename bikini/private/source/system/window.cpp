@@ -79,7 +79,7 @@ bool window::update(real _dt) {
 			if(l_screen.valid()) {
 				l_screen.present();
 				if(l_screen.begin()) {
-					l_screen.clear(bk::cf::color, bk::magenta);
+					l_screen.clear(cf::all, bk::yellow);
 					l_screen.end();
 				}
 			}
@@ -178,7 +178,7 @@ bool window::m_create_video_screen() {
 		vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
 		l_screen.create();
 		if(l_screen.begin()) {
-			l_screen.clear(bk::cf::color, bk::magenta);
+			l_screen.clear(cf::all, bk::yellow);
 			l_screen.end();
 		}
 	}
