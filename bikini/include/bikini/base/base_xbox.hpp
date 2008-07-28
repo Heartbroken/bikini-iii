@@ -8,9 +8,27 @@
 
 #pragma once
 
-#if !defined(WIN32)
+#if !defined(XBOX)
 #	error Wrong system include!!!
 #endif
 
-#define D3D_DEBUG_INFO
-#include <d3d9.h>
+#include "Xtl.h"
+
+#ifdef min
+#	undef min
+#endif
+
+#ifdef max
+#	undef max
+#endif
+
+#ifdef _T
+#	undef _T
+#endif
+
+#ifdef UNICODE
+#	undef UNICODE
+#endif
+
+/// bad GUID
+const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };

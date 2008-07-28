@@ -13,6 +13,7 @@ namespace bk { /*---------------------------------------------------------------
 // application
 
 application::application() {
+#if defined(WIN32)
 	//
 	typedef HWND (WINAPI *GetConsoleWindow_fn)(void);
 	HMODULE l_kernel32_h = GetModuleHandleA("kernel32.dll");
@@ -20,6 +21,7 @@ application::application() {
 	if(GetConsoleWindow != 0) ShowWindow(GetConsoleWindow(), SW_MAXIMIZE);
 	//
 	SetConsoleTitleA(" bikini-iii");
+#endif
 }
 application::~application() {
 }

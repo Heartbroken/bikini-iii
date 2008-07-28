@@ -16,7 +16,7 @@
 
 #include "base.hpp"
 
-#if defined(_WIN32)
+#if defined(WIN32)
 #	include "system/system_win32.hpp"
 #endif
 

@@ -74,26 +74,13 @@ struct screen : video::resource {
 	bool end();
 	bool present();
 private:
-	IDirect3DSwapChain9 *m_swapchain_p;
+#if defined(XBOX)
+	IDirect3DSurface9 *m_backbuffer_p;
+#elif defined(WIN32)
+	IDirect3DSwapChain9 *m_backbuffer_p;
+#endif
 	IDirect3DSurface9 *m_depthstencil_p;
 	static screen *sm_activescreen_p;
-	//bool m_is_current() const;
-	//bool m_set_current() const;
 };
-
-//struct dbuffer : video::resource {
-//	struct info : video::resource::info {
-//		typedef dbuffer object;
-//		uint width, height;
-//		info();
-//	};
-//	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
-//	dbuffer(const info &_info, video &_video);
-//	bool create();
-//	void destroy();
-//	bool set();
-//private:
-//	IDirect3DSurface9 *m_direct3dsurface9_p;
-//};
 
 } /* video resources ----------------------------------------------------------------------------*/

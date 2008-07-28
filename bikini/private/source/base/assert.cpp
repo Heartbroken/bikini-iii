@@ -10,6 +10,10 @@
 
 namespace bk { /*--------------------------------------------------------------------------------*/
 
+#if defined(XBOX)
+
+#elif defined(WIN32)
+
 std::string format(const char *_s, ...) {
 	static const int sl_length = 1024 * 5;
 	static char sl_buff[sl_length];
@@ -42,5 +46,7 @@ bool ARI2(char* _expression, char* _file, int _line, char* _function, char* _mes
 	if(_message) std::cerr << "    " << _message << "\n";
 	return true;
 }
+
+#endif
 
 } /* namespace bk -------------------------------------------------------------------------------*/

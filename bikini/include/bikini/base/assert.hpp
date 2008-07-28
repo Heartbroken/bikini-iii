@@ -8,6 +8,12 @@
 
 #pragma once
 
+#if defined(XBOX)
+
+#include <assert.h>
+
+#elif defined(WIN32)
+
 #ifdef halt
 #	undef halt
 #endif
@@ -24,6 +30,8 @@ bool ARI2(char* _expression, char* _file, int _line, char* _function, char* _mes
 #	define assert(E)	while(!(E)) { Sleep(1); if(bk::ARI(#E, __FILE__, __LINE__, __FUNCTION__)) break; halt; }
 #else
 #	define assert(E)
+#endif
+
 #endif
 
 template<bool> struct compile_time_assert;
