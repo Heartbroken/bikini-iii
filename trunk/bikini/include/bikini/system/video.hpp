@@ -35,14 +35,10 @@ struct video : device {
 
 	inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
 
-	inline void lock() { m_section.enter(); }
-	inline void unlock() { m_section.leave(); }
-
 private:
 	static IDirect3D9 *sm_direct3d9_p;
 	IDirect3DDevice9 *m_direct3ddevice9_p;
 	D3DPRESENT_PARAMETERS m_d3dpresent_parameters;
-	thread::section m_section;
 	typedef fsm_<video> fsm; fsm m_fsm;
 	fsm::state m_void; void m_void_b(); void m_void_u(real _dt); void m_void_e();
 	fsm::state m_ready; void m_ready_b(); void m_ready_u(real _dt); void m_ready_e();
@@ -62,11 +58,26 @@ namespace vr { /* video resources ----------------------------------------------
 struct screen : video::resource {
 	struct info : video::resource::info {
 		typedef screen object;
-		HWND window; bool fullscreen; uint width, height;
+#if defined(WIN32)
+		typedef HWND a0;
+		typedef bool a1;
+		typedef uint a2;
+		typedef uint a3;
+#endif
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+#if defined(XBOX)
 	screen(const info &_info, video &_video);
+#elif defined(WIN32)
+	screen(const info &_info, video &_video, HWND _window, bool _fullscreen, uint _width, uint _height);
+	inline bool fullscreen() const { return m_fullscreen; }
+	inline void set_fullscreen(bool _yes = true) { m_fullscreen = _yes; }
+	inline uint width() const { return m_width; }
+	inline void set_width(uint _w) { m_width = _w; }
+	inline uint height() const { return m_height; }
+	inline void set_height(uint _h) { m_height = _h; }
+#endif
 	bool create();
 	void destroy();
 	bool begin();
@@ -74,12 +85,12 @@ struct screen : video::resource {
 	bool end();
 	bool present();
 private:
-#if defined(XBOX)
-	IDirect3DSurface9 *m_backbuffer_p;
-#elif defined(WIN32)
+#if defined(WIN32)
+	HWND m_window; bool m_fullscreen; uint m_width, m_height;
 	IDirect3DSwapChain9 *m_backbuffer_p;
-#endif
 	IDirect3DSurface9 *m_depthstencil_p;
+#endif
+	thread::section m_lock;
 	static screen *sm_activescreen_p;
 };
 

@@ -17,7 +17,7 @@ struct device : manager {
 		};
 		resource(const info &_info, device &_device);
 		virtual ~resource();
-		bool create();
+		virtual bool create();
 		virtual bool load();
 		virtual void destroy();
 		inline device& get_device() const { return static_cast<device&>(get_manager()); }
