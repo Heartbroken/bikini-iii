@@ -21,9 +21,9 @@ window::~window() {
 }
 
 #if defined(XBOX)
-bool window::create(uint _width, uint _height, HICON _icon) {
+bool window::create() {
 	if(!m_video.ready()) return false;
-	//m_create_video_screen();
+	m_screen_ID = m_video.spawn(m_screen);
 	return true;
 }
 #elif defined(WIN32)
@@ -59,7 +59,6 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
-	//m_create_video_screen();
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, _width, _height);
 	return true;
 }
@@ -69,7 +68,6 @@ bool window::create(HWND _handle) {
 	SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
-	//m_create_video_screen();
 	RECT l_crect; GetClientRect(m_handle, &l_crect);
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, l_crect.right, l_crect.bottom);
 	return true;
@@ -114,8 +112,8 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 		case WM_DESTROY : {
 			if(m_oldproc == 0) {
 				PostQuitMessage(0);
-				//SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)0);
-				//m_handle = 0;
+				SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)0);
+				m_handle = 0;
 			} else {
 				SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)m_oldproc);
 			}
@@ -156,7 +154,6 @@ bool window::update(real _dt) {
 		}
 	}
 #endif
-	//m_video.lock();
 	if(m_video.ready()) {
 		if(!m_video.exists(m_screen_ID)) return false;
 		thread::locker l_locker(m_lock);
@@ -175,7 +172,6 @@ bool window::update(real _dt) {
 			}
 		}
 	}
-	//m_video.unlock();
 	return true;
 }
 

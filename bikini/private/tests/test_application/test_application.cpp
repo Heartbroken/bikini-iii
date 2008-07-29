@@ -19,9 +19,13 @@ struct task0 : bk::application::task {
 		bk::video l_video;
 		l_video.create();
 		bk::window l_window(l_video);
+#if defined(XBOX)
+		l_window.create();
+#elif defined(WIN32)
 		l_window.create(1024U, 640U);
 		l_window.set_caption("test_application ");
 		l_window.show();
+#endif
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
@@ -39,7 +43,11 @@ struct task0 : bk::application::task {
 	}
 };
 
+#if defined(XBOX)
+void main()
+#elif defined(WIN32)
 int _tmain(int argc, _TCHAR* argv[])
+#endif
 {
 	{
 	bk::application l_app;
@@ -48,6 +56,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//l_app.spawn(l_task0);
 	l_app.run();
 	}
+#if defined(WIN32)
 	return 0;
+#endif
 }
 
