@@ -67,6 +67,14 @@ bool video::create() {
     m_d3dpresent_parameters.EnableAutoDepthStencil = false;
 	m_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+#if defined(XBOX)
+	XVIDEO_MODE l_mode; memset(&l_mode, 0, sizeof(l_mode)); XGetVideoMode(&l_mode);
+	bool l_enable720p = l_mode.dwDisplayWidth >= 1280;
+	m_d3dpresent_parameters.BackBufferWidth  = l_enable720p ? 1280 : 640;
+	m_d3dpresent_parameters.BackBufferHeight = l_enable720p ? 720 : 480;
+#endif
+
 	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE;
 #if defined(WIN32)
 	l_flags |= D3DCREATE_MULTITHREADED;
