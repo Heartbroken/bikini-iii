@@ -113,17 +113,15 @@ void Ctest_MFCView::OnDestroy()
 }
 
 void Ctest_MFCView::update() {
-	bk::thread::signal l_signal(false, false, "video_update");
+	bk::thread::event l_event(false, false, "video_update");
 	bk::window l_window(theApp.m_video);
 	l_window.create(m_hWnd);
-	//bk::ticker l_ticker(1.f / 30.f);
 	bk::rbig l_time = bk::sys_time();
 	while(m_run) {
-		l_signal.wait();
+		l_event.wait();
 		l_window.update(bk::sys_time() - l_time);
 		l_time = bk::sys_time();
-		//l_ticker.sync();
-		l_signal.set();
+		l_event.set();
 	}
 	l_window.destroy();
 }

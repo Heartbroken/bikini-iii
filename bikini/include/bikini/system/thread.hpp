@@ -57,11 +57,11 @@ typedef task_<void> task;
 /**	Allows to create event, to set event signaled and nonsignaled state,
 	and to wait for event signaled state is set.
  */
-struct signal : uncopyble {
+struct event : uncopyble {
 	/// constructor
-	inline signal(bool _reset = false, bool _state = false, const astr &_name = "");
+	inline event(bool _reset = false, bool _state = false, const astr &_name = "");
 	/// destructor
-	inline ~signal();
+	inline ~event();
 	/// set event signaled state
 	inline void set();
 	/// set event nonsignaled state

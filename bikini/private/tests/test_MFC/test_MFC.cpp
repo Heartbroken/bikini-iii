@@ -107,17 +107,17 @@ BOOL Ctest_MFCApp::InitInstance()
 }
 
 void Ctest_MFCApp::update() {
-	bk::thread::signal l_signal(false, false, "video_update");
-	m_video.create();
+	bk::thread::event l_event(false, false, "video_update");
+	m_video.create(true);
 	bk::ticker l_ticker(1.f / 30.f);
 	bk::rbig l_time = bk::sys_time();
-	l_signal.set();
+	l_event.set();
 	while(m_run) {
-		l_signal.wait();
+		l_event.wait();
 		m_video.update(bk::sys_time() - l_time);
 		l_time = bk::sys_time();
 		l_ticker.sync();
-		l_signal.set();
+		l_event.set();
 	}
 	m_video.destroy();
 }

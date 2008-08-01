@@ -20,7 +20,7 @@ struct ticker {
 private:
 	real m_period;
 	bool m_run;
-	thread::signal m_sync;
+	thread::event m_sync;
 	thread::task m_task;
 	void m_proc();
 };
