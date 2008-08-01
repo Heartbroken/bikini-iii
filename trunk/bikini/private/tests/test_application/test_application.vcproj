@@ -142,7 +142,7 @@
 			/>
 			<Tool
 				Name="VCX360LinkerTool"
-				OutputFile="$(OutDir)\$(ProjectName).xex"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\..\library\xbox"
 				GenerateDebugInformation="true"
