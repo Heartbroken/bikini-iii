@@ -25,7 +25,7 @@ struct video : device {
 	video();
 	~video();
 
-	bool create();
+	bool create(bool _multithreaded = false);
 	bool update(real _dt);
 	void destroy();
 
@@ -74,9 +74,9 @@ struct screen : video::resource {
 	inline bool fullscreen() const { return m_fullscreen; }
 	inline void set_fullscreen(bool _yes = true) { m_fullscreen = _yes; }
 	inline uint width() const { return m_width; }
-	inline void set_width(uint _w) { m_width = _w; }
 	inline uint height() const { return m_height; }
-	inline void set_height(uint _h) { m_height = _h; }
+	inline void set_size(uint _w, uint _h) { m_width = _w; m_height = _h; }
+	inline bool active() const { return sm_activescreen_p == this; }
 #endif
 	bool create();
 	void destroy();

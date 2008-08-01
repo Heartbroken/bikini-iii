@@ -124,8 +124,7 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 				vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
 				l_screen.destroy();
 				RECT l_crect; GetClientRect(m_handle, &l_crect);
-				l_screen.set_width(l_crect.right);
-				l_screen.set_height(l_crect.bottom);
+				l_screen.set_size(l_crect.right, l_crect.bottom);
 			}
 		} break;
 		case WM_GETMINMAXINFO : {
@@ -156,15 +155,12 @@ bool window::update(real _dt) {
 #endif
 	if(m_video.ready()) {
 		if(!m_video.exists(m_screen_ID)) return false;
-		thread::locker l_locker(m_lock);
 		vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-		if(!l_screen.valid() && l_screen.create()) {
-			if(l_screen.begin()) {
+		if(!l_screen.valid())
+			if(l_screen.create()) 
 				l_screen.clear(cf::all, magenta);
-				l_screen.end();
-			}
-		}
 		if(l_screen.valid()) {
+			thread::locker l_locker(m_lock);
 			l_screen.present();
 			if(l_screen.begin()) {
 				l_screen.clear(cf::all, magenta);

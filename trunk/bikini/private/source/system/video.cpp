@@ -46,7 +46,7 @@ video::~video() {
 		assert(m_direct3ddevice9_p == 0);
 	}
 }
-bool video::create() {
+bool video::create(bool _multithreaded) {
 	if(sm_direct3d9_p == 0) {
 		sm_direct3d9_p = Direct3DCreate9(D3D_SDK_VERSION);
 		if(sm_direct3d9_p == 0) {
@@ -77,7 +77,7 @@ bool video::create() {
 
 	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE;
 #if defined(WIN32)
-	l_flags |= D3DCREATE_MULTITHREADED;
+	if(_multithreaded) l_flags |= D3DCREATE_MULTITHREADED;
 #endif
 	if(FAILED(sm_direct3d9_p->CreateDevice(
 		D3DADAPTER_DEFAULT,
@@ -188,6 +188,7 @@ bool screen::create() {
 	if(sm_activescreen_p != 0) return false;
 	sm_activescreen_p = this;
 #elif defined(WIN32)
+	if(m_width == 0 || m_height == 0) return false;
 	D3DPRESENT_PARAMETERS l_d3dpresent_parameters;
 	memset(&l_d3dpresent_parameters, 0, sizeof(l_d3dpresent_parameters));
 	l_d3dpresent_parameters.hDeviceWindow = m_window;
@@ -202,7 +203,7 @@ bool screen::create() {
 		return false;
 	}
 	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, 0, &m_depthstencil_p, 0))) {
-		m_backbuffer_p->Release();
+		m_backbuffer_p->Release(); m_backbuffer_p = 0;
 		std::cerr << "ERROR: Can't create depth buffer\n";
 		return false;
 	}
@@ -210,11 +211,13 @@ bool screen::create() {
 	return super::create();
 }
 void screen::destroy() {
+#if defined(WIN32)
+	if(active()) end();
+#endif
 	thread::locker l_locker(m_lock);
 #if defined(XBOX)
 	sm_activescreen_p = 0;
 #elif defined(WIN32)
-	assert(sm_activescreen_p != this);
 	if(m_backbuffer_p != 0) {
 		m_backbuffer_p->Release();
 		m_backbuffer_p = 0;
@@ -243,17 +246,20 @@ bool screen::begin() {
 }
 bool screen::clear(uint _flags, const color &_color, real _depth, uint _stencil) {
 	thread::locker l_locker(m_lock);
-	if(!valid() || !get_video().ready() || sm_activescreen_p != this) return false;
+	if(!get_video().ready() || !valid()) return false;
+	screen *l_save_activescreen_p = sm_activescreen_p;
+	if(l_save_activescreen_p != this) { if(l_save_activescreen_p != 0) { l_save_activescreen_p->end(); } begin(); }
 	DWORD l_flags = 0;
 	if(_flags&cf::color) l_flags |= D3DCLEAR_TARGET;
 	if(_flags&cf::depth) l_flags |= D3DCLEAR_ZBUFFER;
 	if(_flags&cf::stencil) l_flags |= D3DCLEAR_STENCIL;
 	if(FAILED(get_video().get_direct3ddevice9().Clear(0, 0, l_flags, _color, (float)_depth, (DWORD)_stencil))) return false;
+	if(l_save_activescreen_p != this) { end(); if(l_save_activescreen_p != 0) { l_save_activescreen_p->begin(); } }
 	return true;
 }
 bool screen::end() {
 	thread::locker l_locker(m_lock);
-	if(!valid() || !get_video().ready() || sm_activescreen_p != this) return false;
+	if(!get_video().ready() || !valid() || !active()) return false;
 	if(FAILED(get_video().get_direct3ddevice9().EndScene())) return false;
 #if defined(WIN32)
 	sm_activescreen_p = 0;
@@ -267,7 +273,7 @@ bool screen::end() {
 }
 bool screen::present() {
 	thread::locker l_locker(m_lock);
-	if(!valid() || !get_video().ready()) return false;
+	if(!get_video().ready() || !valid()) return false;
 #if defined(XBOX)
 	get_video().get_direct3ddevice9().Present(0, 0, 0, 0);
 #elif defined(WIN32)
