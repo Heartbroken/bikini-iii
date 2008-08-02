@@ -1,6 +1,6 @@
 /*---------------------------------------------------------------------------------------------*//*
 
-	Binary Kinematics 3 - C++ game programming library
+	Binary Kinematics 3 - C++ Game Programming Library
 	Copyright (C) 2008 Viktor Reutzky
 	reutzky@bitchingames.com
 
@@ -8,8 +8,12 @@
 
 #pragma once
 
-#include "config.hpp"
+template<typename _Window> struct gui_ {
+	typedef _Window window;
+	gui_(window &_window);
+private:
+	window &m_window;
+};
+typedef gui_<window> gui;
 
-#include "bikini/base.hpp"
-#include "bikini/system.hpp"
-#include "bikini/display.hpp"
+#include "gui.inl"
