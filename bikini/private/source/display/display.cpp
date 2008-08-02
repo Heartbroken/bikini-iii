@@ -6,21 +6,8 @@
 
 *//*---------------------------------------------------------------------------------------------*/
 
-#pragma once
-
-#ifdef _DEBUG
-#	pragma comment(lib, "render_d")
-#else
-#	pragma comment(lib, "render")
-#endif
-
-#include "base.hpp"
-
-#include <d3d9.h>
+#include "header.hpp"
 
 namespace bk { /*--------------------------------------------------------------------------------*/
-
-#include "render/resource.hpp"
-#include "render/video.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/
