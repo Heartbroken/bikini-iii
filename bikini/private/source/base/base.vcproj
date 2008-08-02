@@ -113,7 +113,7 @@
 				Name="VCCLX360CompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="_DEBUG;_LIB;_XBOX;XBOX;_XBOX_CRT_DEPRECATE_INSECURE"
+				PreprocessorDefinitions="_DEBUG;_LIB;_XBOX;XBOX"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -241,7 +241,7 @@
 			<Tool
 				Name="VCCLX360CompilerTool"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="NDEBUG;_LIB;_XBOX;XBOX;_XBOX_CRT_DEPRECATE_INSECURE"
+				PreprocessorDefinitions="NDEBUG;_LIB;_XBOX;XBOX"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
