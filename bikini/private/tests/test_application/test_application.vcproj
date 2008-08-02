@@ -213,7 +213,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\library"
+				AdditionalLibraryDirectories="..\..\..\library\xbox"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -273,7 +273,7 @@
 			<Tool
 				Name="VCCLX360CompilerTool"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="NDEBUG;_XBOX;XBOX;_XBOX_CRT_DEPRECATE_INSECURE"
 				RuntimeLibrary="0"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="2"

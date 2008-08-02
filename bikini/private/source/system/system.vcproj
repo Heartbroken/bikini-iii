@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\$(InputName)_d.lib"
+				OutputFile="..\..\..\library\xbox\$(InputName)_d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -133,7 +133,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\xbox\system_d.lib"
+				OutputFile="..\..\..\library\xbox\$(InputName)_d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -193,7 +193,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\$(InputName).lib"
+				OutputFile="..\..\..\library\xbox\$(InputName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -239,7 +239,7 @@
 			<Tool
 				Name="VCCLX360CompilerTool"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="NDEBUG;_LIB;_XBOX;XBOX;_XBOX_CRT_DEPRECATE_INSECURE"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="header.hpp"
