@@ -155,6 +155,10 @@ template<uint _S, typename _T>
 inline void _matrix_row_<_S, _T>::div(_T _s, _matrix_row_ &_c) const {
 	parent_type::div(_s, _c); _c.cell() = m_cell + _s;
 }
+template<uint _S, typename _T>
+inline bool _matrix_row_<_S, _T>::cmp(const _matrix_row_ &_b) const {
+	return m_cell == _b.cell() && parent_type::cmp(_b);
+}
 
 // matrix
 template<uint _H, uint _W, typename _T>
@@ -221,6 +225,16 @@ template<uint _H, uint _W, typename _T> template<uint _I, uint _J>
 inline _T& matrix_<_H, _W, _T>::cell() {
 	c_assert(_I < _H && _J < _W);
 	return row<_I>().cell<_J>();
+}
+template<uint _H, uint _W, typename _T> template<uint _J>
+inline const _T& matrix_<_H, _W, _T>::cell() const {
+	c_assert(1 == _H && _J < _W);
+	return row<0>().cell<_J>();
+}
+template<uint _H, uint _W, typename _T> template<uint _J>
+inline _T& matrix_<_H, _W, _T>::cell() {
+	c_assert(1 == _H && _J < _W);
+	return row<0>().cell<_J>();
 }
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) const {
@@ -300,6 +314,10 @@ inline const matrix_<_W, _H, _T> matrix_<_H, _W, _T>::operator ~ () const {
 	return l_m;
 }
 template<uint _H, uint _W, typename _T>
+inline bool matrix_<_H, _W, _T>::operator == (const matrix_ &_m) const {
+	return cmp(_m);
+}
+template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::set(const matrix_ &_b) {
 	parent_type::set(_b); m_row.set(_b.row());
 }
@@ -350,6 +368,10 @@ inline void matrix_<_H, _W, _T>::xgt(matrix_<_W, _W2, _T> &_b) const {
 template<uint _H, uint _W, typename _T> template<uint _I>
 inline void matrix_<_H, _W, _T>::cst(const _matrix_row_<_H, _T> &_b) {
 	parent_type::cst<_I>(_b); m_row.cell<_I>() = _b.cell();
+}
+template<uint _H, uint _W, typename _T>
+inline bool matrix_<_H, _W, _T>::cmp(const matrix_ &_b) const {
+	return m_row.cmp(_b.row()) && parent_type::cmp(_b);
 }
 
 // matrix minor

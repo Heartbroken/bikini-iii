@@ -26,6 +26,8 @@ struct task0 : bk::application::task {
 		l_window.set_caption("test_application ");
 		l_window.show();
 #endif
+		bk::gui l_gui;
+		l_gui.create();
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
@@ -38,6 +40,7 @@ struct task0 : bk::application::task {
 			//
 			l_ticker.sync();
 		}
+		l_gui.destroy();
 		l_window.destroy();
 		l_video.destroy();
 	}

@@ -12,6 +12,8 @@
 #	error Wrong system include!!!
 #endif
 
+#define _XBOX_CRT_DEPRECATE_INSECURE
+
 #include "Xtl.h"
 
 #ifdef min

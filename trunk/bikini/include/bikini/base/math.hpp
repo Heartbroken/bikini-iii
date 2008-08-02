@@ -87,6 +87,7 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	inline void sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
 	inline void mul(_Type _s, _matrix_row_ &_c) const;
 	inline void div(_Type _s, _matrix_row_ &_c) const;
+	inline bool cmp(const _matrix_row_ &_b) const;
 private:
 	cell_type m_cell;
 };
@@ -99,6 +100,7 @@ struct _matrix_row_<0, _Type> {
 	inline void sub(const _matrix_row_&, _matrix_row_&) const {}
 	inline void mul(_Type, _matrix_row_&) const {}
 	inline void div(_Type, _matrix_row_&) const {}
+	inline bool cmp(const _matrix_row_ &_b) const { return true; }
 };
 
 ///	Uber-matrix template
@@ -148,6 +150,10 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	template<uint _I, uint _J> inline const _Type& cell() const;
 	/// (i,j)-th cell accessor
 	template<uint _I, uint _J> inline _Type& cell();
+	/// (0,j)-th cell accessor for matrices w/ one row (vectors)
+	template<uint _J> inline const _Type& cell() const;
+	/// (0,j)-th cell accessor for matrices w/ one row (vectors)
+	template<uint _J> inline _Type& cell();
 	/// get i-th matrix row
 	inline const row_type& operator [] (uint _i) const;
 	/// get i-th matrix row
@@ -176,6 +182,8 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
 	/// get transposed matrix
 	inline const matrix_<_Width, _Height, _Type> operator ~ () const; // transpose
+	/// compare matrices
+	inline bool operator == (const matrix_ &_m) const;
 	// some aux functions
 	inline void set(const matrix_ &_b);
 	inline void get(matrix_ &_c) const;
@@ -188,6 +196,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline void mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
 	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const;
 	template<uint _I> inline void cst(const _matrix_row_<_Height, _Type> &_b);
+	inline bool cmp(const matrix_ &_b) const;
 private:
 	row_type m_row;
 };
@@ -204,6 +213,7 @@ struct matrix_<0, _Width, _Type> {
 	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
 	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const {}
 	template<uint _I> inline void cst(const _matrix_row_<0, _Type> &_b) {}
+	inline bool cmp(const matrix_ &_b) const { return true; }
 };
 
 /// matrix minor
