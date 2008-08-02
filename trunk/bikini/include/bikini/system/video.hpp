@@ -76,8 +76,8 @@ struct screen : video::resource {
 	inline uint width() const { return m_width; }
 	inline uint height() const { return m_height; }
 	inline void set_size(uint _w, uint _h) { m_width = _w; m_height = _h; }
-	inline bool active() const { return sm_activescreen_p == this; }
 #endif
+	inline bool active() const { return sm_activescreen_p == this; }
 	bool create();
 	void destroy();
 	bool begin();
