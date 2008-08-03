@@ -184,6 +184,9 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline const matrix_<_Width, _Height, _Type> operator ~ () const; // transpose
 	/// compare matrices
 	inline bool operator == (const matrix_ &_m) const;
+	///
+	inline operator row_type ();
+	inline operator const row_type () const;
 	// some aux functions
 	inline void set(const matrix_ &_b);
 	inline void get(matrix_ &_c) const;
