@@ -45,6 +45,8 @@ struct gui : manager {
 		inline gui& get_gui() const;
 		inline const rect& get_rect() const;
 		inline void set_rect(const rect &_r);
+		inline const color& get_color() const;
+		inline void set_color(const color &_c);
 		inline uint parent_ID() const;
 		inline bool has_parent() const;
 		inline panel& get_parent() const;
@@ -53,14 +55,14 @@ struct gui : manager {
 		inline uint kid_ID(uint _i) const;
 		virtual bool render(const window &_window) const;
 	private:
-		rect m_rect;
+		rect m_rect; color m_color;
 		uint m_parent_dependency;
 		std::vector<uint> m_kids;
 	};
 	gui();
 	~gui();
 	bool create();
-	bool render(const window &_window) const;
+	bool render(window &_window) const;
 	void destroy();
 private:
 	uint m_screen_ID;

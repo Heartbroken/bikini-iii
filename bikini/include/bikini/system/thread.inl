@@ -207,6 +207,7 @@ template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, ty
 inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::terminate() {
 #if defined(WIN32)
 	if(m_handle != 0) { TerminateThread(m_handle, 0); CloseHandle(m_handle); }
+	m_handle = 0;
 #endif
 }
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9>
@@ -215,20 +216,20 @@ inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::clear()
 	m_handle = 0;
 }
 
-// event
+// flag
 
-inline event::event(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, _reset, _state, _name.c_str())) {
+inline flag::flag(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, _reset, _state, _name.c_str())) {
 }
-inline event::~event() {
+inline flag::~flag() {
 	if(m_handle != 0) CloseHandle(m_handle);
 }
-inline void event::set() {
+inline void flag::set() {
 	if(m_handle != 0) SetEvent(m_handle);
 }
-inline void event::reset() {
+inline void flag::reset() {
 	if(m_handle != 0) ResetEvent(m_handle);
 }
-inline bool event::wait(real _timeout) {
+inline bool flag::wait(real _timeout) {
 	if(m_handle != 0) {
 		if(WaitForSingleObject(m_handle, _timeout < infinity ? DWORD(_timeout * 1000.f) : INFINITE) == WAIT_TIMEOUT) return false;
 		return true;

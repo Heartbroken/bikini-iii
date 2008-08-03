@@ -22,10 +22,26 @@ bool gui::create() {
 	m_screen_ID = spawn(sl_screen);
 	return true;
 }
-bool gui::render(const window &_window) const {
-	if(exists(m_screen_ID)) {
-		gp::screen &l_screen = get<gp::screen>(m_screen_ID);
-		l_screen.render(_window);
+bool gui::render(window &_window) const {
+	bool l_save_active = _window.active();
+	if(_window.active() || _window.begin()) {
+		_window.clear(cf::all, yellow);
+		std::vector<uint> l_order;
+		l_order.push_back(m_screen_ID);
+		for(uint i = 0; i < l_order.size(); ++i) {
+			uint l_panel_ID = l_order[i];
+			if(exists(l_panel_ID)) {
+				panel &l_panel = get<panel>(l_panel_ID);
+				if(!l_panel.render(_window) && l_panel.get_color().a() > 0) {
+					const rect &l_r = l_panel.get_rect(); const color &l_c = l_panel.get_color();
+					_window.draw_rect(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), l_c);
+				}
+				for(uint i = 0, s = l_panel.kid_count(); i < s; ++i) {
+					l_order.push_back(l_panel.kid_ID(i));
+				}
+			}
+		}
+		if(!l_save_active) _window.end();
 	}
 	return true;
 }
@@ -47,12 +63,6 @@ gui::panel::panel(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint 
 	}
 }
 bool gui::panel::render(const window &_window) const {
-	for(uint i = 0, s = kid_count(); i < s; ++i) {
-		uint l_kid_ID = kid_ID(i);
-		if(get_gui().exists(l_kid_ID)) {
-			get_gui().get<panel>(l_kid_ID).render(_window);
-		}
-	}
 	return true;
 }
 
@@ -74,7 +84,9 @@ screen::info::info() :
 
 screen::screen(const info &_info, gui &_gui) :
 	gui::panel(_info, _gui, 0, 0, 0, 0)
-{}
+{
+	set_color(0);
+}
 
 
 } /* namespace gp -------------------------------------------------------------------------------*/

@@ -11,11 +11,14 @@
 namespace bk { /*--------------------------------------------------------------------------------*/
 
 window::window(video &_video) :
-#if defined(WIN32)
+#	if defined(WIN32)
 	m_handle(0), m_oldproc(0),
-#endif
-	m_video(_video), m_screen_ID(bad_ID) {
-}
+#	endif
+	m_video(_video),
+	m_screen_ID(bad_ID),
+	m_def_vbuffer_ID(bad_ID), m_def_vbuffer_size(1024 * 100),
+	m_cur_vbuffer_ID(bad_ID)
+{}
 
 window::~window() {
 }
@@ -29,37 +32,15 @@ bool window::create() {
 #elif defined(WIN32)
 bool window::create(uint _width, uint _height, HICON _icon) {
 	HINSTANCE l_instance = GetModuleHandleA(0);
-    WNDCLASSW l_window_class = { 
-		CS_HREDRAW|CS_VREDRAW,
-		window::window_proc,
-		0,
-		0,
-		l_instance,
-        _icon,
-        LoadCursor(NULL, IDC_ARROW), 
-        (HBRUSH)GetStockObject(BLACK_BRUSH), NULL,
-        L"bikini-iii window"
-	};
+    WNDCLASSW l_window_class = { CS_HREDRAW|CS_VREDRAW, window::window_proc, 0, 0, l_instance, _icon, LoadCursor(NULL, IDC_ARROW), (HBRUSH)GetStockObject(BLACK_BRUSH), NULL, L"bikini-iii window" };
     RegisterClassW(&l_window_class);
-	m_handle = CreateWindowExW(
-		WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT,
-		L"bikini-iii window",
-		0,
-		WS_BORDER|WS_CAPTION,
-		CW_USEDEFAULT,
-		CW_USEDEFAULT,
-		(int)_width,
-		(int)_height,
-		0,
-		0,
-		l_instance,
-		0
-	);
+	m_handle = CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT, L"bikini-iii window", 0, WS_BORDER|WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, (int)_width, (int)_height, 0, 0, l_instance, 0);
 	if(m_handle == 0) return false;
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, _width, _height);
+	m_def_vbuffer_ID = m_video.spawn(m_vbuffer, m_def_vbuffer_size, true);
 	return true;
 }
 bool window::create(HWND _handle) {
@@ -70,6 +51,7 @@ bool window::create(HWND _handle) {
 	if(!m_video.ready()) return false;
 	RECT l_crect; GetClientRect(m_handle, &l_crect);
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, l_crect.right, l_crect.bottom);
+	m_def_vbuffer_ID = m_video.spawn(m_vbuffer, m_def_vbuffer_size, true);
 	return true;
 }
 HWND window::handle() {
@@ -141,9 +123,8 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	return DefWindowProcW(m_handle, _message, _wparam, _lparam);
 }
 #endif
-
 bool window::update(real _dt) {
-#if defined(WIN32)
+#	if defined(WIN32)
 	if(m_oldproc == 0) {
 		MSG l_message;
 		while(PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
@@ -152,34 +133,74 @@ bool window::update(real _dt) {
 			if(l_message.message == WM_QUIT) return false;
 		}
 	}
-#endif
-	if(m_video.ready()) {
-		if(!m_video.exists(m_screen_ID)) return false;
-		vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-		if(!l_screen.valid())
-			if(l_screen.create()) 
-				l_screen.clear(cf::all, magenta);
-		if(l_screen.valid()) {
-			thread::locker l_locker(m_lock);
-			l_screen.present();
-			if(l_screen.begin()) {
-				l_screen.clear(cf::all, magenta);
-				l_screen.end();
-			}
-		}
-	}
+#	endif
+	//if(m_video.ready()) {
+	//	if(!m_video.exists(m_screen_ID)) return false;
+	//	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	//	if(!l_screen.valid())
+	//		if(l_screen.create()) 
+	//			l_screen.clear(cf::all, magenta);
+	//	if(l_screen.valid()) {
+	//		thread::locker l_locker(m_lock);
+	//		l_screen.present();
+	//		if(l_screen.begin()) {
+	//			l_screen.clear(cf::all, magenta);
+	//			l_screen.end();
+	//		}
+	//	}
+	//}
 	return true;
 }
-
+bool window::active() const {
+	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
+	return l_screen.active();
+}
+bool window::clear(uint _flags, const color &_color, real _depth, uint _stencil) const {
+	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
+	return l_screen.clear(_flags, _color, _depth, _stencil);
+}
+bool window::begin() const {
+	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
+	return l_screen.begin();
+}
+bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, uint _width) {
+	return false;
+}
+bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) {
+	return false;
+}
+bool window::end() const {
+	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
+	return l_screen.end();
+}
+bool window::present() const {
+	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
+	return l_screen.present();
+}
 void window::destroy() {
+	if(m_video.exists(m_def_vbuffer_ID)) {
+		m_video.get<vr::vbuffer>(m_def_vbuffer_ID).destroy();
+		m_video.kill(m_def_vbuffer_ID);
+		m_def_vbuffer_ID = bad_ID;
+	}
 	if(m_video.exists(m_screen_ID)) {
 		m_video.get<vr::screen>(m_screen_ID).destroy();
 		m_video.kill(m_screen_ID);
 		m_screen_ID = bad_ID;
 	}
-#if defined(WIN32)
+#	if defined(WIN32)
 	DestroyWindow(m_handle);
-#endif
+#	endif
 }
 
 } /* namespace bk -------------------------------------------------------------------------------*/

@@ -28,8 +28,11 @@ application::~application() {
 
 bool application::run() {
 	ticker l_ticker(0.1f);
+	bk::rbig l_time = bk::sys_time();
 	bool l_done = false;
 	while(!l_done) {
+		bk::real l_dt = bk::real(bk::sys_time() - l_time); l_time = bk::sys_time();
+		update(l_dt);
 		l_done = true;
 		uint l_ID = get_first_ID();
 		while(l_ID != bad_ID) {

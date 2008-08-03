@@ -24,6 +24,13 @@ struct window {
 	void set_size(uint _width, uint _height);
 #endif
 	bool update(real _dt);
+	bool active() const;
+	bool clear(uint _flags = cf::all, const color &_color = black, real _depth = 1.f, uint _stencil = 0) const;
+	bool begin() const;
+	bool draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white, uint _width = 1);
+	bool draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white);
+	bool end() const;
+	bool present() const;
 	void destroy();
 protected:
 private:
@@ -36,5 +43,8 @@ private:
 	video &m_video;
 	vr::screen::info m_screen;
 	uint m_screen_ID;
+	vr::vbuffer::info m_vbuffer;
+	uint m_def_vbuffer_ID, m_def_vbuffer_size;
+	uint m_cur_vbuffer_ID;
 	thread::section m_lock;
 };

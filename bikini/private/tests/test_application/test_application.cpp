@@ -26,17 +26,19 @@ struct task0 : bk::application::task {
 		l_window.set_caption("test_application ");
 		l_window.show();
 #endif
+		l_window.clear();
 		bk::gui l_gui;
 		l_gui.create();
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
-			bk::real l_dt = bk::real(bk::sys_time() - l_time);
-			l_time = bk::sys_time();
+			bk::real l_dt = bk::real(bk::sys_time() - l_time); l_time = bk::sys_time();
 			l_video.update(l_dt);
+			l_window.present();
 			if(!l_window.update(l_dt)) break;
-			l_time = bk::sys_time();
 			// do something useful
+			l_gui.update(l_dt);
+			l_gui.render(l_window);
 			//
 			l_ticker.sync();
 		}
