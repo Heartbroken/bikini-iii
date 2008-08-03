@@ -318,6 +318,16 @@ inline bool matrix_<_H, _W, _T>::operator == (const matrix_ &_m) const {
 	return cmp(_m);
 }
 template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::operator typename matrix_<_H, _W, _T>::row_type () {
+	c_assert(_H == 1);
+	return m_row;
+}
+template<uint _H, uint _W, typename _T>
+inline matrix_<_H, _W, _T>::operator const typename matrix_<_H, _W, _T>::row_type () const {
+	c_assert(_H == 1);
+	return m_row;
+}
+template<uint _H, uint _W, typename _T>
 inline void matrix_<_H, _W, _T>::set(const matrix_ &_b) {
 	parent_type::set(_b); m_row.set(_b.row());
 }

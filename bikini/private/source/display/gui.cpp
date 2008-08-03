@@ -22,6 +22,7 @@ bool gui::create() {
 	m_screen_ID = spawn(sl_screen);
 	return true;
 }
+template<uint _N> struct constants_ : matrix_<_N, 4, real> {};
 bool gui::render(window &_window) const {
 	bool l_save_active = _window.active();
 	if(_window.active() || _window.begin()) {
@@ -43,6 +44,8 @@ bool gui::render(window &_window) const {
 		}
 		if(!l_save_active) _window.end();
 	}
+	constants_<16> l_constants;
+	l_constants.row<0>() = r1x4_0;
 	return true;
 }
 void gui::destroy() {
