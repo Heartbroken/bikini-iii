@@ -56,12 +56,14 @@ typedef task_<void> task;
 ///	Event synchronization object wrapper.
 /**	Allows to create event, to set event signaled and nonsignaled state,
 	and to wait for event signaled state is set.
+	Unfortunately "event" is a reserved keyword in C++.
+	So I'll call my event a flag.
  */
-struct event : uncopyble {
+struct flag : uncopyble {
 	/// constructor
-	inline event(bool _reset = false, bool _state = false, const astr &_name = "");
+	inline flag(bool _reset = false, bool _state = false, const astr &_name = "");
 	/// destructor
-	inline ~event();
+	inline ~flag();
 	/// set event signaled state
 	inline void set();
 	/// set event nonsignaled state

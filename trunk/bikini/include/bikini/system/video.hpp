@@ -55,43 +55,74 @@ namespace cf { enum clear_flags {
 
 namespace vr { /* video resources ---------------------------------------------------------------*/
 
+/// screen
 struct screen : video::resource {
 	struct info : video::resource::info {
 		typedef screen object;
-#if defined(WIN32)
+#		if defined(WIN32)
 		typedef HWND a0;
 		typedef bool a1;
 		typedef uint a2;
 		typedef uint a3;
-#endif
+#		endif
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
-#if defined(XBOX)
+#	if defined(XBOX)
 	screen(const info &_info, video &_video);
-#elif defined(WIN32)
+#	elif defined(WIN32)
 	screen(const info &_info, video &_video, HWND _window, bool _fullscreen, uint _width, uint _height);
 	inline bool fullscreen() const { return m_fullscreen; }
 	inline void set_fullscreen(bool _yes = true) { m_fullscreen = _yes; }
 	inline uint width() const { return m_width; }
 	inline uint height() const { return m_height; }
 	inline void set_size(uint _w, uint _h) { m_width = _w; m_height = _h; }
-#endif
+#	endif
 	inline bool active() const { return sm_activescreen_p == this; }
 	bool create();
 	void destroy();
 	bool begin();
 	bool clear(uint _flags = cf::all, const color &_color = black, real _depth = 1.f, uint _stencil = 0);
+	bool draw_primitive(uint _start, uint _count);
 	bool end();
 	bool present();
 private:
-#if defined(WIN32)
+#	if defined(WIN32)
 	HWND m_window; bool m_fullscreen; uint m_width, m_height;
 	IDirect3DSwapChain9 *m_backbuffer_p;
 	IDirect3DSurface9 *m_depthstencil_p;
-#endif
+#	endif
 	thread::section m_lock;
 	static screen *sm_activescreen_p;
+};
+
+/// vbuffer
+struct vbuffer : video::resource {
+	struct info : video::resource::info {
+		typedef vbuffer object;
+		typedef uint a0;
+		typedef bool a1;
+		typedef pointer a2;
+		info();
+	};
+	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	vbuffer(const info &_info, video &_video, uint _size, bool _dynamic);
+	inline uint size() const { return m_size; }
+	inline bool dynamic() const { return m_dynamic; }
+	inline bool active() const { return m_index < sm_maxvbuffers && sm_activevbuffers_p[m_index] == this; }
+	bool create();
+	handle lock(uint _offset = 0, uint _size = 0, bool _discard = false);
+	bool unlock();
+	bool begin(uint _index, uint _offset, uint _stride);
+	bool end();
+	void destroy();
+private:
+	uint m_size; bool m_dynamic;
+	uint m_index, m_offset, m_stride;
+	IDirect3DVertexBuffer9 *m_buffer_p;
+	thread::section m_lock;
+	static const uint sm_maxvbuffers = 32;
+	static vbuffer *sm_activevbuffers_p[sm_maxvbuffers];
 };
 
 } /* video resources ----------------------------------------------------------------------------*/

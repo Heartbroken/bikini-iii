@@ -107,7 +107,7 @@ BOOL Ctest_MFCApp::InitInstance()
 }
 
 void Ctest_MFCApp::update() {
-	bk::thread::event l_event(false, false, "video_update");
+	bk::thread::flag l_event(false, false, "video_update");
 	m_video.create(true);
 	bk::ticker l_ticker(1.f / 30.f);
 	bk::rbig l_time = bk::sys_time();
