@@ -16,9 +16,14 @@ window::window(video &_video) :
 #	endif
 	m_video(_video),
 	m_screen_ID(bad_ID),
-	m_def_vbuffer_ID(bad_ID), m_def_vbuffer_size(1024 * 100),
-	m_cur_vbuffer_ID(bad_ID)
-{}
+	m_vbuffer_ID(bad_ID), m_vbuffer_size(1024 * 100),
+	m_curr_vbuffer_ID(bad_ID),
+	m_vformat_ID(bad_ID)
+{
+	{ vr::vformat::element l_e = { 0, 0, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0 }; m_vformat.format.push_back(l_e); }
+	{ vr::vformat::element l_e = { 0, 12, D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_COLOR, 0 }; m_vformat.format.push_back(l_e); }
+	m_vformat.format.push_back(vr::vformat::end);
+}
 
 window::~window() {
 }
@@ -27,6 +32,8 @@ window::~window() {
 bool window::create() {
 	if(!m_video.ready()) return false;
 	m_screen_ID = m_video.spawn(m_screen);
+	m_vbuffer_ID = m_video.spawn(m_vbuffer, m_vbuffer_size, true);
+	m_vformat_ID = m_video.spawn(m_vformat);
 	return true;
 }
 #elif defined(WIN32)
@@ -40,7 +47,8 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, _width, _height);
-	m_def_vbuffer_ID = m_video.spawn(m_vbuffer, m_def_vbuffer_size, true);
+	m_vbuffer_ID = m_video.spawn(m_vbuffer, m_vbuffer_size, true);
+	m_vformat_ID = m_video.spawn(m_vformat);
 	return true;
 }
 bool window::create(HWND _handle) {
@@ -51,7 +59,8 @@ bool window::create(HWND _handle) {
 	if(!m_video.ready()) return false;
 	RECT l_crect; GetClientRect(m_handle, &l_crect);
 	m_screen_ID = m_video.spawn(m_screen, m_handle, false, l_crect.right, l_crect.bottom);
-	m_def_vbuffer_ID = m_video.spawn(m_vbuffer, m_def_vbuffer_size, true);
+	m_vbuffer_ID = m_video.spawn(m_vbuffer, m_vbuffer_size, true);
+	m_vformat_ID = m_video.spawn(m_vformat);
 	return true;
 }
 HWND window::handle() {
@@ -188,10 +197,15 @@ bool window::present() const {
 	return l_screen.present();
 }
 void window::destroy() {
-	if(m_video.exists(m_def_vbuffer_ID)) {
-		m_video.get<vr::vbuffer>(m_def_vbuffer_ID).destroy();
-		m_video.kill(m_def_vbuffer_ID);
-		m_def_vbuffer_ID = bad_ID;
+	if(m_video.exists(m_vformat_ID)) {
+		m_video.get<vr::vformat>(m_vformat_ID).destroy();
+		m_video.kill(m_vformat_ID);
+		m_vformat_ID = bad_ID;
+	}
+	if(m_video.exists(m_vbuffer_ID)) {
+		m_video.get<vr::vbuffer>(m_vbuffer_ID).destroy();
+		m_video.kill(m_vbuffer_ID);
+		m_vbuffer_ID = bad_ID;
 	}
 	if(m_video.exists(m_screen_ID)) {
 		m_video.get<vr::screen>(m_screen_ID).destroy();

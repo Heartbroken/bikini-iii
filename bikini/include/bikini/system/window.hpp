@@ -44,7 +44,9 @@ private:
 	vr::screen::info m_screen;
 	uint m_screen_ID;
 	vr::vbuffer::info m_vbuffer;
-	uint m_def_vbuffer_ID, m_def_vbuffer_size;
-	uint m_cur_vbuffer_ID;
+	uint m_vbuffer_ID, m_vbuffer_size;
+	uint m_curr_vbuffer_ID;
+	vr::vformat::info m_vformat;
+	uint m_vformat_ID;
 	thread::section m_lock;
 };
