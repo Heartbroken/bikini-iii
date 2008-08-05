@@ -34,15 +34,13 @@ IDirect3D9 *video::sm_direct3d9_p = 0;
 
 video::video() :
 	m_direct3ddevice9_p(0),
-	m_screen_ID(bad_ID),
+	m_screen_ID(bad_ID), m_vbuffer_ID(bad_ID),
 	m_void(&video::m_void_b, &video::m_void_u, &video::m_void_e),
 	m_ready(&video::m_ready_b, &video::m_ready_u, &video::m_ready_e),
 	m_failed(&video::m_failed_b, &video::m_failed_u, &video::m_failed_e),
 	m_lost(&video::m_lost_b, &video::m_lost_u, &video::m_lost_e),
 	m_fsm(*this, m_void)
-{
-	memset(m_vbuffer_ID, 0xff, sizeof(m_vbuffer_ID));
-}
+{}
 video::~video() {
 	if(m_direct3ddevice9_p != 0) {
 		std::cerr << "ERROR: Destroy video device before deleting\n";
@@ -313,82 +311,96 @@ vbuffer::info::info() :
 
 // vbuffer
 
-vbuffer::vbuffer(const info &_info, video &_video, uint _size, bool _dynamic) :
-	video::resource(_info, _video),
-	m_size(_size), m_dynamic(_dynamic),
-	m_index(bad_ID), m_offset(0), m_stride(0),
-	m_buffer_p(0)
+vbuffer::vbuffer(const info &_info, video &_video) :
+	video::resource(_info, _video)
 {}
 bool vbuffer::create() {
 	destroy();
 	thread::locker l_locker(section());
 	if(!get_video().ready()) return false;
-	if(m_size == 0) return false;
-	if(FAILED(get_video().get_direct3ddevice9().CreateVertexBuffer(m_size, 0, 0, D3DPOOL_DEFAULT, &m_buffer_p, 0))) {
+	HRESULT l_result = S_OK;
+	const info &l_info = get_info();
+	assert(!l_info.descs.empty());
+	for(uint i = 0, s = l_info.descs.size(); i < s; ++i) {
+		const desc &l_desc = l_info.descs[i];
+		IDirect3DVertexBuffer9 *l_buffer_p;
+		DWORD l_usege = l_desc.dynamic ? (D3DUSAGE_DYNAMIC|D3DUSAGE_WRITEONLY) : 0;
+		l_result = get_video().get_direct3ddevice9().CreateVertexBuffer(
+			l_desc.size, l_usege, 0, D3DPOOL_DEFAULT, &l_buffer_p, 0
+		);
+		if(FAILED(l_result)) break;
+		m_buffers.push_back(l_buffer_p);
+	}
+	if(FAILED(l_result)) {
+		while(!m_buffers.empty()) {
+			m_buffers.back()->Release();
+			m_buffers.pop_back();
+		}
 		std::cerr << "ERROR: Can't create vertex buffer\n";
 		return false;
 	}
 	return super::create();
 }
-handle vbuffer::lock(uint _offset, uint _size, bool _discard) {
+handle vbuffer::lock(uint _index, uint _offset, uint _size, bool _discard) {
 	thread::locker l_locker(section());
 	if(!get_video().ready() || !valid()) return 0;
+	assert(_index < m_buffers.size());
 	handle l_handle = 0;
-	if(FAILED(m_buffer_p->Lock(_offset, _size, &l_handle, _discard ? D3DLOCK_DISCARD : D3DLOCK_NOOVERWRITE))) {
+	DWORD l_flags = get_info().descs[_index].dynamic ? _discard ? D3DLOCK_DISCARD : D3DLOCK_NOOVERWRITE : 0;
+	if(FAILED(m_buffers[_index]->Lock(_offset, _size, &l_handle, l_flags))) {
 		std::cerr << "ERROR: Can't lock vertex buffer\n";
 		return 0;
 	}
 	return l_handle;
 }
-bool vbuffer::unlock() {
+bool vbuffer::unlock(uint _index) {
 	thread::locker l_locker(section());
 	if(!get_video().ready() || !valid()) return false;
-	if(FAILED(m_buffer_p->Unlock())) {
+	assert(_index < m_buffers.size());
+	if(FAILED(m_buffers[_index]->Unlock())) {
 		std::cerr << "ERROR: Can't unlock vertex buffer\n";
 		return false;
 	}
 	return true;
 }
-bool vbuffer::begin(uint _index, uint _offset, uint _stride) {
+bool vbuffer::begin(uint _offset, uint _stride) {
 	assert(_index < get_video().vbuffer_count());
 	thread::locker l_locker(section());
-	if(!get_video().ready() || !valid()) return false;
-	if(_offset == bad_ID) _offset = m_offset;
-	if(_stride == bad_ID) _stride = m_stride;
-	if(_index == m_index && _offset == m_offset && _stride == m_stride) {
-		assert(get_video().vbuffer_ID(m_index) == ID());
-		return true;
+	if(!get_video().ready() || !valid() || get_video().vbuffer_ID() != bad_ID) return false;
+	assert((_offset == 0 && _stride == 0) || m_buffers.size() == 1);
+	HRESULT l_result = S_OK;
+	const info &l_info = get_info();
+	for(uint i = 0, s = m_buffers.size(); i < s; ++i) {
+		const desc &l_desc = l_info.descs[i];
+		l_result = get_video().get_direct3ddevice9().SetStreamSource(
+			i, m_buffers[i], _offset, _stride ? _stride : l_desc.stride
+		);
+		if(FAILED(l_result)) break;
 	}
-	if(get_video().exists(get_video().vbuffer_ID(_index))) {
-		assert(get_video().get(get_video().vbuffer_ID(_index)).type() == video::rt::vbuffer);
-		get_video().get<vbuffer>(get_video().vbuffer_ID(_index)).end();
-	}
-	if(FAILED(get_video().get_direct3ddevice9().SetStreamSource(_index, m_buffer_p, _offset, _stride))) {
+	if(FAILED(l_result)) {
+		for(uint i = 0, s = m_buffers.size(); i < s; ++i) {
+			get_video().get_direct3ddevice9().SetStreamSource(i, 0, 0, 0);
+		}
 		std::cerr << "ERROR: Can't set stream source\n";
 		return false;
 	}
-	m_index = _index; m_offset = _offset; m_stride = _stride;
-	get_video().set_vbuffer_ID(m_index, ID());
 	return true;
 }
 bool vbuffer::end() {
 	thread::locker l_locker(section());
-	if(m_index == bad_ID) return false;
-	if(!get_video().ready() || !valid()) return false;
-	get_video().set_vbuffer_ID(m_index, bad_ID);
-	uint l_index = bad_ID; swap(l_index, m_index);
-	if(FAILED(get_video().get_direct3ddevice9().SetStreamSource(l_index, 0, 0, 0))) {
-		std::cerr << "ERROR: Can't unset stream source\n";
-		return false;
+	if(!get_video().ready() || !valid() || !active()) return false;
+	get_video().set_vbuffer_ID(bad_ID);
+	for(uint i = 0, s = m_buffers.size(); i < s; ++i) {
+		get_video().get_direct3ddevice9().SetStreamSource(i, 0, 0, 0);
 	}
 	return true;
 }
 void vbuffer::destroy() {
 	if(active()) end();
 	thread::locker l_locker(section());
-	if(m_buffer_p != 0) {
-		m_buffer_p->Release();
-		m_buffer_p = 0;
+	while(!m_buffers.empty()) {
+		m_buffers.back()->Release();
+		m_buffers.pop_back();
 	}
 	super::destroy();
 }
@@ -401,7 +413,7 @@ vformat::info::info() :
 
 // vformat
 
-const vformat::element vformat::end = { 0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0 };
+const vformat::element vformat::end(0xff, 0, D3DDECLTYPE_UNUSED, 0, 0, 0);
 
 vformat::vformat(const info &_info, video &_video) :
 	video::resource(_info, _video),
@@ -412,7 +424,7 @@ bool vformat::create() {
 	thread::locker l_locker(section());
 	if(!get_video().ready()) return false;
 	if(get_info().format.empty() || memcmp(&get_info().format.back(), &end, sizeof(end)) != 0) return false;
-	if(FAILED(get_video().get_direct3ddevice9().CreateVertexDeclaration(&get_info().format[0], &m_format_p))) {
+	if(FAILED(get_video().get_direct3ddevice9().CreateVertexDeclaration((D3DVERTEXELEMENT9*)&get_info().format[0], &m_format_p))) {
 		std::cerr << "ERROR: Can't create vertex declaration\n";
 		return false;
 	}
@@ -435,6 +447,146 @@ void vformat::destroy() {
 	}
 	super::destroy();
 }
+
+// rstates::info
+
+rstates::info::info() :
+	video::resource::info(video::rt::rstates)
+{}
+
+// rstates
+
+rstates::rstates(const info &_info, video &_video) :
+	video::resource(_info, _video),
+	m_block_p(0)
+{}
+bool rstates::create() {
+	destroy();
+	thread::locker l_locker(section());
+	if(!get_video().ready()) return false;
+	if(FAILED(get_video().get_direct3ddevice9().BeginStateBlock())) {
+		std::cerr << "ERROR: Can't start state block capture\n";
+		return false;
+	}
+	m_set_states();
+	if(FAILED(get_video().get_direct3ddevice9().EndStateBlock(&m_block_p))) {
+		std::cerr << "ERROR: Can't create state block\n";
+		return false;
+	}
+	return super::create();
+}
+bool rstates::set() {
+	thread::locker l_locker(section());
+	if(!get_video().ready() || !valid()) return false;
+	if(FAILED(m_block_p->Apply())) {
+		std::cerr << "ERROR: Can't set render states\n";
+		return false;
+	}
+	return true;
+}
+void rstates::destroy() {
+	thread::locker l_locker(section());
+	if(m_block_p != 0) {
+		m_block_p->Release();
+		m_block_p = 0;
+	}
+	super::destroy();
+}
+bool rstates::m_set_states() {
+	const info &l_info = get_info();
+	for(uint i = 0, s = l_info.states.size(); i < s; ++i) {
+		const state &l_state = l_info.states[i];
+		if(l_state.index == bad_ID) {
+			get_video().get_direct3ddevice9().SetRenderState((D3DRENDERSTATETYPE)l_state.name, l_state.value);
+		} else {
+			get_video().get_direct3ddevice9().SetSamplerState(l_state.index, (D3DSAMPLERSTATETYPE)l_state.name, l_state.value);
+		}
+	}
+	return true;
+}
+
+// vshader::info
+
+vshader::info::info() :
+	video::resource::info(video::rt::vshader), function(0)
+{}
+
+// vshader
+
+vshader::vshader(const info &_info, video &_video) :
+	video::resource(_info, _video),
+	m_shader_p(0)
+{}
+bool vshader::create() {
+	destroy();
+	thread::locker l_locker(section());
+	if(!get_video().ready()) return false;
+	assert(get_info().function != 0);
+	if(FAILED(get_video().get_direct3ddevice9().CreateVertexShader((const DWORD*)get_info().function, &m_shader_p))) {
+		std::cerr << "ERROR: Can't create vertex shader\n";
+		return false;
+	}
+	return super::create();
+}
+bool vshader::set() {
+	thread::locker l_locker(section());
+	if(!get_video().ready() || !valid()) return false;
+	if(FAILED(get_video().get_direct3ddevice9().SetVertexShader(m_shader_p))) {
+		std::cerr << "ERROR: Can't set vertex shader\n";
+		return false;
+	}
+	return true;
+}
+void vshader::destroy() {
+	thread::locker l_locker(section());
+	if(m_shader_p != 0) {
+		m_shader_p->Release();
+		m_shader_p = 0;
+	}
+	super::destroy();
+}
+
+// pshader::info
+
+pshader::info::info() :
+	video::resource::info(video::rt::pshader), function(0)
+{}
+
+// pshader
+
+pshader::pshader(const info &_info, video &_video) :
+	video::resource(_info, _video),
+	m_shader_p(0)
+{}
+bool pshader::create() {
+	destroy();
+	thread::locker l_locker(section());
+	if(!get_video().ready()) return false;
+	assert(get_info().function != 0);
+	if(FAILED(get_video().get_direct3ddevice9().CreatePixelShader((const DWORD*)get_info().function, &m_shader_p))) {
+		std::cerr << "ERROR: Can't create pixel shader\n";
+		return false;
+	}
+	return super::create();
+}
+bool pshader::set() {
+	thread::locker l_locker(section());
+	if(!get_video().ready() || !valid()) return false;
+	if(FAILED(get_video().get_direct3ddevice9().SetPixelShader(m_shader_p))) {
+		std::cerr << "ERROR: Can't set pixel shader\n";
+		return false;
+	}
+	return true;
+}
+void pshader::destroy() {
+	thread::locker l_locker(section());
+	if(m_shader_p != 0) {
+		m_shader_p->Release();
+		m_shader_p = 0;
+	}
+	super::destroy();
+}
+
 
 } /* video resources ----------------------------------------------------------------------------*/
 

@@ -40,13 +40,19 @@ private:
 	static LRESULT CALLBACK window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam);
 	LRESULT m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam);
 #endif
+	thread::section m_lock;
 	video &m_video;
 	vr::screen::info m_screen;
 	uint m_screen_ID;
 	vr::vbuffer::info m_vbuffer;
-	uint m_vbuffer_ID, m_vbuffer_size;
+	uint m_vbuffer_ID;
 	uint m_curr_vbuffer_ID;
 	vr::vformat::info m_vformat;
 	uint m_vformat_ID;
-	thread::section m_lock;
+	vr::rstates::info m_rstates;
+	uint m_rstates_ID;
+	vr::vshader::info m_vshader;
+	uint m_vshader_ID;
+	vr::pshader::info m_pshader;
+	uint m_pshader_ID;
 };
