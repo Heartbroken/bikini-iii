@@ -16,6 +16,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<ToolFile
+			RelativePath="..\fxc.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -29,7 +32,13 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="Vertex Shader"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="Pixel Shader"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -101,6 +110,12 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
+				Name="Vertex Shader"
+			/>
+			<Tool
+				Name="Pixel Shader"
+			/>
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -159,7 +174,13 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="Vertex Shader"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="Pixel Shader"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -228,6 +249,12 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
+				Name="Vertex Shader"
+			/>
+			<Tool
+				Name="Pixel Shader"
+			/>
+			<Tool
 				Name="VCXMLDataGeneratorTool"
 			/>
 			<Tool
@@ -277,7 +304,7 @@
 	<Files>
 		<Filter
 			Name="source"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
+			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx;vs;ps"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
@@ -350,6 +377,14 @@
 			</File>
 			<File
 				RelativePath=".\window.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\window.ps"
+				>
+			</File>
+			<File
+				RelativePath=".\window.vs"
 				>
 			</File>
 		</Filter>

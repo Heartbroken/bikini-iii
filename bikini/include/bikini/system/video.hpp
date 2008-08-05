@@ -10,7 +10,7 @@
 
 struct video : device {
 	struct rt { enum resource_type {
-		screen, vbuffer, ibuffer, texture, vformat, vshader, pshader
+		screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
 	};};
 
 	struct resource : device::resource {
@@ -39,9 +39,8 @@ struct video : device {
 
 	inline uint screen_ID() const { return m_screen_ID; }
 	inline void set_screen_ID(uint _ID) { m_screen_ID = _ID; }
-	inline uint vbuffer_count() const { return sm_vbuffer_count; }
-	inline uint vbuffer_ID(uint _i) const { assert(_i < sm_vbuffer_count); return m_vbuffer_ID[_i]; }
-	inline void set_vbuffer_ID(uint _i, uint _ID) { assert(_i < sm_vbuffer_count); m_vbuffer_ID[_i] = _ID; }
+	inline uint vbuffer_ID() const { return m_vbuffer_ID; }
+	inline void set_vbuffer_ID(uint _ID) { m_vbuffer_ID = _ID; }
 
 	inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
 
@@ -49,8 +48,7 @@ private:
 	static IDirect3D9 *sm_direct3d9_p;
 	IDirect3DDevice9 *m_direct3ddevice9_p;
 	D3DPRESENT_PARAMETERS m_d3dpresent_parameters;
-	uint m_screen_ID;
-	static const uint sm_vbuffer_count = 32; uint m_vbuffer_ID[sm_vbuffer_count];
+	uint m_screen_ID, m_vbuffer_ID;
 	typedef fsm_<video> fsm; fsm m_fsm;
 	fsm::state m_void; void m_void_b(); void m_void_u(real _dt); void m_void_e();
 	fsm::state m_ready; void m_ready_b(); void m_ready_u(real _dt); void m_ready_e();
@@ -80,6 +78,7 @@ struct screen : video::resource {
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	inline bool active() const { return get_video().screen_ID() == ID(); }
 #	if defined(XBOX)
 	screen(const info &_info, video &_video);
 #	elif defined(WIN32)
@@ -90,7 +89,6 @@ struct screen : video::resource {
 	inline uint height() const { return m_height; }
 	inline void set_size(uint _w, uint _h) { m_width = _w; m_height = _h; }
 #	endif
-	inline bool active() const { return get_video().screen_ID() == ID(); }
 	bool create();
 	void destroy();
 	bool begin();
@@ -108,37 +106,38 @@ private:
 
 /// vbuffer
 struct vbuffer : video::resource {
+	struct desc {
+		uint size; uint stride; bool dynamic;
+		inline desc(uint _size, uint _stride = 0, bool _dynamic = false) : size(_size), stride(_stride), dynamic(_dynamic) {}
+		inline desc(const desc &_d) : size(_d.size), stride(_d.stride), dynamic(_d.dynamic) {}
+		inline desc& operator = (const desc &_d) { this->~desc(); new(this) desc(_d); return *this; }
+	};
 	struct info : video::resource::info {
 		typedef vbuffer object;
-		typedef uint a0;
-		typedef bool a1;
-		typedef pointer a2;
+		std::vector<desc> descs;
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
-	vbuffer(const info &_info, video &_video, uint _size, bool _dynamic);
-	inline uint size() const { return m_size; }
-	inline bool dynamic() const { return m_dynamic; }
-	inline uint offset() const { return m_offset; }
-	inline void set_offset(uint _offset) { m_offset = _offset; }
-	inline uint stride() const { return m_stride; }
-	inline void set_stride(uint _stride) { m_stride = _stride; }
-	inline bool active() const { return m_index < get_video().vbuffer_count() && get_video().vbuffer_ID(m_index) == ID(); }
+	inline bool active() const { return get_video().vbuffer_ID() == ID(); }
+	vbuffer(const info &_info, video &_video);
 	bool create();
-	handle lock(uint _offset = 0, uint _size = 0, bool _discard = false);
-	bool unlock();
-	bool begin(uint _index, uint _offset = bad_ID, uint _stride = bad_ID);
+	handle lock(uint _index = 0, uint _offset = 0, uint _size = 0, bool _discard = false);
+	bool unlock(uint _index = 0);
+	bool begin(uint _offset = bad_ID, uint _stride = bad_ID);
 	bool end();
 	void destroy();
 private:
-	uint m_size; bool m_dynamic;
-	uint m_index, m_offset, m_stride;
-	IDirect3DVertexBuffer9 *m_buffer_p;
+	std::vector<IDirect3DVertexBuffer9*> m_buffers;
 };
 
 /// vformat
 struct vformat : video::resource {
-	typedef D3DVERTEXELEMENT9 element;
+	struct element {
+		u16 stream, offset; u8 type, method, usage, uindex;
+		inline element(u16 _stream, u16 _offset, u8 _type, u8 _method, u8 _usage, u8 _uindex) : stream(_stream), offset(_offset), type(_type), method(_method), usage(_usage), uindex(_uindex) {}
+		inline element(const element &_e) : stream(_e.stream), offset(_e.offset), type(_e.type), method(_e.method), usage(_e.usage), uindex(_e.uindex) {}
+		inline element& operator = (const element &_e) { this->~element(); new(this) element(_e); return *this; }
+	};
 	static const element end;
 	struct info : video::resource::info {
 		typedef vformat object;
@@ -152,6 +151,60 @@ struct vformat : video::resource {
 	void destroy();
 private:
 	IDirect3DVertexDeclaration9 *m_format_p;
+};
+
+/// rstates
+struct rstates : video::resource {
+	struct state {
+		uint index, name, value;
+		inline state(uint _index, uint _name, uint _value) : index(_index), name(_name), value(_value) {}
+		inline state(uint _name, uint _value) : index(bad_ID), name(_name), value(_value) {}
+	};
+	struct info : video::resource::info {
+		typedef rstates object;
+		std::vector<state> states;
+		info();
+	};
+	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	rstates(const info &_info, video &_video);
+	bool create();
+	bool set();
+	void destroy();
+private:
+	IDirect3DStateBlock9 *m_block_p;
+	bool m_set_states();
+};
+
+/// vshader
+struct vshader : video::resource {
+	struct info : video::resource::info {
+		typedef vshader object;
+		pointer function;
+		info();
+	};
+	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	vshader(const info &_info, video &_video);
+	bool create();
+	bool set();
+	void destroy();
+private:
+	IDirect3DVertexShader9 *m_shader_p;
+};
+
+/// pshader
+struct pshader : video::resource {
+	struct info : video::resource::info {
+		typedef pshader object;
+		pointer function;
+		info();
+	};
+	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	pshader(const info &_info, video &_video);
+	bool create();
+	bool set();
+	void destroy();
+private:
+	IDirect3DPixelShader9 *m_shader_p;
 };
 
 } /* video resources ----------------------------------------------------------------------------*/
