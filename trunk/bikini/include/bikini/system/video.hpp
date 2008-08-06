@@ -133,8 +133,13 @@ private:
 /// vformat
 struct vformat : video::resource {
 	struct element {
+#		if defined(XBOX)
+		u16 stream, offset; u32 type; u8 method, usage, uindex;
+		inline element(u16 _stream, u16 _offset, u32 _type, u8 _method, u8 _usage, u8 _uindex) : stream(_stream), offset(_offset), type(_type), method(_method), usage(_usage), uindex(_uindex) {}
+#		elif defined(WIN32)
 		u16 stream, offset; u8 type, method, usage, uindex;
 		inline element(u16 _stream, u16 _offset, u8 _type, u8 _method, u8 _usage, u8 _uindex) : stream(_stream), offset(_offset), type(_type), method(_method), usage(_usage), uindex(_uindex) {}
+#		endif
 		inline element(const element &_e) : stream(_e.stream), offset(_e.offset), type(_e.type), method(_e.method), usage(_e.usage), uindex(_e.uindex) {}
 		inline element& operator = (const element &_e) { this->~element(); new(this) element(_e); return *this; }
 	};

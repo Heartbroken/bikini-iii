@@ -158,7 +158,7 @@ template<typename _F> struct _task_helper_ {
 inline bool _start(handle _thread_h, sint _priority, uint _processor) {
 	if(_thread_h == 0) return false;
 	SetThreadPriority(_thread_h, (int)_priority);
-#if defined(XBOX)
+#	if defined(XBOX)
 	if(_processor == bad_ID) {
 		static uint sl_next_processor = 0;
 		_processor = sl_next_processor;
@@ -166,9 +166,9 @@ inline bool _start(handle _thread_h, sint _priority, uint _processor) {
 	}
 	_processor = _processor % MAXIMUM_PROCESSORS;
 	XSetThreadProcessor(_thread_h, (DWORD)_processor);
-#elif defined(WIN32)
+#	elif defined(WIN32)
 	SetThreadIdealProcessor(_thread_h, (DWORD)_processor);
-#endif
+#	endif
 	return ResumeThread(_thread_h) != (DWORD)-1;
 }
 
@@ -205,10 +205,10 @@ inline _R task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::wait() co
 }
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9>
 inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::terminate() {
-#if defined(WIN32)
+#	if defined(WIN32)
 	if(m_handle != 0) { TerminateThread(m_handle, 0); CloseHandle(m_handle); }
 	m_handle = 0;
-#endif
+#	endif
 }
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9>
 inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::clear() {

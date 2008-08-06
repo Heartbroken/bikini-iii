@@ -38,10 +38,8 @@ window::window(video &_video) :
 	m_vshader.function = window_vs;
 	m_pshader.function = window_ps;
 }
-
 window::~window() {
 }
-
 #if defined(XBOX)
 bool window::create() {
 	if(!m_video.ready()) return false;
@@ -166,39 +164,21 @@ bool window::update(real _dt) {
 		}
 	}
 #	endif
-	//if(m_video.ready()) {
-	//	if(!m_video.exists(m_screen_ID)) return false;
-	//	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	//	if(!l_screen.valid())
-	//		if(l_screen.create()) 
-	//			l_screen.clear(cf::all, magenta);
-	//	if(l_screen.valid()) {
-	//		thread::locker l_locker(m_lock);
-	//		l_screen.present();
-	//		if(l_screen.begin()) {
-	//			l_screen.clear(cf::all, magenta);
-	//			l_screen.end();
-	//		}
-	//	}
-	//}
 	return true;
 }
 bool window::active() const {
 	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
 	return l_screen.active();
 }
 bool window::clear(uint _flags, const color &_color, real _depth, uint _stencil) const {
 	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
 	return l_screen.clear(_flags, _color, _depth, _stencil);
 }
 bool window::begin() const {
 	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
 	return l_screen.begin();
 }
 bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, uint _width) {
@@ -210,13 +190,11 @@ bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) 
 bool window::end() const {
 	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
 	return l_screen.end();
 }
 bool window::present() const {
 	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
-	if(!l_screen.valid()) if(l_screen.create()) l_screen.clear();
 	return l_screen.present();
 }
 void window::destroy() {
