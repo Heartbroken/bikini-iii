@@ -494,7 +494,7 @@ bool rstates::set() {
 	m_set_states();
 #	elif defined(WIN32)
 	if(FAILED(m_block_p->Apply())) {
-		std::cerr << "ERROR: Can't set render states\n";
+		std::cerr << "ERROR: Can't apply state block\n";
 		return false;
 	}
 #	endif
