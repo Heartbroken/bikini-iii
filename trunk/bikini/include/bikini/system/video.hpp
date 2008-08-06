@@ -121,7 +121,7 @@ struct vbuffer : video::resource {
 	inline bool active() const { return get_video().vbuffer_ID() == ID(); }
 	vbuffer(const info &_info, video &_video);
 	bool create();
-	handle lock(uint _index = 0, uint _offset = 0, uint _size = 0, bool _discard = false);
+	handle lock(uint _index = 0);
 	bool unlock(uint _index = 0);
 	bool begin(uint _offset = bad_ID, uint _stride = bad_ID);
 	bool end();
