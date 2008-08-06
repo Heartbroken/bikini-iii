@@ -11,9 +11,9 @@
 struct window {
 	window(video &_video);
 	virtual ~window();
-#if defined(XBOX)
+#	if defined(XBOX)
 	bool create();
-#elif defined(WIN32)
+#	elif defined(WIN32)
 	bool create(uint _width, uint _height, HICON _icon = 0);
 	bool create(HWND _handle);
 	HWND handle();
@@ -22,7 +22,7 @@ struct window {
 	void set_caption(const wstr &_s);
 	void set_caption(const astr &_s);
 	void set_size(uint _width, uint _height);
-#endif
+#	endif
 	bool update(real _dt);
 	bool active() const;
 	bool clear(uint _flags = cf::all, const color &_color = black, real _depth = 1.f, uint _stencil = 0) const;
@@ -34,12 +34,12 @@ struct window {
 	void destroy();
 protected:
 private:
-#if defined(WIN32)
+#	if defined(WIN32)
 	HWND m_handle;
 	WNDPROC m_oldproc;
 	static LRESULT CALLBACK window_proc(HWND _handle, UINT _message, WPARAM _wparam, LPARAM _lparam);
 	LRESULT m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam);
-#endif
+#	endif
 	thread::section m_lock;
 	video &m_video;
 	vr::screen::info m_screen;

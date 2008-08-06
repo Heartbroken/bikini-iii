@@ -97,38 +97,50 @@ bool video::create(bool _multithreaded) {
 	return true;
 }
 bool video::update(real _dt) {
+	if(!super::update(_dt)) return false;
 	m_fsm.update(_dt);
+	if(!ready()) return false;
+	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+		resource &l_resource = get<resource>(l_ID);
+		if(!l_resource.valid() && !l_resource.create()) kill(l_ID);
+	}
 	return true;
 }
 void video::destroy() {
-	if(m_direct3ddevice9_p != 0) { while(m_direct3ddevice9_p->Release() != 0); m_direct3ddevice9_p = 0; }
-	if(sm_direct3d9_p != 0 && sm_direct3d9_p->Release() == 0) sm_direct3d9_p = 0;
 	m_fsm.set_state(m_void);
 	m_fsm.update(0);
+	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) kill(l_ID);
+	if(m_direct3ddevice9_p != 0) { while(m_direct3ddevice9_p->Release() != 0); m_direct3ddevice9_p = 0; }
+	if(sm_direct3d9_p != 0 && sm_direct3d9_p->Release() == 0) sm_direct3d9_p = 0;
+	super::destroy();
 }
 // void state
 void video::m_void_b() {}
 void video::m_void_u(real _dt) {}
 void video::m_void_e() {}
 // ready state
-void video::m_ready_b() {}
+void video::m_ready_b() {
+	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+		get<resource>(l_ID).create();
+	}
+}
 void video::m_ready_u(real _dt) {
 #	if defined(WIN32)
 	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
 	if(l_result == D3DERR_DEVICELOST) return m_fsm.set_state(m_lost);
 #	endif
 }
-void video::m_ready_e() {}
+void video::m_ready_e() {
+	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+		get<resource>(l_ID).destroy();
+	}
+}
 // failed state
 void video::m_failed_b() {}
 void video::m_failed_u(real _dt) {}
 void video::m_failed_e() {}
 // lost state
-void video::m_lost_b() {
-	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-		get<resource>(l_ID).destroy();
-	}
-}
+void video::m_lost_b() {}
 void video::m_lost_u(real _dt) {
 #	if defined(WIN32)
 	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
@@ -141,11 +153,7 @@ void video::m_lost_u(real _dt) {
 	}
 #	endif
 }
-void video::m_lost_e() {
-	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-		get<resource>(l_ID).create();
-	}
-}
+void video::m_lost_e() {}
 
 // video::resource::info
 
@@ -324,7 +332,11 @@ bool vbuffer::create() {
 	for(uint i = 0, s = l_info.descs.size(); i < s; ++i) {
 		const desc &l_desc = l_info.descs[i];
 		IDirect3DVertexBuffer9 *l_buffer_p;
+#		if defined(XBOX)
+		DWORD l_usege = 0;
+#		elif defined(WIN32)
 		DWORD l_usege = l_desc.dynamic ? (D3DUSAGE_DYNAMIC|D3DUSAGE_WRITEONLY) : 0;
+#		endif
 		l_result = get_video().get_direct3ddevice9().CreateVertexBuffer(
 			l_desc.size, l_usege, 0, D3DPOOL_DEFAULT, &l_buffer_p, 0
 		);
@@ -364,7 +376,6 @@ bool vbuffer::unlock(uint _index) {
 	return true;
 }
 bool vbuffer::begin(uint _offset, uint _stride) {
-	assert(_index < get_video().vbuffer_count());
 	thread::locker l_locker(section());
 	if(!get_video().ready() || !valid() || get_video().vbuffer_ID() != bad_ID) return false;
 	assert((_offset == 0 && _stride == 0) || m_buffers.size() == 1);
