@@ -198,36 +198,36 @@ bool window::present() const {
 	return l_screen.present();
 }
 void window::destroy() {
-	if(m_video.exists(m_pshader_ID)) {
-		m_video.get<vr::pshader>(m_pshader_ID).destroy();
-		m_video.kill(m_pshader_ID);
-		m_pshader_ID = bad_ID;
-	}
-	if(m_video.exists(m_vshader_ID)) {
-		m_video.get<vr::vshader>(m_vshader_ID).destroy();
-		m_video.kill(m_vshader_ID);
-		m_vshader_ID = bad_ID;
-	}
-	if(m_video.exists(m_rstates_ID)) {
-		m_video.get<vr::rstates>(m_rstates_ID).destroy();
-		m_video.kill(m_rstates_ID);
-		m_rstates_ID = bad_ID;
-	}
-	if(m_video.exists(m_vformat_ID)) {
-		m_video.get<vr::vformat>(m_vformat_ID).destroy();
-		m_video.kill(m_vformat_ID);
-		m_vformat_ID = bad_ID;
-	}
-	if(m_video.exists(m_vbuffer_ID)) {
-		m_video.get<vr::vbuffer>(m_vbuffer_ID).destroy();
-		m_video.kill(m_vbuffer_ID);
-		m_vbuffer_ID = bad_ID;
-	}
-	if(m_video.exists(m_screen_ID)) {
-		m_video.get<vr::screen>(m_screen_ID).destroy();
-		m_video.kill(m_screen_ID);
-		m_screen_ID = bad_ID;
-	}
+	//if(m_video.exists(m_pshader_ID)) {
+	//	m_video.get<vr::pshader>(m_pshader_ID).destroy();
+	//	m_video.kill(m_pshader_ID);
+	//	m_pshader_ID = bad_ID;
+	//}
+	//if(m_video.exists(m_vshader_ID)) {
+	//	m_video.get<vr::vshader>(m_vshader_ID).destroy();
+	//	m_video.kill(m_vshader_ID);
+	//	m_vshader_ID = bad_ID;
+	//}
+	//if(m_video.exists(m_rstates_ID)) {
+	//	m_video.get<vr::rstates>(m_rstates_ID).destroy();
+	//	m_video.kill(m_rstates_ID);
+	//	m_rstates_ID = bad_ID;
+	//}
+	//if(m_video.exists(m_vformat_ID)) {
+	//	m_video.get<vr::vformat>(m_vformat_ID).destroy();
+	//	m_video.kill(m_vformat_ID);
+	//	m_vformat_ID = bad_ID;
+	//}
+	//if(m_video.exists(m_vbuffer_ID)) {
+	//	m_video.get<vr::vbuffer>(m_vbuffer_ID).destroy();
+	//	m_video.kill(m_vbuffer_ID);
+	//	m_vbuffer_ID = bad_ID;
+	//}
+	//if(m_video.exists(m_screen_ID)) {
+	//	m_video.get<vr::screen>(m_screen_ID).destroy();
+	//	m_video.kill(m_screen_ID);
+	//	m_screen_ID = bad_ID;
+	//}
 #	if defined(WIN32)
 	DestroyWindow(m_handle);
 #	endif

@@ -353,13 +353,12 @@ bool vbuffer::create() {
 	}
 	return super::create();
 }
-handle vbuffer::lock(uint _index, uint _offset, uint _size, bool _discard) {
+handle vbuffer::lock(uint _index) {
 	thread::locker l_locker(section());
 	if(!get_video().ready() || !valid()) return 0;
 	assert(_index < m_buffers.size());
 	handle l_handle = 0;
-	DWORD l_flags = get_info().descs[_index].dynamic ? _discard ? D3DLOCK_DISCARD : D3DLOCK_NOOVERWRITE : 0;
-	if(FAILED(m_buffers[_index]->Lock(_offset, _size, &l_handle, l_flags))) {
+	if(FAILED(m_buffers[_index]->Lock(0, 0, &l_handle, D3DLOCK_NOOVERWRITE))) {
 		std::cerr << "ERROR: Can't lock vertex buffer\n";
 		return 0;
 	}
@@ -475,6 +474,7 @@ bool rstates::create() {
 	destroy();
 	thread::locker l_locker(section());
 	if(!get_video().ready()) return false;
+#	if defined(WIN32)
 	if(FAILED(get_video().get_direct3ddevice9().BeginStateBlock())) {
 		std::cerr << "ERROR: Can't start state block capture\n";
 		return false;
@@ -484,23 +484,30 @@ bool rstates::create() {
 		std::cerr << "ERROR: Can't create state block\n";
 		return false;
 	}
+#	endif
 	return super::create();
 }
 bool rstates::set() {
 	thread::locker l_locker(section());
 	if(!get_video().ready() || !valid()) return false;
+#	if defined(XBOX)
+	m_set_states();
+#	elif defined(WIN32)
 	if(FAILED(m_block_p->Apply())) {
 		std::cerr << "ERROR: Can't set render states\n";
 		return false;
 	}
+#	endif
 	return true;
 }
 void rstates::destroy() {
 	thread::locker l_locker(section());
+#	if defined(WIN32)
 	if(m_block_p != 0) {
 		m_block_p->Release();
 		m_block_p = 0;
 	}
+#	endif
 	super::destroy();
 }
 bool rstates::m_set_states() {
