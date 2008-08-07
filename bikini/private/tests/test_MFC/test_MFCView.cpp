@@ -116,14 +116,23 @@ void Ctest_MFCView::update() {
 	bk::thread::flag l_event(false, false, "video_update");
 	bk::window l_window(theApp.m_video);
 	l_window.create(m_hWnd);
+	bk::gui l_gui;
+	l_gui.create();
 	bk::rbig l_time = bk::sys_time();
 	while(m_run) {
 		l_event.wait();
-		l_window.update(bk::sys_time() - l_time);
+		bk::real l_dt = bk::sys_time() - l_time;
 		l_time = bk::sys_time();
+		l_window.update(l_dt);
+		l_gui.update(l_dt);
+		l_gui.render(l_window);
+		l_window.present();
 		l_event.set();
 	}
+	l_event.wait();
+	l_gui.destroy();
 	l_window.destroy();
+	l_event.set();
 }
 
 void Ctest_MFCView::OnUpdate(CView* /*pSender*/, LPARAM /*lHint*/, CObject* /*pHint*/)

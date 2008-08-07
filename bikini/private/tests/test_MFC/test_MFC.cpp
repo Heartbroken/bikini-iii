@@ -119,7 +119,9 @@ void Ctest_MFCApp::update() {
 		l_ticker.sync();
 		l_event.set();
 	}
+	l_event.wait();
 	m_video.destroy();
+	l_event.set();
 }
 
 

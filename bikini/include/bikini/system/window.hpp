@@ -42,17 +42,10 @@ private:
 #	endif
 	thread::section m_lock;
 	video &m_video;
-	vr::screen::info m_screen;
-	uint m_screen_ID;
-	vr::vbuffer::info m_vbuffer;
-	uint m_vbuffer_ID;
-	uint m_curr_vbuffer_ID;
-	vr::vformat::info m_vformat;
-	uint m_vformat_ID;
-	vr::rstates::info m_rstates;
-	uint m_rstates_ID;
-	vr::vshader::info m_vshader;
-	uint m_vshader_ID;
-	vr::pshader::info m_pshader;
-	uint m_pshader_ID;
+	struct screen { vr::screen::info info; uint ID; } m_screen;
+	struct vbuffer { vr::vbuffer::info info; uint ID, def_ID, pos; } m_vbuffer;
+	struct vformat { vr::vformat::info info; uint ID, def_ID; } m_vformat;
+	struct rstates { vr::rstates::info info; uint ID, def_ID; } m_rstates;
+	struct vshader { vr::vshader::info info; uint ID, def_ID; } m_vshader;
+	struct pshader { vr::pshader::info info; uint ID, def_ID; } m_pshader;
 };
