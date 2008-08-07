@@ -17,38 +17,31 @@ window::window(video &_video) :
 #	if defined(WIN32)
 	m_handle(0), m_oldproc(0),
 #	endif
-	m_video(_video),
-	m_screen_ID(bad_ID),
-	m_vbuffer_ID(bad_ID),
-	m_curr_vbuffer_ID(bad_ID),
-	m_vformat_ID(bad_ID),
-	m_rstates_ID(bad_ID),
-	m_vshader_ID(bad_ID),
-	m_pshader_ID(bad_ID)
+	m_video(_video)
 {
-	m_vbuffer.descs.push_back(vr::vbuffer::desc(1024 * 100, 0, true));
+	m_vbuffer.info.descs.push_back(vr::vbuffer::desc(1024 * 100, 0, true));
 
-	m_vformat.format.push_back(vr::vformat::element(0, 0, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0));
-	m_vformat.format.push_back(vr::vformat::element(0, 12, D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_COLOR, 0));
-	m_vformat.format.push_back(vr::vformat::end);
+	m_vformat.info.format.push_back(vr::vformat::element(0, 0, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0));
+	m_vformat.info.format.push_back(vr::vformat::element(0, 12, D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_COLOR, 0));
+	m_vformat.info.format.push_back(vr::vformat::end);
 
-	m_rstates.states.push_back(vr::rstates::state(D3DRS_ZENABLE, FALSE));
-	m_rstates.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ZENABLE, FALSE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
 
-	m_vshader.function = window_vs;
-	m_pshader.function = window_ps;
+	m_vshader.info.function = window_vs;
+	m_pshader.info.function = window_ps;
 }
 window::~window() {
 }
 #if defined(XBOX)
 bool window::create() {
 	if(!m_video.ready()) return false;
-	m_screen_ID = m_video.spawn(m_screen);
-	m_vbuffer_ID = m_video.spawn(m_vbuffer);
-	m_vformat_ID = m_video.spawn(m_vformat);
-	m_rstates_ID = m_video.spawn(m_rstates);
-	m_vshader_ID = m_video.spawn(m_vshader);
-	m_pshader_ID = m_video.spawn(m_pshader);
+	m_screen.ID = m_video.spawn(m_screen.info);
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
+	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
+	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
+	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
 	return true;
 }
 #elif defined(WIN32)
@@ -61,12 +54,12 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
-	m_screen_ID = m_video.spawn(m_screen, m_handle, false, _width, _height);
-	m_vbuffer_ID = m_video.spawn(m_vbuffer);
-	m_vformat_ID = m_video.spawn(m_vformat);
-	m_rstates_ID = m_video.spawn(m_rstates);
-	m_vshader_ID = m_video.spawn(m_vshader);
-	m_pshader_ID = m_video.spawn(m_pshader);
+	m_screen.ID = m_video.spawn(m_screen.info, m_handle, false, _width, _height);
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
+	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
+	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
+	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
 	return true;
 }
 bool window::create(HWND _handle) {
@@ -76,12 +69,12 @@ bool window::create(HWND _handle) {
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
 	RECT l_crect; GetClientRect(m_handle, &l_crect);
-	m_screen_ID = m_video.spawn(m_screen, m_handle, false, l_crect.right, l_crect.bottom);
-	m_vbuffer_ID = m_video.spawn(m_vbuffer);
-	m_vformat_ID = m_video.spawn(m_vformat);
-	m_rstates_ID = m_video.spawn(m_rstates);
-	m_vshader_ID = m_video.spawn(m_vshader);
-	m_pshader_ID = m_video.spawn(m_pshader);
+	m_screen.ID = m_video.spawn(m_screen.info, m_handle, false, l_crect.right, l_crect.bottom);
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
+	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
+	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
+	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
 	return true;
 }
 HWND window::handle() {
@@ -131,9 +124,9 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			}
 		} break;
 		case WM_SIZE : {
-			if(m_video.exists(m_screen_ID)) {
+			if(m_video.exists(m_screen.ID)) {
 				thread::locker l_locker(m_lock);
-				vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+				vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 				l_screen.destroy();
 				RECT l_crect; GetClientRect(m_handle, &l_crect);
 				l_screen.set_size(l_crect.right, l_crect.bottom);
@@ -167,18 +160,18 @@ bool window::update(real _dt) {
 	return true;
 }
 bool window::active() const {
-	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.active();
 }
 bool window::clear(uint _flags, const color &_color, real _depth, uint _stencil) const {
-	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.clear(_flags, _color, _depth, _stencil);
 }
 bool window::begin() const {
-	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.begin();
 }
 bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, uint _width) {
@@ -188,46 +181,22 @@ bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) 
 	return false;
 }
 bool window::end() const {
-	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.end();
 }
 bool window::present() const {
-	if(!m_video.ready() || !m_video.exists(m_screen_ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen_ID);
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.present();
 }
 void window::destroy() {
-	//if(m_video.exists(m_pshader_ID)) {
-	//	m_video.get<vr::pshader>(m_pshader_ID).destroy();
-	//	m_video.kill(m_pshader_ID);
-	//	m_pshader_ID = bad_ID;
-	//}
-	//if(m_video.exists(m_vshader_ID)) {
-	//	m_video.get<vr::vshader>(m_vshader_ID).destroy();
-	//	m_video.kill(m_vshader_ID);
-	//	m_vshader_ID = bad_ID;
-	//}
-	//if(m_video.exists(m_rstates_ID)) {
-	//	m_video.get<vr::rstates>(m_rstates_ID).destroy();
-	//	m_video.kill(m_rstates_ID);
-	//	m_rstates_ID = bad_ID;
-	//}
-	//if(m_video.exists(m_vformat_ID)) {
-	//	m_video.get<vr::vformat>(m_vformat_ID).destroy();
-	//	m_video.kill(m_vformat_ID);
-	//	m_vformat_ID = bad_ID;
-	//}
-	//if(m_video.exists(m_vbuffer_ID)) {
-	//	m_video.get<vr::vbuffer>(m_vbuffer_ID).destroy();
-	//	m_video.kill(m_vbuffer_ID);
-	//	m_vbuffer_ID = bad_ID;
-	//}
-	//if(m_video.exists(m_screen_ID)) {
-	//	m_video.get<vr::screen>(m_screen_ID).destroy();
-	//	m_video.kill(m_screen_ID);
-	//	m_screen_ID = bad_ID;
-	//}
+	if(m_video.exists(m_pshader.def_ID)) m_video.kill(m_pshader.def_ID);
+	if(m_video.exists(m_vshader.def_ID)) m_video.kill(m_vshader.def_ID);
+	if(m_video.exists(m_rstates.def_ID)) m_video.kill(m_rstates.def_ID);
+	if(m_video.exists(m_vformat.def_ID)) m_video.kill(m_vformat.def_ID);
+	if(m_video.exists(m_vbuffer.def_ID)) m_video.kill(m_vbuffer.def_ID);
+	if(m_video.exists(m_screen.ID)) m_video.kill(m_screen.ID);
 #	if defined(WIN32)
 	DestroyWindow(m_handle);
 #	endif

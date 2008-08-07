@@ -188,6 +188,9 @@ screen::screen(const info &_info, video &_video, HWND _window, bool _fullscreen,
 	m_backbuffer_p(0), m_depthstencil_p(0)
 {}
 #endif
+screen::~screen() {
+	destroy();
+}
 bool screen::create() {
 	destroy();
 	thread::locker l_locker(section());
@@ -322,6 +325,9 @@ vbuffer::info::info() :
 vbuffer::vbuffer(const info &_info, video &_video) :
 	video::resource(_info, _video)
 {}
+vbuffer::~vbuffer() {
+	destroy();
+}
 bool vbuffer::create() {
 	destroy();
 	thread::locker l_locker(section());
@@ -429,6 +435,9 @@ vformat::vformat(const info &_info, video &_video) :
 	video::resource(_info, _video),
 	m_format_p(0)
 {}
+vformat::~vformat() {
+	destroy();
+}
 bool vformat::create() {
 	destroy();
 	thread::locker l_locker(section());
@@ -470,6 +479,9 @@ rstates::rstates(const info &_info, video &_video) :
 	video::resource(_info, _video),
 	m_block_p(0)
 {}
+rstates::~rstates() {
+	destroy();
+}
 bool rstates::create() {
 	destroy();
 	thread::locker l_locker(section());
@@ -535,6 +547,9 @@ vshader::vshader(const info &_info, video &_video) :
 	video::resource(_info, _video),
 	m_shader_p(0)
 {}
+vshader::~vshader() {
+	destroy();
+}
 bool vshader::create() {
 	destroy();
 	thread::locker l_locker(section());
@@ -576,6 +591,9 @@ pshader::pshader(const info &_info, video &_video) :
 	video::resource(_info, _video),
 	m_shader_p(0)
 {}
+pshader::~pshader() {
+	destroy();
+}
 bool pshader::create() {
 	destroy();
 	thread::locker l_locker(section());

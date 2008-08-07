@@ -57,7 +57,6 @@ void manager::remove(uint _ID) {
 }
 
 uint manager::get_first_ID(uint _type /*= bad_ID*/) const {
-	//for(uint i = 0, s = m_update_order.size(); i < s; ++i) {
 	for(uint i = 0, s = m_objects.size(); i < s; ++i) {
 		object &l_object = *m_objects[i];
 		if(&l_object != 0 && (l_object.type() == _type || _type == bad_ID)) {
@@ -69,7 +68,6 @@ uint manager::get_first_ID(uint _type /*= bad_ID*/) const {
 
 uint manager::get_next_ID(uint _prev_ID, uint _type /*= bad_ID*/) const {
 	assert((_prev_ID & index_mask) < m_objects.size());
-	//for(uint i = (_prev_ID & index_mask) + 1, s = m_update_order.size(); i < s; ++i) {
 	for(uint i = (_prev_ID & index_mask) + 1, s = m_objects.size(); i < s; ++i) {
 		object &l_object = *m_objects[i];
 		if(&l_object != 0 && (l_object.type() == _type || _type == bad_ID)) {

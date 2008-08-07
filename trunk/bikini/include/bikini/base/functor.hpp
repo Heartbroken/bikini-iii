@@ -210,6 +210,7 @@ template<
 	template<typename _Object, typename _Method> inline functor_(_Object &_object, const _Method &_method) : m_core_p(new _functor_method_handler_<functor_, _Object, _Method>(_object, _method)) {}
 	inline functor_(const functor_ &_f) : m_core_p(static_cast<core*>(&_f.m_core_p->clone())) {}
 	inline functor_& operator = (const functor_ &_f) { if(m_core_p) delete m_core_p; m_core_p = static_cast<core*>(&_f.m_core_p->clone()); return *this; }
+	inline bool valid() const { return m_core_p != 0; }
 	~functor_() { delete m_core_p; }
 
 	inline rettype operator () () const {

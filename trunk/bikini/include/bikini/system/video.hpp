@@ -83,6 +83,7 @@ struct screen : video::resource {
 	screen(const info &_info, video &_video);
 #	elif defined(WIN32)
 	screen(const info &_info, video &_video, HWND _window, bool _fullscreen, uint _width, uint _height);
+	~screen();
 	inline bool fullscreen() const { return m_fullscreen; }
 	inline void set_fullscreen(bool _yes = true) { m_fullscreen = _yes; }
 	inline uint width() const { return m_width; }
@@ -120,6 +121,7 @@ struct vbuffer : video::resource {
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	inline bool active() const { return get_video().vbuffer_ID() == ID(); }
 	vbuffer(const info &_info, video &_video);
+	~vbuffer();
 	bool create();
 	handle lock(uint _index = 0);
 	bool unlock(uint _index = 0);
@@ -151,6 +153,7 @@ struct vformat : video::resource {
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	vformat(const info &_info, video &_video);
+	~vformat();
 	bool create();
 	bool set();
 	void destroy();
@@ -172,6 +175,7 @@ struct rstates : video::resource {
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	rstates(const info &_info, video &_video);
+	~rstates();
 	bool create();
 	bool set();
 	void destroy();
@@ -189,6 +193,7 @@ struct vshader : video::resource {
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	vshader(const info &_info, video &_video);
+	~vshader();
 	bool create();
 	bool set();
 	void destroy();
@@ -205,6 +210,7 @@ struct pshader : video::resource {
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	pshader(const info &_info, video &_video);
+	~pshader();
 	bool create();
 	bool set();
 	void destroy();
