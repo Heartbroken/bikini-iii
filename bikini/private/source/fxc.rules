@@ -7,8 +7,8 @@
 		<CustomBuildRule
 			Name="Vertex Shader Compiler"
 			DisplayName="Vertex Shader"
-			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo $(InputPath).o $(InputPath)"
-			Outputs="$(InputPath).o"
+			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; $(InputFileName)"
+			Outputs="$(IntDir)\$(InputFileName).o"
 			FileExtensions="*.vs"
 			ExecutionDescription="Compiling vertex shader ..."
 			>
@@ -97,8 +97,8 @@
 		<CustomBuildRule
 			Name="Pixel Shader Compiler"
 			DisplayName="Pixel Shader"
-			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo $(InputPath).o $(InputPath)"
-			Outputs="$(InputPath).o"
+			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; $(InputFileName)"
+			Outputs="$(IntDir)\$(InputFileName).o"
 			FileExtensions="*.ps"
 			ExecutionDescription="Compiling pixel shader ..."
 			>
