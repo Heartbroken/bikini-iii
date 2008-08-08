@@ -6,18 +6,18 @@
 
 *//*---------------------------------------------------------------------------------------------*/
 
-struct VS_INPUT {
+struct input {
 	float3 p : POSITION;
 	float4 c : COLOR0;
 };
 
-struct VS_OUTPUT {
-	float4 hpos : POSITION0;
+struct output {
+	float4 hpos : POSITION;
 	float4 c : COLOR0;
 };
 
-VS_OUTPUT main(VS_INPUT _in) {
-	VS_OUTPUT l_out = (VS_OUTPUT)0;
+output main(input _in) {
+	output l_out = (output)0;
 	l_out.hpos = float4(_in.p, 1);
 	l_out.c = _in.c;
 	return l_out;

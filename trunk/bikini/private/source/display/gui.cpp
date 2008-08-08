@@ -18,7 +18,7 @@ gui::~gui() {
 	assert(m_screen_ID == bad_ID);
 }
 bool gui::create() {
-	static gp::screen::info sl_screen;
+	static ge::screen::info sl_screen;
 	m_screen_ID = spawn(sl_screen);
 	return true;
 }
@@ -30,18 +30,19 @@ bool gui::render(window &_window) const {
 		std::vector<uint> l_order;
 		l_order.push_back(m_screen_ID);
 		for(uint i = 0; i < l_order.size(); ++i) {
-			uint l_panel_ID = l_order[i];
-			if(exists(l_panel_ID)) {
-				panel &l_panel = get<panel>(l_panel_ID);
-				if(!l_panel.render(_window) && l_panel.get_color().a() > 0) {
-					const rect &l_r = l_panel.get_rect(); const color &l_c = l_panel.get_color();
+			uint l_element_ID = l_order[i];
+			if(exists(l_element_ID)) {
+				element &l_element = get<element>(l_element_ID);
+				if(!l_element.render(_window) && l_element.get_color().a() > 0) {
+					const rect &l_r = l_element.get_rect(); const color &l_c = l_element.get_color();
 					_window.draw_rect(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), l_c);
 				}
-				for(uint i = 0, s = l_panel.kid_count(); i < s; ++i) {
-					l_order.push_back(l_panel.kid_ID(i));
+				for(uint i = 0, s = l_element.kid_count(); i < s; ++i) {
+					l_order.push_back(l_element.kid_ID(i));
 				}
 			}
 		}
+		_window.flush_drawings();
 		if(!l_save_active) _window.end();
 	}
 	constants_<16> l_constants;
@@ -55,43 +56,44 @@ void gui::destroy() {
 	}
 }
 
-// gui::panel
+// gui::element
 
-gui::panel::panel(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
-	manager::object(_info, _gui), m_rect(_x, _y, _w, _h), m_parent_dependency(add_dependency(_parent_ID))
+gui::element::element(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
+	manager::object(_info, _gui), m_rect(_x, _y, _w, _h),
+	m_parent_dependency(add_dependency(_parent_ID)), m_color(white)
 {
 	if(get_gui().exists(parent_ID())) {
-		panel &l_parent = get_gui().get<panel>(parent_ID());
+		element &l_parent = get_gui().get<element>(parent_ID());
 		l_parent.add_kid(ID());
 	}
 }
-bool gui::panel::render(const window &_window) const {
-	return true;
+bool gui::element::render(const window &_window) const {
+	return false;
 }
 
-// gui::panel::info
+// gui::element::info
 
-gui::panel::info::info(uint _type) :
+gui::element::info::info(uint _type) :
 	manager::object::info(_type)
 {}
 
-namespace gp { /*--------------------------------------------------------------------------------*/
+namespace ge { /*--------------------------------------------------------------------------------*/
 
 // screen::info
 
 screen::info::info() :
-	gui::panel::info(gui::pt::screen)
+	gui::element::info(gui::et::screen)
 {}
 
 // screen
 
 screen::screen(const info &_info, gui &_gui) :
-	gui::panel(_info, _gui, 0, 0, 0, 0)
+	gui::element(_info, _gui, 10, 10, 1004, 620)
 {
-	set_color(0);
+	set_color(magenta);
 }
 
 
-} /* namespace gp -------------------------------------------------------------------------------*/
+} /* namespace ge -------------------------------------------------------------------------------*/
 
 } /* namespace bk -------------------------------------------------------------------------------*/

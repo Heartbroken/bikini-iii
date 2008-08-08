@@ -31,7 +31,8 @@ window::window(video &_video) :
 	m_vformat.info.format.push_back(vr::vformat::end);
 
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ZENABLE, FALSE));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, FALSE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
 
 	m_vshader.info.function = window_vs;
 	m_pshader.info.function = window_ps;
@@ -42,11 +43,12 @@ window::~window() {
 bool window::create() {
 	if(!m_video.ready()) return false;
 	m_screen.ID = m_video.spawn(m_screen.info);
-	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info);
 	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
 	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
 	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
 	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
+	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
 	return true;
 }
 #elif defined(WIN32)
@@ -60,11 +62,12 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
 	if(!m_video.ready()) return false;
 	m_screen.ID = m_video.spawn(m_screen.info, m_handle, false, _width, _height);
-	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info);
 	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
 	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
 	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
 	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
+	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
 	return true;
 }
 bool window::create(HWND _handle) {
@@ -75,14 +78,15 @@ bool window::create(HWND _handle) {
 	if(!m_video.ready()) return false;
 	RECT l_crect; GetClientRect(m_handle, &l_crect);
 	m_screen.ID = m_video.spawn(m_screen.info, m_handle, false, l_crect.right, l_crect.bottom);
-	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.pos = 0;
+	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.data = 0;
 	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
 	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
 	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
 	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
+	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
 	return true;
 }
-HWND window::handle() {
+HWND window::get_handle() {
 	return m_handle;
 }
 void window::show(bool _yes) {
@@ -183,7 +187,23 @@ bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, 
 	return false;
 }
 bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) {
-	return false;
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
+	f32 l_w = (f32)l_screen.width(), l_h = (f32)l_screen.height();
+	f32 l_x0 = 2.f * _x0 / l_w - 1.f, l_y0 = -2.f * _y0 / l_h + 1.f;
+	f32 l_x1 = 2.f * _x1 / l_w - 1.f, l_y1 = -2.f * _y1 / l_h + 1.f;
+	vertex l_v[6];
+	l_v[0].p[0] = l_x0; l_v[0].p[1] = l_y0; l_v[0].p[2] = .5f; l_v[0].c = _c;
+	l_v[1].p[0] = l_x0; l_v[1].p[1] = l_y1; l_v[1].p[2] = .5f; l_v[1].c = _c;
+	l_v[2].p[0] = l_x1; l_v[2].p[1] = l_y1; l_v[2].p[2] = .5f; l_v[2].c = _c;
+	l_v[3].p[0] = l_x1; l_v[3].p[1] = l_y1; l_v[3].p[2] = .5f; l_v[3].c = _c;
+	l_v[4].p[0] = l_x1; l_v[4].p[1] = l_y0; l_v[4].p[2] = .5f; l_v[4].c = _c;
+	l_v[5].p[0] = l_x0; l_v[5].p[1] = l_y0; l_v[5].p[2] = .5f; l_v[5].c = _c;
+	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
+	return true;
+}
+bool window::flush_drawings() {
+	return m_flush_tris();
 }
 bool window::end() const {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
@@ -205,6 +225,45 @@ void window::destroy() {
 #	if defined(WIN32)
 	DestroyWindow(m_handle);
 #	endif
+}
+bool window::m_add_tris(uint _count, vertex *_v_p) {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	uint l_size = sizeof(vertex) * 3 * _count;
+	if(m_vbuffer.start + m_vbuffer.used + l_size > 1024 * 100) {
+		m_flush_tris(); m_vbuffer.start = 0;
+	}
+	if(m_vbuffer.data == 0 && m_video.exists(m_vbuffer.ID)) {
+		vr::vbuffer &l_vbuffer = m_video.get<vr::vbuffer>(m_vbuffer.ID);
+		if(!l_vbuffer.valid()) return false;
+		m_vbuffer.data = l_vbuffer.lock();
+	}
+	if(m_vbuffer.data != 0) {
+		memcpy((u8*)m_vbuffer.data + m_vbuffer.start + m_vbuffer.used, _v_p, l_size);
+		m_vbuffer.used += l_size;
+	}
+	return true;
+}
+bool window::m_flush_tris() {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	if(m_vbuffer.data == 0 || !m_video.exists(m_vbuffer.ID)) return false;
+	if(!m_video.exists(m_vformat.ID) || !m_video.exists(m_rstates.ID)) return false;
+	if(!m_video.exists(m_vshader.ID) || !m_video.exists(m_pshader.ID)) return false;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID); if(!l_screen.valid() || !l_screen.active()) return false;
+	vr::vbuffer &l_vbuffer = m_video.get<vr::vbuffer>(m_vbuffer.ID); if(!l_vbuffer.valid()) return false;
+	vr::vformat &l_vformat = m_video.get<vr::vformat>(m_vformat.ID); if(!l_vformat.valid()) return false;
+	vr::rstates &l_rstates = m_video.get<vr::rstates>(m_rstates.ID); if(!l_rstates.valid()) return false;
+	vr::vshader &l_vshader = m_video.get<vr::vshader>(m_vshader.ID); if(!l_vshader.valid()) return false;
+	vr::pshader &l_pshader = m_video.get<vr::pshader>(m_pshader.ID); if(!l_pshader.valid()) return false;
+	l_vbuffer.unlock(); m_vbuffer.data = 0;
+	l_vbuffer.begin(0, sizeof(vertex));
+	l_vformat.set();
+	l_vshader.set();
+	l_pshader.set();
+	l_rstates.set();
+	l_screen.draw_primitive(m_vbuffer.start / sizeof(vertex), m_vbuffer.used / sizeof(vertex) / 3);
+	l_vbuffer.end();
+	m_vbuffer.start += m_vbuffer.used; m_vbuffer.used = 0;
+	return true;
 }
 
 } /* namespace bk -------------------------------------------------------------------------------*/

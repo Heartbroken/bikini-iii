@@ -9,7 +9,7 @@
 #pragma once
 
 struct gui : manager {
-	struct pt { enum panel_type {
+	struct et { enum panel_type {
 		screen
 	};};
 	typedef matrix_<1, 2, sint> point;
@@ -30,9 +30,9 @@ struct gui : manager {
 	private:
 		point m_lt, m_rb;
 	};
-	struct panel : manager::object {
+	struct element : manager::object {
 		struct info : manager::object::info {
-			typedef panel object;
+			typedef element object;
 			typedef gui manager;
 			typedef sint a0;
 			typedef sint a1;
@@ -41,7 +41,7 @@ struct gui : manager {
 			typedef uint a4;
 			info(uint _type);
 		};
-		panel(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID = bad_ID);
+		element(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID = bad_ID);
 		inline gui& get_gui() const;
 		inline const rect& get_rect() const;
 		inline void set_rect(const rect &_r);
@@ -49,7 +49,7 @@ struct gui : manager {
 		inline void set_color(const color &_c);
 		inline uint parent_ID() const;
 		inline bool has_parent() const;
-		inline panel& get_parent() const;
+		inline element& get_parent() const;
 		inline void add_kid(uint _ID);
 		inline uint kid_count() const;
 		inline uint kid_ID(uint _i) const;
@@ -59,6 +59,7 @@ struct gui : manager {
 		uint m_parent_dependency;
 		std::vector<uint> m_kids;
 	};
+	inline uint screen_ID() const;
 	gui();
 	~gui();
 	bool create();
@@ -68,16 +69,16 @@ private:
 	uint m_screen_ID;
 };
 
-namespace gp { /*--------------------------------------------------------------------------------*/
+namespace ge { /*--------------------------------------------------------------------------------*/
 
-struct screen : gui::panel {
-	struct info : gui::panel::info {
+struct screen : gui::element {
+	struct info : gui::element::info {
 		typedef screen object;
 		info();
 	};
 	screen(const info &_info, gui &_gui);
 };
 
-} /* namespace gp -------------------------------------------------------------------------------*/
+} /* namespace ge -------------------------------------------------------------------------------*/
 
 #include "gui.inl"
