@@ -83,13 +83,13 @@ struct screen : video::resource {
 	screen(const info &_info, video &_video);
 #	elif defined(WIN32)
 	screen(const info &_info, video &_video, HWND _window, bool _fullscreen, uint _width, uint _height);
-	~screen();
 	inline bool fullscreen() const { return m_fullscreen; }
 	inline void set_fullscreen(bool _yes = true) { m_fullscreen = _yes; }
 	inline uint width() const { return m_width; }
 	inline uint height() const { return m_height; }
 	inline void set_size(uint _w, uint _h) { m_width = _w; m_height = _h; }
 #	endif
+	~screen();
 	bool create();
 	void destroy();
 	bool begin();

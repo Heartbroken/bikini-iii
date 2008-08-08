@@ -10,8 +10,13 @@
 
 namespace bk { /*--------------------------------------------------------------------------------*/
 
-#include "window.vs.h"
-#include "window.ps.h"
+#if defined(XBOX)
+#	include "window.vs.xbox.h"
+#	include "window.ps.xbox.h"
+#elif defined(WIN32)
+#	include "window.vs.h"
+#	include "window.ps.h"
+#endif
 
 window::window(video &_video) :
 #	if defined(WIN32)
