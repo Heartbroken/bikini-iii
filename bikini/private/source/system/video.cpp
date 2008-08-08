@@ -266,6 +266,18 @@ bool screen::begin() {
 	l_result = m_backbuffer_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_backbuffer_p); if(FAILED(l_result)) return false;
 	l_result = get_video().get_direct3ddevice9().SetRenderTarget(0, l_backbuffer_p); l_backbuffer_p->Release(); if(FAILED(l_result)) return false;
 	l_result = get_video().get_direct3ddevice9().SetDepthStencilSurface(m_depthstencil_p); if(FAILED(l_result)) return false;
+
+	//D3DVIEWPORT9 vp;
+	//l_result = get_video().get_direct3ddevice9().GetViewport(&vp); if(FAILED(l_result)) return false;
+	//vp.X      = 0;
+	//vp.Y      = 0;
+	//vp.Width  = m_width;
+	//vp.Height = m_height;
+	//vp.MinZ   = 0.0f;
+	//vp.MaxZ   = 1.0f;
+	//l_result = get_video().get_direct3ddevice9().SetViewport(&vp); if(FAILED(l_result)) return false;
+
+
 	l_result = get_video().get_direct3ddevice9().BeginScene(); if(FAILED(l_result)) return false;
 	get_video().set_screen_ID(ID());
 #	endif

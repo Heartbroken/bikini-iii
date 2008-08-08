@@ -34,10 +34,10 @@ struct task0 : bk::application::task {
 		while(true) {
 			bk::real l_dt = bk::real(bk::sys_time() - l_time); l_time = bk::sys_time();
 			l_video.update(l_dt);
-			l_window.present();
 			if(!l_window.update(l_dt)) break;
 			// do something useful
 			l_gui.update(l_dt);
+			l_window.present();
 			l_gui.render(l_window);
 			//
 			l_ticker.sync();
