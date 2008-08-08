@@ -32,13 +32,13 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="Vertex Shader"
+				Name="Vertex Shader Compiler"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Pixel Shader"
+				Name="Pixel Shader Compiler"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -76,7 +76,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\xbox\$(InputName)_d.lib"
+				OutputFile="..\..\..\library\$(InputName)_d.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -110,10 +110,12 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Vertex Shader"
+				Name="Vertex Shader Compiler"
+				Fh="$(InputPath).xbox.h"
 			/>
 			<Tool
-				Name="Pixel Shader"
+				Name="Pixel Shader Compiler"
+				Fh="$(InputPath).xbox.h"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -174,13 +176,13 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
-				Name="Vertex Shader"
+				Name="Vertex Shader Compiler"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Pixel Shader"
+				Name="Pixel Shader Compiler"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -214,7 +216,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\xbox\$(InputName).lib"
+				OutputFile="..\..\..\library\$(InputName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -249,10 +251,12 @@
 				Name="VCCustomBuildTool"
 			/>
 			<Tool
-				Name="Vertex Shader"
+				Name="Vertex Shader Compiler"
+				Fh="$(InputPath).xbox.h"
 			/>
 			<Tool
-				Name="Pixel Shader"
+				Name="Pixel Shader Compiler"
+				Fh="$(InputPath).xbox.h"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -284,7 +288,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\library\system.lib"
+				OutputFile="..\..\..\library\xbox\$(InputName).lib"
 			/>
 			<Tool
 				Name="VCALinkTool"

@@ -5,7 +5,7 @@
 	>
 	<Rules>
 		<CustomBuildRule
-			Name="Vertex Shader"
+			Name="Vertex Shader Compiler"
 			DisplayName="Vertex Shader"
 			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo $(InputPath).o $(InputPath)"
 			Outputs="$(InputPath).o"
@@ -95,7 +95,7 @@
 			</Properties>
 		</CustomBuildRule>
 		<CustomBuildRule
-			Name="Pixel Shader"
+			Name="Pixel Shader Compiler"
 			DisplayName="Pixel Shader"
 			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo $(InputPath).o $(InputPath)"
 			Outputs="$(InputPath).o"
