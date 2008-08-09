@@ -23,10 +23,14 @@ struct window {
 	void set_caption(const astr &_s);
 	void set_size(uint _width, uint _height);
 #	endif
+	uint width() const;
+	uint height() const;
 	bool update(real _dt);
 	bool active() const;
 	bool clear(uint _flags = cf::all, const color &_color = black, real _depth = 1.f, uint _stencil = 0) const;
 	bool begin() const;
+	bool set_scissor(uint _x0, uint _y0, uint _x1, uint _y1);
+	bool remove_scissor();
 	bool draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white, uint _width = 1);
 	bool draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white);
 	bool flush_drawings();
@@ -49,7 +53,11 @@ private:
 	struct rstates { vr::rstates::info info; uint ID, def_ID; } m_rstates;
 	struct vshader { vr::vshader::info info; uint ID, def_ID; } m_vshader;
 	struct pshader { vr::pshader::info info; uint ID, def_ID; } m_pshader;
-	struct vertex { f32 p[3]; u32 c; };
+	struct scissor { uint x0, y0, x1, y1; } m_scissor;
+	typedef matrix_<1, 3, f32> f1x3;
+	typedef matrix_<1, 4, f32> f1x4;
+	typedef matrix_<4, 4, f32> f4x4;
+	struct vertex { f1x3 p; u32 c; };
 	bool m_add_tris(uint _count, vertex *_v_p);
 	bool m_flush_tris();
 };

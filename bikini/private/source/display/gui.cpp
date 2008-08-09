@@ -22,37 +22,47 @@ bool gui::create() {
 	m_screen_ID = spawn(sl_screen);
 	return true;
 }
-template<uint _N> struct constants_ : matrix_<_N, 4, real> {};
+void gui::destroy() {
+	if(exists(m_screen_ID)) {
+		kill(m_screen_ID);
+		m_screen_ID = bad_ID;
+	}
+}
 bool gui::render(window &_window) const {
 	bool l_save_active = _window.active();
 	if(_window.active() || _window.begin()) {
-		_window.clear(cf::all, yellow);
+		_window.clear(cf::all);
 		std::vector<uint> l_order;
 		l_order.push_back(m_screen_ID);
 		for(uint i = 0; i < l_order.size(); ++i) {
 			uint l_element_ID = l_order[i];
 			if(exists(l_element_ID)) {
-				element &l_element = get<element>(l_element_ID);
-				if(!l_element.render(_window) && l_element.get_color().a() > 0) {
-					const rect &l_r = l_element.get_rect(); const color &l_c = l_element.get_color();
+				element &l_e = get<element>(l_element_ID);
+				if(l_e.has_parent() && l_e.get_parent().clip_kids()) {
+					rect l_r = l_e.get_parent().clip_rect();
+					_window.set_scissor(l_r.left(), l_r.top(), l_r.right() + 1, l_r.bottom() + 1);
+				} else {
+					_window.remove_scissor();
+				}
+				rect l_r = l_e.abs_rect(); const color &l_c = l_e.get_color();
+				if(!l_e.render(_window) && l_e.get_color().a() > 0) {
 					_window.draw_rect(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), l_c);
 				}
-				for(uint i = 0, s = l_element.kid_count(); i < s; ++i) {
-					l_order.push_back(l_element.kid_ID(i));
+				for(uint i = 0, s = l_e.kid_count(); i < s; ++i) {
+					l_order.push_back(l_e.kid_ID(i));
 				}
 			}
 		}
 		_window.flush_drawings();
+		_window.remove_scissor();
 		if(!l_save_active) _window.end();
 	}
-	constants_<16> l_constants;
-	l_constants.row<0>() = r1x4_0;
 	return true;
 }
-void gui::destroy() {
+void gui::resize(window &_window) const {
 	if(exists(m_screen_ID)) {
-		kill(m_screen_ID);
-		m_screen_ID = bad_ID;
+		ge::screen &l_screen = get<ge::screen>(m_screen_ID);
+		l_screen.set_rect(rect(0, 0, _window.width(), _window.height()));
 	}
 }
 
@@ -60,14 +70,15 @@ void gui::destroy() {
 
 gui::element::element(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
 	manager::object(_info, _gui), m_rect(_x, _y, _w, _h),
-	m_parent_dependency(add_dependency(_parent_ID)), m_color(white)
+	m_parent_dependency(add_dependency(_parent_ID)), m_color(white),
+	m_clip_kids(false)
 {
 	if(get_gui().exists(parent_ID())) {
 		element &l_parent = get_gui().get<element>(parent_ID());
 		l_parent.add_kid(ID());
 	}
 }
-bool gui::element::render(const window &_window) const {
+bool gui::element::render(window &_window) const {
 	return false;
 }
 
@@ -88,11 +99,35 @@ screen::info::info() :
 // screen
 
 screen::screen(const info &_info, gui &_gui) :
-	gui::element(_info, _gui, 10, 10, 1004, 620)
+	gui::element(_info, _gui, 0, 0, 0, 0, bad_ID)
 {
-	set_color(magenta);
+	set_color(0);
 }
 
+// panel::info
+
+panel::info::info() :
+	gui::element::info(gui::et::panel)
+{}
+
+// panel
+
+panel::panel(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
+	gui::element(_info, _gui, _x, _y, _w, _h, _parent_ID)
+{
+	set_clip_kids();
+}
+bool panel::render(window &_window) const {
+	gui::rect l_r = abs_rect();
+	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), green, 3);
+	_window.draw_line(l_r.right(), l_r.top(), l_r.left(), l_r.bottom(), green, 3);
+
+	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.top(), green, 5);
+	_window.draw_line(l_r.right(), l_r.top(), l_r.right(), l_r.bottom(), green, 5);
+	_window.draw_line(l_r.right(), l_r.bottom(), l_r.left(), l_r.bottom(), green, 5);
+	_window.draw_line(l_r.left(), l_r.bottom(), l_r.left(), l_r.top(), green, 5);
+	return true;
+}
 
 } /* namespace ge -------------------------------------------------------------------------------*/
 

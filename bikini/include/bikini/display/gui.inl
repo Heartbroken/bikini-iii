@@ -54,6 +54,12 @@ inline gui::rect& gui::rect::operator = (const rect &_r) {
 inline bool gui::rect::operator == (const rect &_r) const {
 	return m_lt == _r.lefttop() && m_rb == _r.rightbottom();
 }
+inline const gui::rect gui::rect::operator + (const point &_p) const {
+	return rect(m_lt[0][0] + _p[0][0], m_lt[0][1] + _p[0][1], m_rb[0][0] - m_lt[0][0] + _p[0][0], m_rb[0][1] - m_lt[0][1] + _p[0][1]);
+}
+inline const gui::rect gui::rect::operator & (const rect &_r) const {
+	return rect(max(left(), _r.left()), max(top(), _r.top()), min(right(), _r.right()), min(bottom(), _r.bottom()));
+}
 
 // gui::element
 
@@ -72,6 +78,12 @@ inline const color& gui::element::get_color() const {
 inline void gui::element::set_color(const color &_c) {
 	m_color = _c;
 }
+inline bool gui::element::clip_kids() const {
+	return m_clip_kids;
+}
+inline void gui::element::set_clip_kids(bool _yes) {
+	m_clip_kids = _yes;
+}
 inline uint gui::element::parent_ID() const {
 	return dependency(m_parent_dependency);
 }
@@ -81,6 +93,18 @@ inline bool gui::element::has_parent() const {
 inline gui::element& gui::element::get_parent() const {
 	assert(has_parent());
 	return get_gui().get<gui::element>(parent_ID());
+}
+inline const gui::rect gui::element::abs_rect() const {
+	return has_parent() ? get_rect() + get_parent().abs_rect().lefttop() : get_rect();
+}
+inline const gui::rect gui::element::clip_rect() const {
+	rect l_r = abs_rect();
+	const element *l_e_p = this;
+	while(l_e_p->has_parent()) {
+		l_e_p = &l_e_p->get_parent();
+		if(l_e_p->clip_kids()) l_r = l_r & l_e_p->abs_rect();
+	}
+	return l_r;
 }
 inline void gui::element::add_kid(uint _ID) {
 	m_kids.push_back(_ID);

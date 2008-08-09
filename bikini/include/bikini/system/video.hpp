@@ -94,6 +94,8 @@ struct screen : video::resource {
 	void destroy();
 	bool begin();
 	bool clear(uint _flags = cf::all, const color &_color = black, real _depth = 1.f, uint _stencil = 0);
+	bool set_scissor(uint _x0, uint _y0, uint _x1, uint _y1);
+	bool remove_scissor();
 	bool draw_primitive(uint _start, uint _count);
 	bool end();
 	bool present();
