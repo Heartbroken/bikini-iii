@@ -219,6 +219,7 @@ bool screen::create() {
 	l_d3dpresent_parameters.Windowed = !m_fullscreen;
 	l_d3dpresent_parameters.BackBufferWidth = m_width;
 	l_d3dpresent_parameters.BackBufferHeight = m_height;
+	l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
     l_d3dpresent_parameters.EnableAutoDepthStencil = false;
 	l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -226,7 +227,7 @@ bool screen::create() {
 		std::cerr << "ERROR: Can't create swap chain\n";
 		return false;
 	}
-	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, D3DMULTISAMPLE_NONE, 0, 0, &m_depthstencil_p, 0))) {
+	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)4, 0, 0, &m_depthstencil_p, 0))) {
 		m_backbuffer_p->Release(); m_backbuffer_p = 0;
 		std::cerr << "ERROR: Can't create depth buffer\n";
 		return false;
@@ -266,18 +267,6 @@ bool screen::begin() {
 	l_result = m_backbuffer_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_backbuffer_p); if(FAILED(l_result)) return false;
 	l_result = get_video().get_direct3ddevice9().SetRenderTarget(0, l_backbuffer_p); l_backbuffer_p->Release(); if(FAILED(l_result)) return false;
 	l_result = get_video().get_direct3ddevice9().SetDepthStencilSurface(m_depthstencil_p); if(FAILED(l_result)) return false;
-
-	//D3DVIEWPORT9 vp;
-	//l_result = get_video().get_direct3ddevice9().GetViewport(&vp); if(FAILED(l_result)) return false;
-	//vp.X      = 0;
-	//vp.Y      = 0;
-	//vp.Width  = m_width;
-	//vp.Height = m_height;
-	//vp.MinZ   = 0.0f;
-	//vp.MaxZ   = 1.0f;
-	//l_result = get_video().get_direct3ddevice9().SetViewport(&vp); if(FAILED(l_result)) return false;
-
-
 	l_result = get_video().get_direct3ddevice9().BeginScene(); if(FAILED(l_result)) return false;
 	get_video().set_screen_ID(ID());
 #	endif
@@ -306,6 +295,20 @@ bool screen::clear(uint _flags, const color &_color, real _depth, uint _stencil)
 			get_video().get<screen>(l_save_screen_ID).begin();
 		}
 	}
+	return true;
+}
+bool screen::set_scissor(uint _x0, uint _y0, uint _x1, uint _y1) {
+	thread::locker l_locker(section());
+	if(!get_video().ready() || !valid() || !active()) return false;
+	RECT l_r = { _x0, _y0, _x1, _y1 };
+	if(FAILED(get_video().get_direct3ddevice9().SetScissorRect(&l_r))) return false;
+	if(FAILED(get_video().get_direct3ddevice9().SetRenderState(D3DRS_SCISSORTESTENABLE, TRUE))) return false;
+	return true;
+}
+bool screen::remove_scissor() {
+	thread::locker l_locker(section());
+	if(!get_video().ready() || !valid() || !active()) return false;
+	if(FAILED(get_video().get_direct3ddevice9().SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE))) return false;
 	return true;
 }
 bool screen::draw_primitive(uint _start, uint _count) {

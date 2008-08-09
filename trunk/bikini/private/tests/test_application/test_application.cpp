@@ -29,6 +29,9 @@ struct task0 : bk::application::task {
 		l_window.clear();
 		bk::gui l_gui;
 		l_gui.create();
+		l_gui.resize(l_window);
+		bk::ge::panel::info l_panel;
+		l_gui.spawn(l_panel, 100, 100, 100, 100, l_gui.screen_ID());
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {

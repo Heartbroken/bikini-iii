@@ -31,11 +31,14 @@ window::window(video &_video) :
 	m_vformat.info.format.push_back(vr::vformat::end);
 
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ZENABLE, FALSE));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, FALSE));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 
 	m_vshader.info.function = window_vs;
 	m_pshader.info.function = window_ps;
+
+	m_scissor.x0 = m_scissor.y0 = m_scissor.x1 = m_scissor.y1 = bad_ID;
 }
 window::~window() {
 }
@@ -155,6 +158,20 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 	return DefWindowProcW(m_handle, _message, _wparam, _lparam);
 }
 #endif
+uint window::width() const {
+#	if defined(XBOX)
+#	elif defined(WIN32)
+	RECT l_crect; GetClientRect(m_handle, &l_crect);
+	return l_crect.right;
+#	endif
+}
+uint window::height() const {
+#	if defined(XBOX)
+#	elif defined(WIN32)
+	RECT l_crect; GetClientRect(m_handle, &l_crect);
+	return l_crect.bottom;
+#	endif
+}
 bool window::update(real _dt) {
 #	if defined(WIN32)
 	if(m_oldproc == 0) {
@@ -183,22 +200,69 @@ bool window::begin() const {
 	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
 	return l_screen.begin();
 }
+bool window::set_scissor(uint _x0, uint _y0, uint _x1, uint _y1) {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	if(m_scissor.x0 == _x0 && m_scissor.y0 == _y0 && m_scissor.x1 == _x1 && m_scissor.y1 == _y1) return true;
+	m_flush_tris();
+	m_scissor.x0 = _x0; m_scissor.y0 = _y0; m_scissor.x1 = _x1; m_scissor.y1 = _y1;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
+	return l_screen.set_scissor(_x0, _y0, _x1, _y1);
+}
+bool window::remove_scissor() {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	if(m_scissor.x0 == bad_ID && m_scissor.y0 == bad_ID && m_scissor.x1 == bad_ID && m_scissor.y1 == bad_ID) return true;
+	m_flush_tris();
+	m_scissor.x0 = m_scissor.y0 = m_scissor.x1 = m_scissor.y1 = bad_ID;
+	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
+	return l_screen.remove_scissor();
+}
 bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, uint _width) {
-	return false;
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
+	f32 l_length = (f32)sqrt((_x1 - _x0) * (_x1 - _x0) + (_y1 - _y0) * (_y1 - _y0));
+	f1x4 l_p0(-.5f * _width, .5f * _width, 0, 1);
+	f1x4 l_p1(-.5f * _width,-.5f * _width, 0, 1);
+	f1x4 l_p2(l_length + .5f * _width,-.5f * _width, 0, 1);
+	f1x4 l_p3(l_length + .5f * _width, .5f * _width, 0, 1);
+	f32 l_angle = atan2(f32(_y1 - _y0), f32(_x1 - _x0));
+	f32 l_s = (f32)sin(l_angle), l_c = (f32)cos(l_angle);
+	f4x4 l_rotate  (f1x4( l_c, l_s, 0.f, 0.f),
+					f1x4(-l_s, l_c, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4( 0.f, 0.f, 0.f, 1.f));
+	f32 l_x = (f32)_x0, l_y = (f32)_y0;
+	f4x4 l_trans   (f1x4( 1.f, 0.f, 0.f, 0.f),
+					f1x4( 0.f, 1.f, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4( l_x, l_y, 0.f, 1.f));
+	f32 l_w = 2.f / (f32)width(), l_h = 2.f / (f32)height();
+	f4x4 l_project (f1x4( l_w, 0.f, 0.f, 0.f),
+					f1x4( 0.f,-l_h, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4(-1.f, 1.f, 0.f, 1.f));
+	f4x4 l_xform = l_rotate * l_trans * l_project;
+	l_p0 = l_p0 * l_xform; l_p1 = l_p1 * l_xform; l_p2 = l_p2 * l_xform; l_p3 = l_p3 * l_xform;
+	vertex l_v[6];
+	l_v[0].p = f1x3(l_p0[0][0], l_p0[0][1], 0); l_v[0].c = _c;
+	l_v[1].p = f1x3(l_p1[0][0], l_p1[0][1], 0); l_v[1].c = _c;
+	l_v[2].p = f1x3(l_p2[0][0], l_p2[0][1], 0); l_v[2].c = _c;
+	l_v[3].p = f1x3(l_p2[0][0], l_p2[0][1], 0); l_v[3].c = _c;
+	l_v[4].p = f1x3(l_p3[0][0], l_p3[0][1], 0); l_v[4].c = _c;
+	l_v[5].p = f1x3(l_p0[0][0], l_p0[0][1], 0); l_v[5].c = _c;
+	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
+	return true;
 }
 bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
-	vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
-	f32 l_w = (f32)l_screen.width(), l_h = (f32)l_screen.height();
-	f32 l_x0 = 2.f * _x0 / l_w - 1.f, l_y0 = -2.f * _y0 / l_h + 1.f;
-	f32 l_x1 = 2.f * _x1 / l_w - 1.f, l_y1 = -2.f * _y1 / l_h + 1.f;
+	f32 l_w = (f32)width(), l_h = (f32)height();
+	f32 l_x0 = 2.f * ((f32)_x0 - .5f) / l_w - 1.f, l_y0 = -(2.f * ((f32)_y0 - .5f) / l_h - 1.f);
+	f32 l_x1 = 2.f * ((f32)_x1 - .5f) / l_w - 1.f, l_y1 = -(2.f * ((f32)_y1 - .5f) / l_h - 1.f);
 	vertex l_v[6];
-	l_v[0].p[0] = l_x0; l_v[0].p[1] = l_y0; l_v[0].p[2] = .5f; l_v[0].c = _c;
-	l_v[1].p[0] = l_x0; l_v[1].p[1] = l_y1; l_v[1].p[2] = .5f; l_v[1].c = _c;
-	l_v[2].p[0] = l_x1; l_v[2].p[1] = l_y1; l_v[2].p[2] = .5f; l_v[2].c = _c;
-	l_v[3].p[0] = l_x1; l_v[3].p[1] = l_y1; l_v[3].p[2] = .5f; l_v[3].c = _c;
-	l_v[4].p[0] = l_x1; l_v[4].p[1] = l_y0; l_v[4].p[2] = .5f; l_v[4].c = _c;
-	l_v[5].p[0] = l_x0; l_v[5].p[1] = l_y0; l_v[5].p[2] = .5f; l_v[5].c = _c;
+	l_v[0].p = f1x3(l_x0, l_y0, 0); l_v[0].c = _c;
+	l_v[1].p = f1x3(l_x0, l_y1, 0); l_v[1].c = _c;
+	l_v[2].p = f1x3(l_x1, l_y1, 0); l_v[2].c = _c;
+	l_v[3].p = f1x3(l_x1, l_y1, 0); l_v[3].c = _c;
+	l_v[4].p = f1x3(l_x1, l_y0, 0); l_v[4].c = _c;
+	l_v[5].p = f1x3(l_x0, l_y0, 0); l_v[5].c = _c;
 	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
 	return true;
 }
@@ -229,7 +293,7 @@ void window::destroy() {
 bool window::m_add_tris(uint _count, vertex *_v_p) {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
 	uint l_size = sizeof(vertex) * 3 * _count;
-	if(m_vbuffer.start + m_vbuffer.used + l_size > 1024 * 100) {
+	if(m_vbuffer.start + m_vbuffer.used + l_size > m_vbuffer.info.descs[0].size/*1024 * 100*/) {
 		m_flush_tris(); m_vbuffer.start = 0;
 	}
 	if(m_vbuffer.data == 0 && m_video.exists(m_vbuffer.ID)) {
