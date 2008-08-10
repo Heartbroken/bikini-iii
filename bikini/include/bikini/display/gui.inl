@@ -78,11 +78,11 @@ inline const color& gui::element::get_color() const {
 inline void gui::element::set_color(const color &_c) {
 	m_color = _c;
 }
-inline bool gui::element::clip_kids() const {
-	return m_clip_kids;
+inline bool gui::element::clip() const {
+	return m_clip || (has_parent() && get_parent().clip());
 }
-inline void gui::element::set_clip_kids(bool _yes) {
-	m_clip_kids = _yes;
+inline void gui::element::set_clip(bool _yes) {
+	m_clip = _yes;
 }
 inline uint gui::element::parent_ID() const {
 	return dependency(m_parent_dependency);
@@ -102,7 +102,7 @@ inline const gui::rect gui::element::clip_rect() const {
 	const element *l_e_p = this;
 	while(l_e_p->has_parent()) {
 		l_e_p = &l_e_p->get_parent();
-		if(l_e_p->clip_kids()) l_r = l_r & l_e_p->abs_rect();
+		if(l_e_p->clip()) l_r = l_r & l_e_p->abs_rect();
 	}
 	return l_r;
 }

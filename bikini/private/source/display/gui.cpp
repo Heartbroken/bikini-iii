@@ -38,16 +38,7 @@ bool gui::render(window &_window) const {
 			uint l_element_ID = l_order[i];
 			if(exists(l_element_ID)) {
 				element &l_e = get<element>(l_element_ID);
-				if(l_e.has_parent() && l_e.get_parent().clip_kids()) {
-					rect l_r = l_e.get_parent().clip_rect();
-					_window.set_scissor(l_r.left(), l_r.top(), l_r.right() + 1, l_r.bottom() + 1);
-				} else {
-					_window.remove_scissor();
-				}
-				rect l_r = l_e.abs_rect(); const color &l_c = l_e.get_color();
-				if(!l_e.render(_window) && l_e.get_color().a() > 0) {
-					_window.draw_rect(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), l_c);
-				}
+				l_e.render(_window);
 				for(uint i = 0, s = l_e.kid_count(); i < s; ++i) {
 					l_order.push_back(l_e.kid_ID(i));
 				}
@@ -71,7 +62,7 @@ void gui::resize(window &_window) const {
 gui::element::element(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
 	manager::object(_info, _gui), m_rect(_x, _y, _w, _h),
 	m_parent_dependency(add_dependency(_parent_ID)), m_color(white),
-	m_clip_kids(false)
+	m_clip(false)
 {
 	if(get_gui().exists(parent_ID())) {
 		element &l_parent = get_gui().get<element>(parent_ID());
@@ -79,6 +70,17 @@ gui::element::element(const info &_info, gui &_gui, sint _x, sint _y, uint _w, u
 	}
 }
 bool gui::element::render(window &_window) const {
+	if(clip()) {
+		rect l_r = clip_rect();
+		_window.set_scissor(l_r.left(), l_r.top(), l_r.right() + 1, l_r.bottom() + 1);
+	} else {
+		_window.remove_scissor();
+	}
+	const color &l_c = get_color();
+	if(l_c.a() > 0) {
+		rect l_r = abs_rect();
+		return _window.draw_rect(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), l_c);
+	}
 	return false;
 }
 
@@ -115,17 +117,20 @@ panel::info::info() :
 panel::panel(const info &_info, gui &_gui, sint _x, sint _y, uint _w, uint _h, uint _parent_ID) :
 	gui::element(_info, _gui, _x, _y, _w, _h, _parent_ID)
 {
-	set_clip_kids();
+	set_clip();
 }
 bool panel::render(window &_window) const {
-	gui::rect l_r = abs_rect();
-	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), green, 3);
-	_window.draw_line(l_r.right(), l_r.top(), l_r.left(), l_r.bottom(), green, 3);
+	super::render(_window);
 
-	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.top(), green, 5);
-	_window.draw_line(l_r.right(), l_r.top(), l_r.right(), l_r.bottom(), green, 5);
-	_window.draw_line(l_r.right(), l_r.bottom(), l_r.left(), l_r.bottom(), green, 5);
-	_window.draw_line(l_r.left(), l_r.bottom(), l_r.left(), l_r.top(), green, 5);
+	gui::rect l_r = abs_rect();
+
+	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.bottom(), red, 10);
+	_window.draw_line(l_r.right(), l_r.top(), l_r.left(), l_r.bottom(), red, 10);
+
+	_window.draw_line(l_r.left(), l_r.top(), l_r.right(), l_r.top(), red, 5);
+	_window.draw_line(l_r.right(), l_r.top(), l_r.right(), l_r.bottom(), red, 5);
+	_window.draw_line(l_r.right(), l_r.bottom(), l_r.left(), l_r.bottom(), red, 5);
+	_window.draw_line(l_r.left(), l_r.bottom(), l_r.left(), l_r.top(), red, 5);
 	return true;
 }
 
