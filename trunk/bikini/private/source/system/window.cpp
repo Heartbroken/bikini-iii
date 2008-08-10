@@ -34,6 +34,7 @@ window::window(video &_video) :
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
 
 	m_vshader.info.function = window_vs;
 	m_pshader.info.function = window_ps;
@@ -263,11 +264,11 @@ bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) 
 	f32 l_x1 = 2.f * ((f32)_x1 - .5f) / l_w - 1.f, l_y1 = -(2.f * ((f32)_y1 - .5f) / l_h - 1.f);
 	vertex l_v[6];
 	l_v[0].p = f1x3(l_x0, l_y0, 0); l_v[0].c = _c;
-	l_v[1].p = f1x3(l_x0, l_y1, 0); l_v[1].c = _c;
-	l_v[2].p = f1x3(l_x1, l_y1, 0); l_v[2].c = _c;
+	l_v[1].p = f1x3(l_x1, l_y1, 0); l_v[1].c = _c;
+	l_v[2].p = f1x3(l_x0, l_y1, 0); l_v[2].c = _c;
 	l_v[3].p = f1x3(l_x1, l_y1, 0); l_v[3].c = _c;
-	l_v[4].p = f1x3(l_x1, l_y0, 0); l_v[4].c = _c;
-	l_v[5].p = f1x3(l_x0, l_y0, 0); l_v[5].c = _c;
+	l_v[4].p = f1x3(l_x0, l_y0, 0); l_v[4].c = _c;
+	l_v[5].p = f1x3(l_x1, l_y0, 0); l_v[5].c = _c;
 	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
 	return true;
 }
