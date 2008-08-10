@@ -76,8 +76,10 @@ bool video::create(bool _multithreaded) {
 	m_d3dpresent_parameters.hDeviceWindow = _video_helper::create_dummy_window();
 #	endif
 	m_d3dpresent_parameters.Windowed = true;
-	m_d3dpresent_parameters.BackBufferWidth = 0;
-	m_d3dpresent_parameters.BackBufferHeight = 0;
+	m_d3dpresent_parameters.BackBufferWidth = 10;
+	m_d3dpresent_parameters.BackBufferHeight = 10;
+	m_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
+	m_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
     m_d3dpresent_parameters.EnableAutoDepthStencil = false;
 	m_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -96,7 +98,7 @@ bool video::create(bool _multithreaded) {
 	if(FAILED(sm_direct3d9_p->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
-		0,
+		m_d3dpresent_parameters.hDeviceWindow,
 		l_flags,
 		&m_d3dpresent_parameters,
 		&m_direct3ddevice9_p
@@ -219,15 +221,29 @@ bool screen::create() {
 	l_d3dpresent_parameters.Windowed = !m_fullscreen;
 	l_d3dpresent_parameters.BackBufferWidth = m_width;
 	l_d3dpresent_parameters.BackBufferHeight = m_height;
-	l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
+	l_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
+	l_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
+	l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)0;
     l_d3dpresent_parameters.EnableAutoDepthStencil = false;
 	l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-	if(FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(&l_d3dpresent_parameters, &m_backbuffer_p))) {
-		std::cerr << "ERROR: Can't create swap chain\n";
-		return false;
+	if(m_fullscreen) {
+		if(FAILED(get_video().get_direct3ddevice9().Reset(&l_d3dpresent_parameters))) {
+			std::cerr << "ERROR: Can't reset device\n";
+			return false;
+		}
+		if(FAILED(get_video().get_direct3ddevice9().GetSwapChain(0, &m_backbuffer_p))) {
+			std::cerr << "ERROR: Can't get device fullscreen swap chain\n";
+			return false;
+		}
+		MoveWindow(m_window, 0, 0, m_width, m_height, false);
+	} else {
+		if(FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(&l_d3dpresent_parameters, &m_backbuffer_p))) {
+			std::cerr << "ERROR: Can't create swap chain\n";
+			return false;
+		}
 	}
-	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)4, 0, 0, &m_depthstencil_p, 0))) {
+	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)0, 0, 0, &m_depthstencil_p, 0))) {
 		m_backbuffer_p->Release(); m_backbuffer_p = 0;
 		std::cerr << "ERROR: Can't create depth buffer\n";
 		return false;

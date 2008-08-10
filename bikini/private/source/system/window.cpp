@@ -59,7 +59,7 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	HINSTANCE l_instance = GetModuleHandleA(0);
     WNDCLASSW l_window_class = { CS_HREDRAW|CS_VREDRAW, window::window_proc, 0, 0, l_instance, _icon, LoadCursor(NULL, IDC_ARROW), (HBRUSH)GetStockObject(BLACK_BRUSH), NULL, L"bikini-iii window" };
     RegisterClassW(&l_window_class);
-	m_handle = CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT, L"bikini-iii window", 0, WS_BORDER|WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, (int)_width, (int)_height, 0, 0, l_instance, 0);
+	m_handle = CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT, L"bikini-iii window", 0, WS_BORDER|WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, (int)_width, (int)_height, m_video.get_focus_window(), 0, l_instance, 0);
 	if(m_handle == 0) return false;
 	set_size(_width, _height);
 	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
@@ -107,6 +107,7 @@ void window::set_caption(const astr &_s) {
 void window::set_size(uint _width, uint _height) {
 	RECT l_drect, l_wrect, l_crect;
 	GetWindowRect(GetDesktopWindow(), &l_drect);
+//std::cout << l_drect.right << " " << l_drect.bottom << "\n";
 	GetWindowRect(m_handle, &l_wrect);
 	GetClientRect(m_handle, &l_crect);
 	uint l_width = _width + (l_wrect.right - l_wrect.left) - (l_crect.right - l_crect.left);
@@ -139,9 +140,13 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			if(m_video.exists(m_screen.ID)) {
 				thread::locker l_locker(m_lock);
 				vr::screen &l_screen = m_video.get<vr::screen>(m_screen.ID);
-				l_screen.destroy();
-				RECT l_crect; GetClientRect(m_handle, &l_crect);
-				l_screen.set_size(l_crect.right, l_crect.bottom);
+				if(!l_screen.fullscreen()) {
+					l_screen.destroy();
+					RECT l_crect; GetClientRect(m_handle, &l_crect);
+					l_screen.set_size(l_crect.right, l_crect.bottom);
+				} else {
+					set_size(l_screen.width(), l_screen.height());
+				}
 			}
 		} break;
 		case WM_GETMINMAXINFO : {
