@@ -43,6 +43,7 @@ struct video : device {
 	inline void set_vbuffer_ID(uint _ID) { m_vbuffer_ID = _ID; }
 
 	inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
+	inline HWND get_focus_window() const { return m_d3dpresent_parameters.hDeviceWindow; }
 
 private:
 	static IDirect3D9 *sm_direct3d9_p;
