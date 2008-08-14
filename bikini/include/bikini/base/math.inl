@@ -511,7 +511,7 @@ template<typename _T> quat_r_<_T, true> quat(typename quat_r_<_T, true>::vector 
 
 // random
 template<uint _ID>
-uint random_<_ID>::seed;
+uint random_<_ID>::seed = 0;
 template<uint _ID>
 inline uint random_<_ID>::get(uint _max /*= max*/) {
 	seed = seed * 1103515245 + 12345;
@@ -525,4 +525,14 @@ template<uint _ID>
 inline real random_<_ID>::get(real _min, real _max) {
 	if(_max < _min) swap(_min, _max);
 	return _min + get(_max - _min);
+}
+
+// create random GUID
+inline GUID new_GUID() {
+	GUID l_guid;
+	l_guid.Data1 = (unsigned long)((random::get() << 16) | random::get());
+	l_guid.Data2 = (unsigned short)random::get();
+	l_guid.Data3 = (unsigned short)(0x4000 | (0x0fff & random::get()));
+	for(uint i = 0; i < 8; ++i) l_guid.Data4[i] = (unsigned char)random::get();
+	return l_guid;
 }
