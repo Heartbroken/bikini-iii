@@ -54,6 +54,3 @@
 #ifdef UNICODE
 #	undef UNICODE
 #endif
-
-/// bad GUID
-const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };

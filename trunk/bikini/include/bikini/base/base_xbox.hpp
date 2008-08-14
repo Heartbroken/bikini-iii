@@ -14,7 +14,7 @@
 
 #define _XBOX_CRT_DEPRECATE_INSECURE
 
-#include "Xtl.h"
+#include "xtl.h"
 
 #ifdef min
 #	undef min
@@ -31,6 +31,3 @@
 #ifdef UNICODE
 #	undef UNICODE
 #endif
-
-/// bad GUID
-const GUID bad_GUID = { 0, 0, 0, { 0, 0, 0, 0, 0, 0, 0, 0 } };

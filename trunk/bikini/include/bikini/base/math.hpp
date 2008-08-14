@@ -373,11 +373,17 @@ const color magenta(r_1, r_0, r_1);
 template<uint _ID> struct random_ {
 	static const uint ID = _ID;
 	static const uint max = 32768;
-	static sint seed;
+	static uint seed;
 	static inline uint get(uint _max = max);
 	static inline real get(real _max);
 	static inline real get(real _min, real _max);
 };
 typedef random_<0> random;
+
+/// create GUID
+inline GUID new_GUID();
+
+/// bad GUID
+const GUID bad_GUID = { 0xffffffff, 0xffff, 0xffff, { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff } };
 
 #include "math.inl"
