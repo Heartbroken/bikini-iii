@@ -116,6 +116,10 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	typedef _matrix_row_<_Width, _Type> row_type;
 	/// cell type
 	typedef _Type cell_type;
+	/// one row same width matrix
+	typedef matrix_<1, _Width, _Type> row_matrix;
+	/// component type
+	typedef typename select<_Height == 1 || _Width == 1, cell_type, row_type>::type component_type;
 	/// constructor
 	inline matrix_();
 	/// copy constructor
@@ -130,8 +134,6 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline matrix_(_Type _cell0, _Type _cell1, _Type _cell2);
 	/// one row with four cells matrix constructor
 	inline matrix_(_Type _cell0, _Type _cell1, _Type _cell2, _Type _cell3);
-	/// one row same width matrix
-	typedef matrix_<1, _Width, _Type> row_matrix;
 	/// two rows matrix constructor
 	inline matrix_(const row_matrix &_row0, const row_matrix &_row1);
 	/// three rows matrix constructor
@@ -154,6 +156,22 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	template<uint _J> inline const _Type& cell() const;
 	/// (0,j)-th cell accessor for matrices w/ one row (vectors)
 	template<uint _J> inline _Type& cell();
+	/// first component accessor
+	inline const component_type& x() const;
+	/// first component accessor
+	inline component_type& x();
+	/// second component accessor
+	inline const component_type& y() const;
+	/// second component accessor
+	inline component_type& y();
+	/// third component accessor
+	inline const component_type& z() const;
+	/// third component accessor
+	inline component_type& z();
+	/// fourth component accessor
+	inline const component_type& w() const;
+	/// fourth component accessor
+	inline component_type& w();
 	/// get i-th matrix row
 	inline const row_type& operator [] (uint _i) const;
 	/// get i-th matrix row

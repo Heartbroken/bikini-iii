@@ -22,31 +22,31 @@ inline gui::rect::rect(sint _l, sint _t, uint _w, uint _h) :
 	m_lt(_l, _t), m_rb(_l + _w, _t + _h)
 {}
 inline sint gui::rect::left() const {
-	return m_lt.cell<0>();
+	return m_lt.x();
 }
 inline sint gui::rect::top() const {
-	return m_lt.cell<1>();
+	return m_lt.y();
 }
 inline sint gui::rect::right() const {
-	return m_rb.cell<0>();
+	return m_rb.x();
 }
 inline sint gui::rect::bottom() const {
-	return m_rb.cell<1>();
+	return m_rb.y();
 }
 inline uint gui::rect::width() const {
-	return m_rb.cell<0>() - m_lt.cell<0>();
+	return right() - left();
 }
 inline uint gui::rect::height() const {
-	return m_rb.cell<1>() - m_lt.cell<1>();
+	return bottom() - top();
 }
-inline const gui::point gui::rect::lefttop() const {
+inline const gui::point& gui::rect::lefttop() const {
 	return m_lt;
 }
-inline const gui::point gui::rect::rightbottom() const {
+inline const gui::point& gui::rect::rightbottom() const {
 	return m_rb;
 }
 inline const gui::point gui::rect::size() const {
-	return m_rb - m_lt;
+	return rightbottom() - lefttop();
 }
 inline gui::rect& gui::rect::operator = (const rect &_r) {
 	m_lt = _r.lefttop(); m_rb = _r.rightbottom(); return *this;
@@ -55,7 +55,7 @@ inline bool gui::rect::operator == (const rect &_r) const {
 	return m_lt == _r.lefttop() && m_rb == _r.rightbottom();
 }
 inline const gui::rect gui::rect::operator + (const point &_p) const {
-	return rect(m_lt[0][0] + _p[0][0], m_lt[0][1] + _p[0][1], m_rb[0][0] - m_lt[0][0] + _p[0][0], m_rb[0][1] - m_lt[0][1] + _p[0][1]);
+	return rect(m_lt.x() + _p.x(), m_lt.y() + _p.y(), m_rb.x() - m_lt.x() + _p.x(), m_rb.y() - m_lt.y() + _p.y());
 }
 inline const gui::rect gui::rect::operator & (const rect &_r) const {
 	return rect(max(left(), _r.left()), max(top(), _r.top()), min(right(), _r.right()), min(bottom(), _r.bottom()));

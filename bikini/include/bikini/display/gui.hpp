@@ -23,8 +23,8 @@ struct gui : manager {
 		inline sint bottom() const;
 		inline uint width() const;
 		inline uint height() const;
-		inline const point lefttop() const;
-		inline const point rightbottom() const;
+		inline const point& lefttop() const;
+		inline const point& rightbottom() const;
 		inline const point size() const;
 		inline rect& operator = (const rect &_r);
 		inline bool operator == (const rect &_r) const;
