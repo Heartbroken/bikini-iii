@@ -248,12 +248,12 @@ bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, 
 	f4x4 l_xform = l_rotate * l_trans * l_project;
 	l_p0 = l_p0 * l_xform; l_p1 = l_p1 * l_xform; l_p2 = l_p2 * l_xform; l_p3 = l_p3 * l_xform;
 	vertex l_v[6];
-	l_v[0].p = f1x3(l_p0[0][0], l_p0[0][1], 0); l_v[0].c = _c;
-	l_v[1].p = f1x3(l_p1[0][0], l_p1[0][1], 0); l_v[1].c = _c;
-	l_v[2].p = f1x3(l_p2[0][0], l_p2[0][1], 0); l_v[2].c = _c;
-	l_v[3].p = f1x3(l_p2[0][0], l_p2[0][1], 0); l_v[3].c = _c;
-	l_v[4].p = f1x3(l_p3[0][0], l_p3[0][1], 0); l_v[4].c = _c;
-	l_v[5].p = f1x3(l_p0[0][0], l_p0[0][1], 0); l_v[5].c = _c;
+	l_v[0].p = l_p0; l_v[0].c = _c;
+	l_v[1].p = l_p1; l_v[1].c = _c;
+	l_v[2].p = l_p2; l_v[2].c = _c;
+	l_v[3].p = l_p2; l_v[3].c = _c;
+	l_v[4].p = l_p3; l_v[4].c = _c;
+	l_v[5].p = l_p0; l_v[5].c = _c;
 	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
 	return true;
 }

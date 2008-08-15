@@ -59,6 +59,8 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	inline _matrix_row_(const _matrix_row_ &_r);
 	/// construct from parent type
 	inline _matrix_row_(const parent_type &_r);
+	/// construct from longer row
+	template<uint _Size2> inline _matrix_row_(const _matrix_row_<_Size2, _Type> &_r);
 	/// one cell row constructor
 	inline _matrix_row_(_Type _cell0);
 	/// two cells row constructor
@@ -126,6 +128,8 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	inline matrix_(const matrix_ &_m);
 	/// construct from parent type
 	inline matrix_(const parent_type &_m);
+	/// construct from bigger matrix
+	template<uint _Height2, uint _Width2> inline matrix_(const matrix_<_Height2, _Width2, _Type> &_m);
 	/// one row with one cell matrix constructor
 	inline matrix_(_Type _cell0);
 	/// one row with two cells matrix constructor
@@ -223,6 +227,8 @@ private:
 };
 template<uint _Width, typename _Type>
 struct matrix_<0, _Width, _Type> {
+	inline matrix_() {}
+	template<uint _Width2, uint _Height2> inline matrix_(const matrix_<_Height2, _Width2, _Type> &_m) {}
 	inline void set(const matrix_ &_b) {}
 	inline void get(matrix_ &_c) const {}
 	inline void neg(matrix_ &_c) const {}
