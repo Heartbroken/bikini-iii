@@ -236,6 +236,50 @@ inline _T& matrix_<_H, _W, _T>::cell() {
 	c_assert(1 == _H && _J < _W);
 	return row<0>().cell<_J>();
 }
+template<uint _H, uint _W, typename _T> struct _component_access_helper_ {
+	template<uint _I> static inline typename matrix_<_H, _W, _T>::component_type& get(matrix_<_H, _W, _T> &_m) { return _m.row<_I>(); }
+	template<uint _I> static inline const typename matrix_<_H, _W, _T>::component_type& get(const matrix_<_H, _W, _T> &_m) { return _m.row<_I>(); }
+};
+template<uint _H, typename _T> struct _component_access_helper_<_H, 1, _T> {
+	template<uint _I> static inline typename matrix_<_H, 1, _T>::component_type& get(matrix_<_H, 1, _T> &_m) { return _m.cell<_I, 0>(); }
+	template<uint _I> static inline const typename matrix_<_H, 1, _T>::component_type& get(const matrix_<_H, 1, _T> &_m) { return _m.cell<_I, 0>(); }
+};
+template<uint _W, typename _T> struct _component_access_helper_<1, _W, _T> {
+	template<uint _I> static inline typename matrix_<1, _W, _T>::component_type& get(matrix_<1, _W, _T> &_m) { return _m.cell<0, _I>(); }
+	template<uint _I> static inline const typename matrix_<1, _W, _T>::component_type& get(const matrix_<1, _W, _T> &_m) { return _m.cell<0, _I>(); }
+};
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::x() const {
+	return _component_access_helper_<_H, _W, _T>::get<0>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::x() {
+	return _component_access_helper_<_H, _W, _T>::get<0>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::y() const {
+	return _component_access_helper_<_H, _W, _T>::get<1>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::y() {
+	return _component_access_helper_<_H, _W, _T>::get<1>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::z() const {
+	return _component_access_helper_<_H, _W, _T>::get<2>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::z() {
+	return _component_access_helper_<_H, _W, _T>::get<2>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline const typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::w() const {
+	return _component_access_helper_<_H, _W, _T>::get<3>(*this);
+}
+template<uint _H, uint _W, typename _T>
+inline typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::w() {
+	return _component_access_helper_<_H, _W, _T>::get<3>(*this);
+}
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) const {
 	assert(_i < _H && _i < _W);
