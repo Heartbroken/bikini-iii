@@ -105,8 +105,8 @@ struct _matrix_row_<0, _Type> {
 
 ///	Uber-matrix template
 /**	This template is used for all matrices and vectors types.
- *	Each matrix_<_Height, _Width, _Type> struct has one member varable m_row of row_type type,
- *	and also inherits _Height - 1 rows from it's parent type matrix_<_Height - 1, _Width, _Type>
+	Each matrix_<_Height, _Width, _Type> struct has one member varable m_row of row_type type,
+	and also inherits _Height - 1 rows from it's parent type matrix_<_Height - 1, _Width, _Type>
  */
 template<uint _Height, uint _Width, typename _Type>
 struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
@@ -203,7 +203,7 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// compare matrices
 	inline bool operator == (const matrix_ &_m) const;
 	///
-	inline operator row_type ();
+	//inline operator row_type ();
 	inline operator const row_type () const;
 	// some aux functions
 	inline void set(const matrix_ &_b);
@@ -319,61 +319,67 @@ const r4x4 r4x4_0(r1x4_0, r1x4_0, r1x4_0, r1x4_0);
 /// unit 4x4 matrix
 const r4x4 r4x4_1(r1x4_x, r1x4_y, r1x4_z, r1x4_w);
 
-// v2
-template<typename _Type, bool _Const = false> struct v2_r_ {
-	typedef typename select<_Const, const _Type, _Type>::type type;
-	typedef typename select<_Const, const matrix_<1, 2, _Type>, matrix_<1, 2, _Type> >::type vector;
-	type &x, &y;
-	inline v2_r_(vector &_v);
-};
-template<typename _Type> v2_r_<_Type, false> v2(typename v2_r_<_Type, false>::vector &_v);
-template<typename _Type> v2_r_<_Type, true> v2(typename v2_r_<_Type, true>::vector &_v);
-typedef v2_r_<real> v2_r;
-
-// v3
-template<typename _Vector> struct v3 {
-	typedef typename select<
-		traits<_Vector>::is_const,
-		const typename _Vector::cell_type,
-		typename _Vector::cell_type
-	>::type type;
-	type &x, &y, &z;
-	inline v3(_Vector &_v);
-};
-
-// v4
-template<typename _Type, bool _Const = false> struct v4_r_ {
-	typedef typename select<_Const, const _Type, _Type>::type type;
-	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
-	type &x, &y, &z, &w;
-	inline v4_r_(vector &_v);
-};
-template<typename _Type> v4_r_<_Type, false> v4(typename v4_r_<_Type, false>::vector &_v);
-template<typename _Type> v4_r_<_Type, true> v4(typename v4_r_<_Type, true>::vector &_v);
-typedef v4_r_<real> v4_r;
-
-// quat
-template<typename _Type, bool _Const = false> struct quat_r_ {
-	typedef typename select<_Const, const _Type, _Type>::type type;
-	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
-	type &i, &j, &k, &r;
-	inline quat_r_(vector &_v);
-};
-template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, false>::vector &_v);
-template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
-typedef quat_r_<real> quat_r;
+//// v2
+//template<typename _Type, bool _Const = false> struct v2_r_ {
+//	typedef typename select<_Const, const _Type, _Type>::type type;
+//	typedef typename select<_Const, const matrix_<1, 2, _Type>, matrix_<1, 2, _Type> >::type vector;
+//	type &x, &y;
+//	inline v2_r_(vector &_v);
+//};
+//template<typename _Type> v2_r_<_Type, false> v2(typename v2_r_<_Type, false>::vector &_v);
+//template<typename _Type> v2_r_<_Type, true> v2(typename v2_r_<_Type, true>::vector &_v);
+//typedef v2_r_<real> v2_r;
+//
+//// v3
+//template<typename _Vector> struct v3 {
+//	typedef typename select<
+//		traits<_Vector>::is_const,
+//		const typename _Vector::cell_type,
+//		typename _Vector::cell_type
+//	>::type type;
+//	type &x, &y, &z;
+//	inline v3(_Vector &_v);
+//};
+//
+//// v4
+//template<typename _Type, bool _Const = false> struct v4_r_ {
+//	typedef typename select<_Const, const _Type, _Type>::type type;
+//	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
+//	type &x, &y, &z, &w;
+//	inline v4_r_(vector &_v);
+//};
+//template<typename _Type> v4_r_<_Type, false> v4(typename v4_r_<_Type, false>::vector &_v);
+//template<typename _Type> v4_r_<_Type, true> v4(typename v4_r_<_Type, true>::vector &_v);
+//typedef v4_r_<real> v4_r;
+//
+//// quat
+//template<typename _Type, bool _Const = false> struct quat_r_ {
+//	typedef typename select<_Const, const _Type, _Type>::type type;
+//	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
+//	type &i, &j, &k, &r;
+//	inline quat_r_(vector &_v);
+//};
+//template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, false>::vector &_v);
+//template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
+//typedef quat_r_<real> quat_r;
 
 /// color
-struct color : r1x4 {
-	inline color() {}
-	inline color(real _r, real _g, real _b, real _a = r_1) : r1x4(_r, _g, _b, _a) {}
-	inline color(u32 _c) : r1x4(real((_c>>16)&0xff)/real(255), real((_c>>8)&0xff)/real(255), real((_c>>0)&0xff)/real(255), real((_c>>24)&0xff)/real(255)) {}
-	inline real r() const { return cell<0, 0>(); }
-	inline real g() const { return cell<0, 1>(); }
-	inline real b() const { return cell<0, 2>(); }
-	inline real a() const { return cell<0, 3>(); }
-	inline operator u32 () const { return (u32(a()*real(255))<<24)|(u32(r()*real(255))<<16)|(u32(g()*real(255))<<8)|(u32(b()*real(255))<<0); }
+template<typename _Type>
+struct color_ : matrix_<1, 4, _Type> {
+	inline color_();
+	inline color_(_Type _r, _Type _g, _Type _b, _Type _a = _Type(1));
+	inline color_(u32 _c);
+	inline const _Type r() const;
+	inline _Type& r();
+	inline const _Type g() const;
+	inline _Type& g();
+	inline const _Type b() const;
+	inline _Type& b();
+	inline const _Type a() const;
+	inline _Type& a();
+	inline operator u32 () const;
 };
+typedef color_<real> color;
 
 const color white(r_1, r_1, r_1);
 const color black(r_0, r_0, r_0);
@@ -383,6 +389,22 @@ const color blue(r_0, r_0, r_1);
 const color yellow(r_1, r_1, r_0);
 const color cyan(r_0, r_1, r_1);
 const color magenta(r_1, r_0, r_1);
+
+/// quat
+template<typename _Type>
+struct quat_ : matrix_<1, 4, _Type> {
+	inline quat_();
+	inline quat_(_Type _i, _Type _j, _Type _k, _Type _r);
+	inline const _Type i() const;
+	inline _Type& i();
+	inline const _Type j() const;
+	inline _Type& j();
+	inline const _Type k() const;
+	inline _Type& k();
+	inline const _Type r() const;
+	inline _Type& r();
+};
+typedef quat_<real> quat;
 
 /// random number generator
 /**	Template parametre _ID is used to create a set

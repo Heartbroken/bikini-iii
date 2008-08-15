@@ -361,11 +361,11 @@ template<uint _H, uint _W, typename _T>
 inline bool matrix_<_H, _W, _T>::operator == (const matrix_ &_m) const {
 	return cmp(_m);
 }
-template<uint _H, uint _W, typename _T>
-inline matrix_<_H, _W, _T>::operator typename matrix_<_H, _W, _T>::row_type () {
-	c_assert(_H == 1);
-	return m_row;
-}
+//template<uint _H, uint _W, typename _T>
+//inline matrix_<_H, _W, _T>::operator typename matrix_<_H, _W, _T>::row_type () {
+//	c_assert(_H == 1);
+//	return m_row;
+//}
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>::operator const typename matrix_<_H, _W, _T>::row_type () const {
 	c_assert(_H == 1);
@@ -515,42 +515,132 @@ inline const matrix_<_S, _S, _T> inverse(const matrix_<_S, _S, _T> &_m) {
 	return l_m;
 }
 
-// v2
-template<typename _T, bool _C>
-inline v2_r_<_T, _C>::v2_r_(typename v2_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()) {
-}
-template<typename _T> v2_r_<_T, false> v2(typename v2_r_<_T, false>::vector &_v) {
-	return v2_r_<_T, false>(_v);
-}
-template<typename _T> v2_r_<_T, true> v2(typename v2_r_<_T, true>::vector &_v) {
-	return v2_r_<_T, true>(_v);
-}
+//// v2
+//template<typename _T, bool _C>
+//inline v2_r_<_T, _C>::v2_r_(typename v2_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()) {
+//}
+//template<typename _T> v2_r_<_T, false> v2(typename v2_r_<_T, false>::vector &_v) {
+//	return v2_r_<_T, false>(_v);
+//}
+//template<typename _T> v2_r_<_T, true> v2(typename v2_r_<_T, true>::vector &_v) {
+//	return v2_r_<_T, true>(_v);
+//}
+//
+//// v3
+//template<typename _V>
+//inline v3<_V>::v3(_V &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()) {
+//}
+//
+//// v4
+//template<typename _T, bool _C>
+//inline v4_r_<_T, _C>::v4_r_(typename v4_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()), w(_v.cell<0, 3>()) {
+//}
+//template<typename _T> v4_r_<_T, false> v4(typename v4_r_<_T, false>::vector &_v) {
+//	return v4_r_<_T, false>(_v);
+//}
+//template<typename _T> v4_r_<_T, true> v4(typename v4_r_<_T, true>::vector &_v) {
+//	return v4_r_<_T, true>(_v);
+//}
+//
+//// quat
+//template<typename _T, bool _C>
+//inline quat_r_<_T, _C>::quat_r_(typename quat_r_<_T, _C>::vector &_v) : i(_v.cell<0, 0>()), j(_v.cell<0, 1>()), k(_v.cell<0, 2>()), r(_v.cell<0, 3>()) {
+//}
+//template<typename _T> quat_r_<_T, false> quat(typename quat_r_<_T, false>::vector &_v) {
+//	return quat_r_<_T, false>(_v);
+//}
+//template<typename _T> quat_r_<_T, true> quat(typename quat_r_<_T, true>::vector &_v) {
+//	return quat_r_<_T, true>(_v);
+//}
 
-// v3
-template<typename _V>
-inline v3<_V>::v3(_V &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()) {
+// color
+template<typename _T>
+inline color_<_T>::color_()
+{}
+template<typename _T>
+inline color_<_T>::color_(_T _r, _T _g, _T _b, _T _a) :
+	matrix_<1, 4, _T>(_r, _g, _b, _a)
+{}
+template<typename _T>
+inline color_<_T>::color_(u32 _c) :
+	matrix_<1, 4, _T>(_T((_c>>16)&0xff)/_T(255), _T((_c>>8)&0xff)/_T(255), _T((_c>>0)&0xff)/_T(255), _T((_c>>24)&0xff)/_T(255))
+{}
+template<typename _T>
+inline const _T color_<_T>::r() const {
+	return x();
 }
-
-// v4
-template<typename _T, bool _C>
-inline v4_r_<_T, _C>::v4_r_(typename v4_r_<_T, _C>::vector &_v) : x(_v.cell<0, 0>()), y(_v.cell<0, 1>()), z(_v.cell<0, 2>()), w(_v.cell<0, 3>()) {
+template<typename _T>
+inline _T& color_<_T>::r() {
+	return x();
 }
-template<typename _T> v4_r_<_T, false> v4(typename v4_r_<_T, false>::vector &_v) {
-	return v4_r_<_T, false>(_v);
+template<typename _T>
+inline const _T color_<_T>::g() const {
+	return y();
 }
-template<typename _T> v4_r_<_T, true> v4(typename v4_r_<_T, true>::vector &_v) {
-	return v4_r_<_T, true>(_v);
+template<typename _T>
+inline _T& color_<_T>::g() {
+	return y();
+}
+template<typename _T>
+inline const _T color_<_T>::b() const {
+	return z();
+}
+template<typename _T>
+inline _T& color_<_T>::b() {
+	return z();
+}
+template<typename _T>
+inline const _T color_<_T>::a() const {
+	return w();
+}
+template<typename _T>
+inline _T& color_<_T>::a() {
+	return w();
+}
+template<typename _T>
+inline color_<_T>::operator u32 () const {
+	return (u32(a()*_T(255))<<24)|(u32(r()*_T(255))<<16)|(u32(g()*_T(255))<<8)|(u32(b()*_T(255))<<0);
 }
 
 // quat
-template<typename _T, bool _C>
-inline quat_r_<_T, _C>::quat_r_(typename quat_r_<_T, _C>::vector &_v) : i(_v.cell<0, 0>()), j(_v.cell<0, 1>()), k(_v.cell<0, 2>()), r(_v.cell<0, 3>()) {
+template<typename _T>
+inline quat_<_T>::quat_()
+{}
+template<typename _T>
+inline quat_<_T>::quat_(_T _i, _T _j, _T _k, _T _r) :
+	matrix_<1, 4, _T>(_i, _j, _k, _r)
+{}
+template<typename _T>
+inline const _T quat_<_T>::i() const {
+	return x();
 }
-template<typename _T> quat_r_<_T, false> quat(typename quat_r_<_T, false>::vector &_v) {
-	return quat_r_<_T, false>(_v);
+template<typename _T>
+inline _T& quat_<_T>::i() {
+	return x();
 }
-template<typename _T> quat_r_<_T, true> quat(typename quat_r_<_T, true>::vector &_v) {
-	return quat_r_<_T, true>(_v);
+template<typename _T>
+inline const _T quat_<_T>::j() const {
+	return y();
+}
+template<typename _T>
+inline _T& quat_<_T>::j() {
+	return y();
+}
+template<typename _T>
+inline const _T quat_<_T>::k() const {
+	return z();
+}
+template<typename _T>
+inline _T& quat_<_T>::k() {
+	return z();
+}
+template<typename _T>
+inline const _T quat_<_T>::r() const {
+	return w();
+}
+template<typename _T>
+inline _T& quat_<_T>::r() {
+	return w();
 }
 
 // random
