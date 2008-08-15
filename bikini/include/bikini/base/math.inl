@@ -83,6 +83,10 @@ inline _matrix_row_<_S, _T>::_matrix_row_(const _matrix_row_ &_r) : parent_type(
 template<uint _S, typename _T>
 inline _matrix_row_<_S, _T>::_matrix_row_(const parent_type &_r) : parent_type(_r) {
 }
+template<uint _S, typename _T> template<uint _S2>
+inline _matrix_row_<_S, _T>::_matrix_row_(const _matrix_row_<_S2, _T> &_r) : parent_type(_r), m_cell(_r.cell<_S - 1>()) {
+	c_assert(_S2 > _S);
+}
 template<uint _S, typename _T>
 inline _matrix_row_<_S, _T>::_matrix_row_(_T _cell0) : m_cell(_cell0) {
 	c_assert(_S == 1);
@@ -169,6 +173,10 @@ inline matrix_<_H, _W, _T>::matrix_(const matrix_ &_m) : parent_type(_m), m_row(
 }
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>::matrix_(const parent_type &_m) : parent_type(_m) {
+}
+template<uint _H, uint _W, typename _T> template<uint _H2, uint _W2>
+inline matrix_<_H, _W, _T>::matrix_(const matrix_<_H2, _W2, _T> &_m) : parent_type(_m), m_row(_m.row<_H - 1>()) {
+	c_assert(_H2 >= _H && _W2 >= _W);
 }
 template<uint _H, uint _W, typename _T>
 inline matrix_<_H, _W, _T>::matrix_(_T _cell0) : m_row(_cell0) {
