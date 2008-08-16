@@ -272,3 +272,22 @@ inline bool section::try_enter() {
 inline void section::leave() {
 	LeaveCriticalSection(&m_criticalsection);
 }
+
+// locker
+
+inline locker::locker(section &_section, bool _try_lock) :
+	m_section(_section)
+{
+	if(_try_lock) {
+		m_locked = m_section.try_enter();
+	} else {
+		m_section.enter();
+		m_locked = true;
+	}
+}
+inline locker::~locker() {
+	if(m_locked) m_section.leave();
+}
+inline locker::operator bool () {
+	return m_locked;
+}

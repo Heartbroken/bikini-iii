@@ -101,10 +101,12 @@ private:
 
 ///
 struct locker {
-	inline locker(section &_section) : m_section(_section) { m_section.enter(); }
-	inline ~locker() { m_section.leave(); }
+	inline locker(section &_section, bool _try_lock = false);
+	inline ~locker();
+	inline operator bool ();
 private:
 	section &m_section;
+	bool m_locked;
 };
 
 #include "thread.inl"
