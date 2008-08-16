@@ -22,7 +22,11 @@ struct device : manager {
 		virtual void destroy();
 		inline device& get_device() const { return static_cast<device&>(get_manager()); }
 		inline bool valid() const { return m_version != bad_ID; }
+	protected:
+		typedef thread::locker _lock;
+		inline thread::section& section() { return m_section; }
 	private:
+		thread::section m_section;
 		uint m_version;
 	};
 	device();

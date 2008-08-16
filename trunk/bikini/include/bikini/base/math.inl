@@ -670,7 +670,7 @@ inline real random_<_ID>::get(real _min, real _max) {
 }
 
 // create random GUID
-inline GUID new_GUID() {
+inline GUID random_GUID() {
 	GUID l_guid;
 	l_guid.Data1 = (unsigned long)((random::get() << 16) | random::get());
 	l_guid.Data2 = (unsigned short)random::get();

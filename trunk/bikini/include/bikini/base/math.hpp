@@ -426,8 +426,8 @@ template<uint _ID> struct random_ {
 };
 typedef random_<0> random;
 
-/// create GUID
-inline GUID new_GUID();
+/// create random GUID
+inline GUID random_GUID();
 
 /// bad GUID
 const GUID bad_GUID = { 0xffffffff, 0xffff, 0xffff, { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff } };

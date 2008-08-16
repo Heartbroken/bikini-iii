@@ -20,10 +20,6 @@ struct video : device {
 		};
 		resource(const info &_info, video &_video);
 		inline video& get_video() const { return static_cast<video&>(get_device()); }
-	protected:
-		inline thread::section& section() { return m_section; }
-	private:
-		thread::section m_section;
 	};
 
 	video();

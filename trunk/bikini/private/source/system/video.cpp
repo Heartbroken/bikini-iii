@@ -208,47 +208,48 @@ screen::~screen() {
 }
 bool screen::create() {
 	destroy();
-	thread::locker l_locker(section());
-	if(!get_video().ready()) return false;
-#	if defined(XBOX)
-	if(get_video().screen_ID() != bad_ID) return false;
-	get_video().set_screen_ID(ID());
-#	elif defined(WIN32)
-	if(m_width == 0 || m_height == 0) return false;
-	D3DPRESENT_PARAMETERS l_d3dpresent_parameters;
-	memset(&l_d3dpresent_parameters, 0, sizeof(l_d3dpresent_parameters));
-	l_d3dpresent_parameters.hDeviceWindow = m_window;
-	l_d3dpresent_parameters.Windowed = !m_fullscreen;
-	l_d3dpresent_parameters.BackBufferWidth = m_width;
-	l_d3dpresent_parameters.BackBufferHeight = m_height;
-	l_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
-	l_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
-	l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
-    l_d3dpresent_parameters.EnableAutoDepthStencil = false;
-	l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-	if(m_fullscreen) {
-		if(FAILED(get_video().get_direct3ddevice9().Reset(&l_d3dpresent_parameters))) {
-			std::cerr << "ERROR: Can't reset device\n";
+	if(_lock l = _lock(section())) {
+		if(!get_video().ready()) return false;
+#		if defined(XBOX)
+		if(get_video().screen_ID() != bad_ID) return false;
+		get_video().set_screen_ID(ID());
+#		elif defined(WIN32)
+		if(m_width == 0 || m_height == 0) return false;
+		D3DPRESENT_PARAMETERS l_d3dpresent_parameters;
+		memset(&l_d3dpresent_parameters, 0, sizeof(l_d3dpresent_parameters));
+		l_d3dpresent_parameters.hDeviceWindow = m_window;
+		l_d3dpresent_parameters.Windowed = !m_fullscreen;
+		l_d3dpresent_parameters.BackBufferWidth = m_width;
+		l_d3dpresent_parameters.BackBufferHeight = m_height;
+		l_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
+		l_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
+		l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
+		l_d3dpresent_parameters.EnableAutoDepthStencil = false;
+		l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
+		l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		if(m_fullscreen) {
+			if(FAILED(get_video().get_direct3ddevice9().Reset(&l_d3dpresent_parameters))) {
+				std::cerr << "ERROR: Can't reset device\n";
+				return false;
+			}
+			if(FAILED(get_video().get_direct3ddevice9().GetSwapChain(0, &m_backbuffer_p))) {
+				std::cerr << "ERROR: Can't get device fullscreen swap chain\n";
+				return false;
+			}
+			MoveWindow(m_window, 0, 0, m_width, m_height, false);
+		} else {
+			if(FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(&l_d3dpresent_parameters, &m_backbuffer_p))) {
+				std::cerr << "ERROR: Can't create swap chain\n";
+				return false;
+			}
+		}
+		if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)4, 0, 0, &m_depthstencil_p, 0))) {
+			m_backbuffer_p->Release(); m_backbuffer_p = 0;
+			std::cerr << "ERROR: Can't create depth buffer\n";
 			return false;
 		}
-		if(FAILED(get_video().get_direct3ddevice9().GetSwapChain(0, &m_backbuffer_p))) {
-			std::cerr << "ERROR: Can't get device fullscreen swap chain\n";
-			return false;
-		}
-		MoveWindow(m_window, 0, 0, m_width, m_height, false);
-	} else {
-		if(FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(&l_d3dpresent_parameters, &m_backbuffer_p))) {
-			std::cerr << "ERROR: Can't create swap chain\n";
-			return false;
-		}
+#		endif
 	}
-	if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)4, 0, 0, &m_depthstencil_p, 0))) {
-		m_backbuffer_p->Release(); m_backbuffer_p = 0;
-		std::cerr << "ERROR: Can't create depth buffer\n";
-		return false;
-	}
-#	endif
 	return super::create();
 }
 void screen::destroy() {
