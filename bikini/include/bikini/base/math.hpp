@@ -279,13 +279,13 @@ template<typename _Type>
 inline const _Type cross(const matrix_<1, 3, _Type> &_a, const matrix_<1, 3, _Type> &_b, const matrix_<1, 3, _Type> &_c);
 
 /// 1x1 matrix type
-typedef matrix_<1, 1, real> r1x1;
+typedef matrix_<1, 1, real> r1x1, real1;
 /// 1x2 matrix type
-typedef matrix_<1, 2, real> r1x2;
+typedef matrix_<1, 2, real> r1x2, real2;
 /// 1x3 matrix type
-typedef matrix_<1, 3, real> r1x3;
+typedef matrix_<1, 3, real> r1x3, real3;
 /// 1x4 matrix type
-typedef matrix_<1, 4, real> r1x4;
+typedef matrix_<1, 4, real> r1x4, real4;
 /// 2x2 matrix type
 typedef matrix_<2, 2, real> r2x2;
 /// 3x3 matrix type
