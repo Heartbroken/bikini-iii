@@ -82,27 +82,28 @@ struct _matrix_row_ : _matrix_row_<_Size - 1, _Type> {
 	/// get i-th row cell
 	inline _Type& operator [] (uint _i);
 	// some aux functions
-	inline void set(const _matrix_row_ &_b);
-	inline void get(_matrix_row_ &_c) const;
-	inline void neg(_matrix_row_ &_c) const;
-	inline void add(const _matrix_row_ &_b, _matrix_row_ &_c) const;
-	inline void sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
-	inline void mul(_Type _s, _matrix_row_ &_c) const;
-	inline void div(_Type _s, _matrix_row_ &_c) const;
-	inline bool cmp(const _matrix_row_ &_b) const;
+	inline void _set(const _matrix_row_ &_b);
+	inline void _get(_matrix_row_ &_c) const;
+	inline void _neg(_matrix_row_ &_c) const;
+	inline void _add(const _matrix_row_ &_b, _matrix_row_ &_c) const;
+	inline void _sub(const _matrix_row_ &_b, _matrix_row_ &_c) const;
+	inline void _mul(_Type _s, _matrix_row_ &_c) const;
+	inline void _div(_Type _s, _matrix_row_ &_c) const;
+	inline bool _cmp(const _matrix_row_ &_b) const;
 private:
 	cell_type m_cell;
 };
+// _matrix_row_ terminator
 template<typename _Type>
 struct _matrix_row_<0, _Type> {
-	inline void set(const _matrix_row_ &_b) {}
-	inline void get(_matrix_row_ &_c) const {}
-	inline void neg(_matrix_row_ &_c) const {}
-	inline void add(const _matrix_row_&, _matrix_row_&) const {}
-	inline void sub(const _matrix_row_&, _matrix_row_&) const {}
-	inline void mul(_Type, _matrix_row_&) const {}
-	inline void div(_Type, _matrix_row_&) const {}
-	inline bool cmp(const _matrix_row_ &_b) const { return true; }
+	inline void _set(const _matrix_row_ &_b) {}
+	inline void _get(_matrix_row_ &_c) const {}
+	inline void _neg(_matrix_row_ &_c) const {}
+	inline void _add(const _matrix_row_&, _matrix_row_&) const {}
+	inline void _sub(const _matrix_row_&, _matrix_row_&) const {}
+	inline void _mul(_Type, _matrix_row_&) const {}
+	inline void _div(_Type, _matrix_row_&) const {}
+	inline bool _cmp(const _matrix_row_ &_b) const { return true; }
 };
 
 ///	Uber-matrix template
@@ -122,6 +123,8 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	typedef matrix_<1, _Width, _Type> row_matrix;
 	/// component type
 	typedef typename select<_Height == 1 || _Width == 1, cell_type, row_type>::type component_type;
+	/// cross product type
+	typedef typename select<_Width == 1, cell_type, row_matrix>::type cross_type;
 	/// constructor
 	inline matrix_();
 	/// copy constructor
@@ -203,44 +206,48 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// multiply martices
 	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
 	/// get transposed matrix
-	inline const matrix_<_Width, _Height, _Type> operator ~ () const; // transpose
+	inline const matrix_<_Width, _Height, _Type> operator ~ () const;
+	/// dot product
+	inline const matrix_ operator | (const matrix_ &_m) const;
+	/// cross product
+	inline const cross_type operator ^ (const matrix_ &_m) const;
 	/// compare matrices
 	inline bool operator == (const matrix_ &_m) const;
 	///
-	//inline operator row_type ();
 	inline operator const row_type () const;
 	// some aux functions
-	inline void set(const matrix_ &_b);
-	inline void get(matrix_ &_c) const;
-	inline void neg(matrix_ &_c) const;
-	inline void add(const matrix_ &_b, matrix_ &_c) const;
-	inline void sub(const matrix_ &_b, matrix_ &_c) const;
-	inline void mul(_Type _s, matrix_ &_c) const;
-	inline void div(_Type _s, matrix_ &_c) const;
-	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<_Height, _W2, _Type> &_c) const;
-	inline void mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
-	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const;
-	template<uint _I> inline void cst(const _matrix_row_<_Height, _Type> &_b);
-	inline bool cmp(const matrix_ &_b) const;
+	inline void _set(const matrix_ &_b);
+	inline void _get(matrix_ &_c) const;
+	inline void _neg(matrix_ &_c) const;
+	inline void _add(const matrix_ &_b, matrix_ &_c) const;
+	inline void _sub(const matrix_ &_b, matrix_ &_c) const;
+	inline void _mul(_Type _s, matrix_ &_c) const;
+	inline void _div(_Type _s, matrix_ &_c) const;
+	template<uint _W2> inline void _mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<_Height, _W2, _Type> &_c) const;
+	inline void _mul(const _matrix_row_<_Height, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const;
+	template<uint _W2> inline void _xgt(matrix_<_Width, _W2, _Type> &_b) const;
+	template<uint _I> inline void _cst(const _matrix_row_<_Height, _Type> &_b);
+	inline bool _cmp(const matrix_ &_b) const;
 private:
 	row_type m_row;
 };
+// matrix_ terminator
 template<uint _Width, typename _Type>
 struct matrix_<0, _Width, _Type> {
 	inline matrix_() {}
 	template<uint _Width2, uint _Height2> inline matrix_(const matrix_<_Height2, _Width2, _Type> &_m) {}
-	inline void set(const matrix_ &_b) {}
-	inline void get(matrix_ &_c) const {}
-	inline void neg(matrix_ &_c) const {}
-	inline void add(const matrix_ &_b, matrix_ &_c) const {}
-	inline void sub(const matrix_ &_b, matrix_ &_c) const {}
-	inline void mul(_Type _s, matrix_ &_c) const {}
-	inline void div(_Type _s, matrix_ &_c) const {}
-	template<uint _W2> inline void mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<0, _W2, _Type> &_c) const {}
-	inline void mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
-	template<uint _W2> inline void xgt(matrix_<_Width, _W2, _Type> &_b) const {}
-	template<uint _I> inline void cst(const _matrix_row_<0, _Type> &_b) {}
-	inline bool cmp(const matrix_ &_b) const { return true; }
+	inline void _set(const matrix_ &_b) {}
+	inline void _get(matrix_ &_c) const {}
+	inline void _neg(matrix_ &_c) const {}
+	inline void _add(const matrix_ &_b, matrix_ &_c) const {}
+	inline void _sub(const matrix_ &_b, matrix_ &_c) const {}
+	inline void _mul(_Type _s, matrix_ &_c) const {}
+	inline void _div(_Type _s, matrix_ &_c) const {}
+	template<uint _W2> inline void _mul(const matrix_<_Width, _W2, _Type> &_b, matrix_<0, _W2, _Type> &_c) const {}
+	inline void _mul(const _matrix_row_<0, _Type> &_b, _matrix_row_<_Width, _Type> &_c) const {}
+	template<uint _W2> inline void _xgt(matrix_<_Width, _W2, _Type> &_b) const {}
+	template<uint _I> inline void _cst(const _matrix_row_<0, _Type> &_b) {}
+	inline bool _cmp(const matrix_ &_b) const { return true; }
 };
 
 /// matrix minor
@@ -256,6 +263,20 @@ template<uint _Size, typename _Type>
 inline bool inverse(const matrix_<_Size, _Size, _Type> &_a, matrix_<_Size, _Size, _Type> &_c);
 template<uint _Size, typename _Type>
 inline const matrix_<_Size, _Size, _Type> inverse(const matrix_<_Size, _Size, _Type> &_m);
+
+/// vectors dot product
+template<uint _Size, typename _Type>
+inline const _Type dot(const matrix_<1, _Size, _Type> &_a, const matrix_<1, _Size, _Type> &_b);
+
+/// vectors cross product
+template<typename _Type>
+inline const matrix_<1, 2, _Type> cross(const matrix_<1, 2, _Type> &_a);
+template<typename _Type>
+inline const _Type cross(const matrix_<1, 2, _Type> &_a, const matrix_<1, 2, _Type> &_b);
+template<typename _Type>
+inline const matrix_<1, 3, _Type> cross(const matrix_<1, 3, _Type> &_a, const matrix_<1, 3, _Type> &_b);
+template<typename _Type>
+inline const _Type cross(const matrix_<1, 3, _Type> &_a, const matrix_<1, 3, _Type> &_b, const matrix_<1, 3, _Type> &_c);
 
 /// 1x1 matrix type
 typedef matrix_<1, 1, real> r1x1;
@@ -324,50 +345,6 @@ const r4x3 r4x3_1(r1x3_x, r1x3_y, r1x3_z, r1x3_0);
 const r4x4 r4x4_0(r1x4_0, r1x4_0, r1x4_0, r1x4_0);
 /// unit 4x4 matrix
 const r4x4 r4x4_1(r1x4_x, r1x4_y, r1x4_z, r1x4_w);
-
-//// v2
-//template<typename _Type, bool _Const = false> struct v2_r_ {
-//	typedef typename select<_Const, const _Type, _Type>::type type;
-//	typedef typename select<_Const, const matrix_<1, 2, _Type>, matrix_<1, 2, _Type> >::type vector;
-//	type &x, &y;
-//	inline v2_r_(vector &_v);
-//};
-//template<typename _Type> v2_r_<_Type, false> v2(typename v2_r_<_Type, false>::vector &_v);
-//template<typename _Type> v2_r_<_Type, true> v2(typename v2_r_<_Type, true>::vector &_v);
-//typedef v2_r_<real> v2_r;
-//
-//// v3
-//template<typename _Vector> struct v3 {
-//	typedef typename select<
-//		traits<_Vector>::is_const,
-//		const typename _Vector::cell_type,
-//		typename _Vector::cell_type
-//	>::type type;
-//	type &x, &y, &z;
-//	inline v3(_Vector &_v);
-//};
-//
-//// v4
-//template<typename _Type, bool _Const = false> struct v4_r_ {
-//	typedef typename select<_Const, const _Type, _Type>::type type;
-//	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
-//	type &x, &y, &z, &w;
-//	inline v4_r_(vector &_v);
-//};
-//template<typename _Type> v4_r_<_Type, false> v4(typename v4_r_<_Type, false>::vector &_v);
-//template<typename _Type> v4_r_<_Type, true> v4(typename v4_r_<_Type, true>::vector &_v);
-//typedef v4_r_<real> v4_r;
-//
-//// quat
-//template<typename _Type, bool _Const = false> struct quat_r_ {
-//	typedef typename select<_Const, const _Type, _Type>::type type;
-//	typedef typename select<_Const, const matrix_<1, 4, _Type>, matrix_<1, 4, _Type> >::type vector;
-//	type &i, &j, &k, &r;
-//	inline quat_r_(vector &_v);
-//};
-//template<typename _Type> quat_r_<_Type, false> quat(typename quat_r_<_Type, false>::vector &_v);
-//template<typename _Type> quat_r_<_Type, true> quat(typename quat_r_<_Type, true>::vector &_v);
-//typedef quat_r_<real> quat_r;
 
 /// color
 template<typename _Type>

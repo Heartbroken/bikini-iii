@@ -22,23 +22,23 @@ struct manager : uncopyble {
 		struct info : uncopyble {
 			info(uint _type);
 			virtual ~info();
-			inline uint type() const { return m_type; }
+			inline uint type() const;
 
 		private:
 			uint m_type;
 		};
 
+		inline const info& get_info() const;
+		inline manager& get_manager() const;
+		inline uint type() const;
+		inline uint ID() const;
+		inline uint add_dependency(uint _ID);
+		inline uint dependency_count() const;
+		inline uint dependency(uint _i) const;
+		inline void set_dependency(uint _i, uint _ID);
+		inline bool has_dependency() const;
 		object(const info &_info, manager &_manager);
 		virtual ~object();
-		inline const info& get_info() const { return m_info; }
-		inline manager& get_manager() const { return m_manager; }
-		inline uint type() const { return m_info.type(); }
-		inline uint ID() const { return m_ID; }
-		inline uint add_dependency(uint _ID) { m_dependencies.push_back(_ID); return m_dependencies.size() - 1; }
-		inline uint dependency_count() const { return m_dependencies.size(); }
-		inline uint dependency(uint _i) const { return m_dependencies[_i]; }
-		inline void set_dependency(uint _i, uint _ID) { m_dependencies[_i] = _ID; }
-		inline bool has_dependency() const { return !m_dependencies.empty(); }
 		virtual bool update(real _dt);
 
 	private:
@@ -48,9 +48,9 @@ struct manager : uncopyble {
 		uint m_ID;
 		std::vector<uint> m_dependencies;
 		uint m_ref_count;
-		inline uint add_ref() { return ++m_ref_count; }
-		inline uint ref_count() { return m_ref_count; }
-		inline uint release() { return --m_ref_count; }
+		inline uint add_ref();
+		inline uint ref_count() const;
+		inline uint release();
 	};
 
 	manager();

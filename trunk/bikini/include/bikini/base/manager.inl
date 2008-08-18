@@ -8,6 +8,8 @@
 
 #pragma once
 
+// manager
+
 template<typename _T>
 inline _T& manager::get(uint _ID) const {
 	return static_cast<_T&>(get(_ID));
@@ -96,3 +98,48 @@ inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename
 	return l_ID;
 }
 
+// manager::object
+
+inline const manager::object::info& manager::object::get_info() const {
+	return m_info;
+}
+inline manager& manager::object::get_manager() const {
+	return m_manager;
+}
+inline uint manager::object::type() const {
+	return m_info.type();
+}
+inline uint manager::object::ID() const {
+	return m_ID;
+}
+inline uint manager::object::add_dependency(uint _ID) {
+	m_dependencies.push_back(_ID);
+	return m_dependencies.size() - 1;
+}
+inline uint manager::object::dependency_count() const {
+	return m_dependencies.size();
+}
+inline uint manager::object::dependency(uint _i) const {
+	return m_dependencies[_i];
+}
+inline void manager::object::set_dependency(uint _i, uint _ID) {
+	m_dependencies[_i] = _ID;
+}
+inline bool manager::object::has_dependency() const {
+	return !m_dependencies.empty();
+}
+inline uint manager::object::add_ref() {
+	return ++m_ref_count;
+}
+inline uint manager::object::ref_count() const {
+	return m_ref_count;
+}
+inline uint manager::object::release() {
+	return --m_ref_count;
+}
+
+// manager::object::info
+
+inline uint manager::object::info::type() const {
+	return m_type;
+}
