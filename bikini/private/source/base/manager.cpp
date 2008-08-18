@@ -78,11 +78,24 @@ uint manager::get_next_ID(uint _prev_ID, uint _type /*= bad_ID*/) const {
 }
 
 void manager::kill(uint _ID) {
-	assert(exists(_ID));
+	assert(exists(_ID) && get(_ID).ref_count() == 0);
 	delete m_objects[_ID & index_mask];
 }
 
+uint manager::release(uint _ID) {
+	if(exists(_ID) && get(_ID).ref_count() > 0) return get(_ID).release();
+	return 0;
+}
+
 bool manager::update(real _dt) {
+	for(uint i = m_shared.size(); i-- > 0;) {
+		uint l_ID = m_shared[i];
+		assert(exists(l_ID));
+		if(get(l_ID).ref_count() == 0) {
+			kill(l_ID);
+			m_shared.erase(m_shared.begin() + i);
+		}
+	}
 	if(m_objects.size() - m_free_IDs.size() != m_update_order.size()) {
 		m_build_update_order();
 	}
@@ -141,7 +154,7 @@ void manager::m_build_update_order() {
 
 // manager::object
 
-manager::object::object(const info &_info, manager &_manager) : m_info(_info), m_manager(_manager) {
+manager::object::object(const info &_info, manager &_manager) : m_info(_info), m_manager(_manager), m_ref_count(0) {
 	m_ID = m_manager.add(*this);
 }
 

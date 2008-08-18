@@ -47,6 +47,10 @@ struct manager : uncopyble {
 		manager &m_manager;
 		uint m_ID;
 		std::vector<uint> m_dependencies;
+		uint m_ref_count;
+		inline uint add_ref() { return ++m_ref_count; }
+		inline uint ref_count() { return m_ref_count; }
+		inline uint release() { return --m_ref_count; }
 	};
 
 	manager();
@@ -63,6 +67,13 @@ struct manager : uncopyble {
 	template<typename _Info> inline uint spawn(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1, typename _Info::a2 _a2, typename _Info::a3 _a3);
 	template<typename _Info> inline uint spawn(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1, typename _Info::a2 _a2, typename _Info::a3 _a3, typename _Info::a4 _a4);
 	void kill(uint _ID);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info, typename _Info::a0 _a0);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1, typename _Info::a2 _a2);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1, typename _Info::a2 _a2, typename _Info::a3 _a3);
+	template<typename _Info> inline uint spawn_shared(const _Info &_info, typename _Info::a0 _a0, typename _Info::a1 _a1, typename _Info::a2 _a2, typename _Info::a3 _a3, typename _Info::a4 _a4);
+	uint release(uint _ID);
 	virtual bool update(real _dt);
 	virtual void clear();
 	virtual void destroy();
@@ -73,6 +84,8 @@ private:
 	uint add(object &_object);
 	void remove(uint _ID);
 	std::vector<object*> m_objects;
+	std::vector<uint> m_shared;
+	template<typename _Info> inline uint m_find_shared(const _Info &_info);
 	std::vector<uint> m_free_IDs;
 	std::vector<uint> m_update_order;
 	void m_build_update_order();
