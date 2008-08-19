@@ -184,35 +184,39 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// get i-th matrix row
 	inline row_type& operator [] (uint _i);
 	/// assign matrix
-	inline matrix_& operator = (const matrix_ &_m);
+	inline matrix_& operator = (const matrix_ &_b);
 	/// unary minus
 	inline const matrix_ operator - () const;
 	/// add
-	inline const matrix_ operator + (const matrix_ &_m) const;
+	friend inline const matrix_ operator + (const matrix_ &_a, const matrix_ &_b);
 	/// add assign
-	inline matrix_& operator += (const matrix_ &_m);
+	inline matrix_& operator += (const matrix_ &_b);
 	/// subtract
-	inline const matrix_ operator - (const matrix_ &_m) const;
+	friend inline const matrix_ operator - (const matrix_ &_a, const matrix_ &_b);
 	/// subtract assign
-	inline matrix_& operator -= (const matrix_ &_m);
-	/// multiply
-	inline const matrix_ operator * (_Type _s) const;
+	inline matrix_& operator -= (const matrix_ &_b);
+	/// multiply by scalar
+	friend inline const matrix_ operator * (const matrix_ &_a, _Type _b);
+	/// multiply by scalar
+	friend inline const matrix_ operator * (_Type _a, const matrix_ &_b);
 	/// multiply assign
-	inline matrix_& operator *= (_Type _s);
-	/// divide
-	inline const matrix_ operator / (_Type _s) const;
+	inline matrix_& operator *= (_Type _b);
+	///// divide by scalar
+	//friend inline const matrix_ operator / (const matrix_ &_a, _Type _b);
+	///// divide by scalar
+	//friend inline const matrix_ operator / (_Type _a, const matrix_ &_b);
 	/// divide assign
-	inline matrix_& operator /= (_Type _s);
+	//inline matrix_& operator /= (_Type _s);
 	/// multiply martices
-	template<uint _W2> inline const matrix_<_Height, _W2, _Type> operator * (const matrix_<_Width, _W2, _Type> &_m) const;
+	template<uint _W2> friend inline const matrix_<_Height, _W2, _Type> operator * (const matrix_ &_a, const matrix_<_Width, _W2, _Type> &_b);
 	/// get transposed matrix
 	inline const matrix_<_Width, _Height, _Type> operator ~ () const;
 	/// dot product
-	inline const matrix_ operator | (const matrix_ &_m) const;
+	friend inline const matrix_ operator | (const matrix_ &_a, const matrix_ &_b);
 	/// cross product
-	inline const cross_type operator ^ (const matrix_ &_m) const;
+	friend inline const cross_type operator ^ (const matrix_ &_a, const matrix_ &_b);
 	/// compare matrices
-	inline bool operator == (const matrix_ &_m) const;
+	friend inline bool operator == (const matrix_ &_a, const matrix_ &_b);
 	///
 	inline operator const row_type () const;
 	// some aux functions
