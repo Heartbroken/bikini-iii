@@ -58,7 +58,7 @@ template<typename _Typelist, bool _Dynamic = true> struct variant_ {
 	template<typename _Type> inline bool is() const;
 	/// Get a variant's value
 	template<typename _Type> inline const _Type& get() const;
-	/// Get a variant value. If no value return default value
+	/// Get a variant value. If there is no value return default value
 	template<typename _Type> inline const _Type& def(const _Type &_def) const;
 private:
 	uint m_type;
