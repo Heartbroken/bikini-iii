@@ -49,7 +49,7 @@ template<typename _First, typename _Second, typename _Third> struct typelist<_Fi
 	};
 	template<> struct otherlist<typelist<notype> > {
 		static const bool belong = true;
-		inline static uint remap(uint _i) { return bad_id; }
+		inline static uint remap(uint _i) { return bad_ID; }
 	};
 
 	inline static uint size(uint _i) {

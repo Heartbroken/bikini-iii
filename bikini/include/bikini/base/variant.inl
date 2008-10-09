@@ -16,25 +16,25 @@ struct _variant_helper_ {
 };
 template<typename _L>
 struct _variant_helper_<_L, false> {
-	static inline void construct(handle &_h, uint _t, pointer _v) { _L::construct(_h, _t, _v); }
-	static inline void destruct(handle &_h, uint _t) { _L::destruct(_h, _t, false); }
+	static inline void construct(handle _h, uint _t, pointer _v) { _L::construct(_h, _t, _v); }
+	static inline void destruct(handle _h, uint _t) { _L::destruct(_h, _t, false); }
 };
 
 template<typename _L, bool _D>
-inline variant_<_L, _D>::variant_() : m_type(bad_ID)
-{}
+inline variant_<_L, _D>::variant_() : m_type(bad_ID) {
+}
 template<typename _L, bool _D>
-inline variant_<_L, _D>::variant_(const variant_ &_v) {
+inline variant_<_L, _D>::variant_(const variant_ &_v) : m_type(bad_ID) {
 	construct(_v.type(), _v.data());
 }
 template<typename _L, bool _D> template<typename _T>
-inline variant_<_L, _D>::variant_(const _T &_v) {
+inline variant_<_L, _D>::variant_(const _T &_v) : m_type(bad_ID) {
 	c_assert(_L::type<_T>::exists);
 	construct(_L::type<_T>::index, &_v);
 }
-template<typename _L, bool _D> template<typename _O>
-inline variant_<_L, _D>::variant_(const variant_<_O> &_v) {
-	construct(_L::otherlist<_O>::remap(_v.type()), _v.data());
+template<typename _L, bool _D> template<typename _L2, bool _D2>
+inline variant_<_L, _D>::variant_(const variant_<_L2, _D2> &_v) : m_type(bad_ID) {
+	construct(_L::otherlist<_L2>::remap(_v.type()), _v.data());
 }
 template<typename _L, bool _D>
 inline variant_<_L, _D>::~variant_() {
@@ -72,8 +72,52 @@ inline variant_<_L, _D>& variant_<_L, _D>::operator = (const _T &_v) {
 	construct(_L::type<_T>::index, &_v);
 	return *this;
 }
-template<typename _L, bool _D> template<typename _O>
-inline variant_<_L, _D>& variant_<_L, _D>::operator = (const variant_<_O> &_v) {
-	construct(_L::otherlist<_O>::remap(_v.type()), _v.data());
+template<typename _L, bool _D> template<typename _L2, bool _D2>
+inline variant_<_L, _D>& variant_<_L, _D>::operator = (const variant_<_L2, _D2> &_v) {
+	construct(_L::otherlist<_L2>::remap(_v.type()), _v.data());
 	return *this;
+}
+template<typename _L, bool _D>
+inline bool variant_<_L, _D>::operator == (const variant_ &_v) const {
+	return m_type != bad_ID && m_type == _v.type() && _L::compare(m_type, m_data, _v.data());
+}
+template<typename _L, bool _D> template<typename _T>
+inline bool variant_<_L, _D>::operator == (const _T &_v) const {
+	return m_type != bad_ID && m_type == typelist::type<_T>::index && _L::compare(m_type, m_data, &_v);
+}
+template<typename _L, bool _D> template<typename _L2, bool _D2>
+inline bool variant_<_L, _D>::operator == (const variant_<_L2, _D2> &_v) const {
+	return m_type != bad_ID && m_type == _L::otherlist<_L2>::remap(_v.type()) && _L::compare(m_type, m_data, _v.data());
+}
+template<typename _L, bool _D> template<typename _T>
+inline bool variant_<_L, _D>::operator != (const _T &_v) const {
+	return !(*this == _v);
+}
+template<typename _L, bool _D> template<typename _T>
+inline static bool variant_<_L, _D>::can_take() {
+	return _L::type<_T>::exists;
+}
+template<typename _L, bool _D> template<typename _T>
+inline static bool variant_<_L, _D>::can_take(const _T &_v) {
+	return _L::type<_T>::exists;
+}
+template<typename _L, bool _D> template<typename _L2, bool _D2>
+inline static bool variant_<_L, _D>::can_take(const variant_<_L2, _D2> &_v) {
+	return _L::otherlist<_L2>::remap(_v.type()) != bad_ID;
+}
+template<typename _L, bool _D>
+inline bool variant_<_L, _D>::is_nothing() const {
+	return m_type == bad_ID;
+}
+template<typename _L, bool _D> template<typename _T>
+inline bool variant_<_L, _D>::is() const {
+	return !is_nothing() && _L::type<_T>::index == m_type;
+}
+template<typename _L, bool _D> template<typename _T>
+inline const _T& variant_<_L, _D>::get() const {
+	return *reinterpret_cast<const _T*>(m_data);
+}
+template<typename _L, bool _D> template<typename _T>
+inline const _T& variant_<_L, _D>::def(const _T &_def) const {
+	return is<_T>() ? get<_T>() : _def;
 }
