@@ -8,6 +8,34 @@
 
 #pragma once
 
+///	A variant type template
+/**	[TODO]
+ */
+template<typename _Typelist, bool _Dynamic = true> struct variant_ {
+	typedef _Typelist typelist;
+	inline variant_();
+	inline variant_(const variant_ &_v);
+	template<typename _Type> inline variant_(const _Type &_v);
+	template<typename _Otherlist> inline variant_(const variant_<_Otherlist> &_v);
+	inline ~variant_();
+	inline uint type() const;
+	inline pointer data() const;
+	inline void construct(u32 _type, pointer _data);
+	inline void destruct();
+	inline variant_& operator = (const variant_ &_v);
+	template<typename _Type> inline variant_& operator = (const _Type &_v);
+	template<typename _Otherlist> inline variant_& operator = (const variant_<_Otherlist> &_v);
+private:
+	typedef handle dynamic_data_type;
+	typedef u8[typelist::max_size] static_data_type;
+	typedef typename select<_Dynamic, dynamic_data, static_data>::type data_type;
+	data_type m_data;
+};
+
+#include "variant.inl"
+
+
+/*
 #if defined(BIKNI_VARIANT_IS_DYNAMIC)
 #	define VARIANT_DYN_ALOC
 #endif
@@ -148,3 +176,4 @@ typedef variant_<fundamentals> variant;
 #ifdef VARIANT_DYN_ALOC
 #	undef VARIANT_DYN_ALOC
 #endif
+*/
