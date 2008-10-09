@@ -339,6 +339,10 @@
 				RelativePath="..\..\..\include\bikini\base\math.inl"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\variant.inl"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="header"
