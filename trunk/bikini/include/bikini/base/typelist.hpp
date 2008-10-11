@@ -8,8 +8,6 @@
 
 #pragma once
 
-struct notype {};
-
 template<typename _First, typename _Rest = notype> struct typelist;
 template<typename _First, typename _Second, typename _Third> struct typelist<_First, typelist<_Second, _Third> > {
 	typedef _First first;

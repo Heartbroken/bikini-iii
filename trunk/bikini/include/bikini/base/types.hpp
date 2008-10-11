@@ -8,8 +8,8 @@
 
 #pragma once
 
-// old types
-typedef unsigned char		u8;
+// bikini.ii types
+typedef unsigned char		u8, byte;
 typedef char				s8;
 typedef unsigned short		u16;
 typedef short				s16;
@@ -31,11 +31,10 @@ typedef unsigned __int64	ubig;
 typedef __int64				sbig;
 /// big real number
 typedef double				rbig;
-#if defined(BIKINI_REAL_IS_DOUBLE)
 /// real number
+#if defined(BIKINI_REAL_IS_DOUBLE)
 typedef double				real;
 #else
-/// real number
 typedef float				real;
 #endif
 
@@ -45,33 +44,23 @@ typedef const void*			pointer;
 typedef std::string			astr;
 typedef std::wstring		wstr;
 
-typedef std::bitset<sizeof(uint)>	flags;
-
-// constants
-
-/// bad ID
-const uint bad_ID = uint(-1);
-/// real 0
-const real r_0 = real(0);
-/// real 1
-const real r_1 = real(1);
-
-// defines
-
-#define super __super
-#define inline __forceinline
-
-// templates
-
 /// type selector template
-template<bool _C, typename _T0, typename _T1> struct select { typedef _T0 type; };
-template<typename _T0, typename _T1> struct select<false, _T0, _T1> { typedef _T1 type; };
+template<bool _C, typename _T0, typename _T1>
+struct select {
+	typedef _T0 type;
+};
+template<typename _T0, typename _T1>
+struct select<false, _T0, _T1> {
+	typedef _T1 type;
+};
 
-//classes
-
+/// uncopyble type
 struct uncopyble {
 	inline uncopyble() {}
 private:
 	inline uncopyble(const uncopyble&);
 	inline uncopyble& operator = (const uncopyble&);
 };
+
+/// notype type
+struct notype {};
