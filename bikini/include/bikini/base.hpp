@@ -41,7 +41,9 @@
 /// bikini-iii main namespace
 namespace bk { /*--------------------------------------------------------------------------------*/
 
+#include "base/defines.hpp"
 #include "base/types.hpp"
+#include "base/constants.hpp"
 #include "base/assert.hpp"
 #include "base/typelist.hpp"
 #include "base/traits.hpp"

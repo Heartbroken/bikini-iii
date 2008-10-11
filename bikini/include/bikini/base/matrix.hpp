@@ -245,72 +245,72 @@ inline const matrix_<1, 3, _Type> cross(const matrix_<1, 3, _Type> &_a, const ma
 template<typename _Type>
 inline const _Type cross(const matrix_<1, 3, _Type> &_a, const matrix_<1, 3, _Type> &_b, const matrix_<1, 3, _Type> &_c);
 
-/// 1x1 matrix type
+/// 1x1 matrix of real
 typedef matrix_<1, 1, real> r1x1, real1;
-/// 1x2 matrix type
+/// 1x2 matrix of real
 typedef matrix_<1, 2, real> r1x2, real2;
-/// 1x3 matrix type
+/// 1x3 matrix of real
 typedef matrix_<1, 3, real> r1x3, real3;
-/// 1x4 matrix type
+/// 1x4 matrix of real
 typedef matrix_<1, 4, real> r1x4, real4;
-/// 2x2 matrix type
+/// 2x2 matrix of real
 typedef matrix_<2, 2, real> r2x2;
-/// 3x3 matrix type
+/// 3x3 matrix of real
 typedef matrix_<3, 3, real> r3x3;
-/// 4x3 matrix type
+/// 4x3 matrix of real
 typedef matrix_<4, 3, real> r4x3;
-/// 4x4 matrix type
+/// 4x4 matrix of real
 typedef matrix_<4, 4, real> r4x4;
 
-/// zero 1x1 matrix
+/// zero 1x1 matrix of real
 const r1x1 r1x1_0(r_0);
-/// unit 1x1 matrix
+/// unit 1x1 matrix of real
 const r1x1 r1x1_1(r_1);
-/// [0 0] vector
+/// [0 0] vector of real
 const r1x2 r1x2_0(r_0, r_0);
-/// [1 1] vector
+/// [1 1] vector of real
 const r1x2 r1x2_1(r_1, r_1);
-/// [1 0] vector
+/// [1 0] vector of real
 const r1x2 r1x2_x(r_1, r_0);
-/// [0 1] vector
+/// [0 1] vector of real
 const r1x2 r1x2_y(r_0, r_1);
-/// [0 0 0] vector
+/// [0 0 0] vector of real
 const r1x3 r1x3_0(r_0, r_0, r_0);
-/// [1 1 1] vector
+/// [1 1 1] vector of real
 const r1x3 r1x3_1(r_1, r_1, r_1);
-/// [1 0 0] vector
+/// [1 0 0] vector of real
 const r1x3 r1x3_x(r_1, r_0, r_0);
-/// [0 1 0] vector
+/// [0 1 0] vector of real
 const r1x3 r1x3_y(r_0, r_1, r_0);
-/// [0 0 1] vector
+/// [0 0 1] vector of real
 const r1x3 r1x3_z(r_0, r_0, r_1);
-/// [0 0 0 0] vector
+/// [0 0 0 0] vector of real
 const r1x4 r1x4_0(r_0, r_0, r_0, r_0);
-/// [1 1 1 1] vector
+/// [1 1 1 1] vector of real
 const r1x4 r1x4_1(r_1, r_1, r_1, r_1);
-/// [1 0 0 0] vector
+/// [1 0 0 0] vector of real
 const r1x4 r1x4_x(r_1, r_0, r_0, r_0);
-/// [0 1 0 0] vector
+/// [0 1 0 0] vector of real
 const r1x4 r1x4_y(r_0, r_1, r_0, r_0);
-/// [0 0 1 0] vector
+/// [0 0 1 0] vector of real
 const r1x4 r1x4_z(r_0, r_0, r_1, r_0);
-/// [0 0 0 1] vector
+/// [0 0 0 1] vector of real
 const r1x4 r1x4_w(r_0, r_0, r_0, r_1);
-/// zero 2x2 matrix
+/// zero 2x2 matrix of real
 const r2x2 r2x2_0(r1x2_0, r1x2_0);
-/// unit 2x2 matrix
+/// unit 2x2 matrix of real
 const r2x2 r2x2_1(r1x2_x, r1x2_y);
-/// zero 3x3 matrix
+/// zero 3x3 matrix of real
 const r3x3 r3x3_0(r1x3_0, r1x3_0, r1x3_0);
-/// unit 3x3 matrix
+/// unit 3x3 matrix of real
 const r3x3 r3x3_1(r1x3_x, r1x3_y, r1x3_z);
-/// zero 4x3 matrix
+/// zero 4x3 matrix of real
 const r4x3 r4x3_0(r1x3_0, r1x3_0, r1x3_0, r1x3_0);
-/// unit 4x3 matrix
+/// unit 4x3 matrix of real
 const r4x3 r4x3_1(r1x3_x, r1x3_y, r1x3_z, r1x3_0);
-/// zero 4x4 matrix
+/// zero 4x4 matrix of real
 const r4x4 r4x4_0(r1x4_0, r1x4_0, r1x4_0, r1x4_0);
-/// unit 4x4 matrix
+/// unit 4x4 matrix of real
 const r4x4 r4x4_1(r1x4_x, r1x4_y, r1x4_z, r1x4_w);
 
 #include "matrix.inl"

@@ -400,6 +400,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\constants.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\defines.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\fsm.hpp"
 				>
 			</File>
