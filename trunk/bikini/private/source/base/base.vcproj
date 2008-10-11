@@ -324,7 +324,15 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\color.inl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\fsm.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\GUID.inl"
 				>
 			</File>
 			<File
@@ -337,6 +345,18 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\math.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\matrix.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\quat.inl"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\random.inl"
 				>
 			</File>
 			<File
@@ -376,6 +396,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\color.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\fsm.hpp"
 				>
 			</File>
@@ -384,11 +408,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\GUID.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\manager.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\math.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\matrix.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\quat.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\random.hpp"
 				>
 			</File>
 			<File
