@@ -46,11 +46,11 @@ typedef std::wstring		wstr;
 
 /// type selector template
 template<bool _C, typename _T0, typename _T1>
-struct select {
+struct select_ {
 	typedef _T0 type;
 };
 template<typename _T0, typename _T1>
-struct select<false, _T0, _T1> {
+struct select_<false, _T0, _T1> {
 	typedef _T1 type;
 };
 

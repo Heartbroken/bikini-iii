@@ -64,7 +64,7 @@ private:
 	uint m_type;
 	typedef handle dynamic_data_type;
 	typedef u8 static_data_type[types::max_size];
-	typedef typename select<_Dynamic, dynamic_data_type, static_data_type>::type data_type;
+	typedef typename select_<_Dynamic, dynamic_data_type, static_data_type>::type data_type;
 	data_type m_data;
 };
 typedef variant_<fundamentals> variant;

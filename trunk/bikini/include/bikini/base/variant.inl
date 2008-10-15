@@ -29,8 +29,8 @@ inline variant_<_L, _D>::variant_(const variant_ &_v) : m_type(bad_ID) {
 }
 template<typename _L, bool _D> template<typename _T>
 inline variant_<_L, _D>::variant_(const _T &_v) : m_type(bad_ID) {
-	c_assert(_L::type<_T>::exists);
-	construct(_L::type<_T>::index, &_v);
+	c_assert(_L::type_<_T>::exists);
+	construct(_L::type_<_T>::index, &_v);
 }
 template<typename _L, bool _D> template<typename _L2, bool _D2>
 inline variant_<_L, _D>::variant_(const variant_<_L2, _D2> &_v) : m_type(bad_ID) {
@@ -68,13 +68,13 @@ inline variant_<_L, _D>& variant_<_L, _D>::operator = (const variant_ &_v) {
 }
 template<typename _L, bool _D> template<typename _T>
 inline variant_<_L, _D>& variant_<_L, _D>::operator = (const _T &_v) {
-	c_assert(_L::type<_T>::exists);
-	construct(_L::type<_T>::index, &_v);
+	c_assert(_L::type_<_T>::exists);
+	construct(_L::type_<_T>::index, &_v);
 	return *this;
 }
 template<typename _L, bool _D> template<typename _L2, bool _D2>
 inline variant_<_L, _D>& variant_<_L, _D>::operator = (const variant_<_L2, _D2> &_v) {
-	construct(_L::otherlist<_L2>::remap(_v.type()), _v.data());
+	construct(_L::otherlist_<_L2>::remap(_v.type()), _v.data());
 	return *this;
 }
 template<typename _L, bool _D>
@@ -83,11 +83,11 @@ inline bool variant_<_L, _D>::operator == (const variant_ &_v) const {
 }
 template<typename _L, bool _D> template<typename _T>
 inline bool variant_<_L, _D>::operator == (const _T &_v) const {
-	return m_type != bad_ID && m_type == typelist::type<_T>::index && _L::compare(m_type, m_data, &_v);
+	return m_type != bad_ID && m_type == typelist::type_<_T>::index && _L::compare(m_type, m_data, &_v);
 }
 template<typename _L, bool _D> template<typename _L2, bool _D2>
 inline bool variant_<_L, _D>::operator == (const variant_<_L2, _D2> &_v) const {
-	return m_type != bad_ID && m_type == _L::otherlist<_L2>::remap(_v.type()) && _L::compare(m_type, m_data, _v.data());
+	return m_type != bad_ID && m_type == _L::otherlist_<_L2>::remap(_v.type()) && _L::compare(m_type, m_data, _v.data());
 }
 template<typename _L, bool _D> template<typename _T>
 inline bool variant_<_L, _D>::operator != (const _T &_v) const {
@@ -95,15 +95,15 @@ inline bool variant_<_L, _D>::operator != (const _T &_v) const {
 }
 template<typename _L, bool _D> template<typename _T>
 inline static bool variant_<_L, _D>::can_take() {
-	return _L::type<_T>::exists;
+	return _L::type_<_T>::exists;
 }
 template<typename _L, bool _D> template<typename _T>
 inline static bool variant_<_L, _D>::can_take(const _T &_v) {
-	return _L::type<_T>::exists;
+	return _L::type_<_T>::exists;
 }
 template<typename _L, bool _D> template<typename _L2, bool _D2>
 inline static bool variant_<_L, _D>::can_take(const variant_<_L2, _D2> &_v) {
-	return _L::otherlist<_L2>::remap(_v.type()) != bad_ID;
+	return _L::otherlist_<_L2>::remap(_v.type()) != bad_ID;
 }
 template<typename _L, bool _D>
 inline bool variant_<_L, _D>::is_nothing() const {
@@ -111,7 +111,7 @@ inline bool variant_<_L, _D>::is_nothing() const {
 }
 template<typename _L, bool _D> template<typename _T>
 inline bool variant_<_L, _D>::is() const {
-	return !is_nothing() && _L::type<_T>::index == m_type;
+	return !is_nothing() && _L::type_<_T>::index == m_type;
 }
 template<typename _L, bool _D> template<typename _T>
 inline const _T& variant_<_L, _D>::get() const {

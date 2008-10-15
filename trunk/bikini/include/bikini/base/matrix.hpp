@@ -89,9 +89,9 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// one row same width matrix
 	typedef matrix_<1, _Width, _Type> row_matrix;
 	/// component type
-	typedef typename select<_Height == 1 || _Width == 1, cell_type, row_type>::type component_type;
+	typedef typename select_<_Height == 1 || _Width == 1, cell_type, row_type>::type component_type;
 	/// cross product type
-	typedef typename select<_Width == 1, cell_type, row_matrix>::type cross_type;
+	typedef typename select_<_Width == 1, cell_type, row_matrix>::type cross_type;
 	/// constructor
 	inline matrix_();
 	/// copy constructor
