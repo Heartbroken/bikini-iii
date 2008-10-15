@@ -57,15 +57,15 @@ void main()
 int _tmain(int argc, _TCHAR* argv[])
 #endif
 {
-	//bk::variant_<bk::fundamentals, false> l_v;
-	//l_v = true;
-	//l_v = 1;
-	//l_v = 1.f;
-	//l_v = 1.0;
-	//bk::variant_<bk::fundamentals, false> l_v1(1.0);
-	//bool l_b0 = l_v == l_v1;
-	//bool l_b1 = l_v.can_take(0.0);
-	//bk::real l_r = l_v.get<double>();
+	bk::variant_<bk::fundamentals, false> l_v;
+	l_v = true;
+	l_v = 1;
+	l_v = 1.f;
+	l_v = 1.0;
+	bk::variant_<bk::fundamentals, false> l_v1(1.0);
+	bool l_b0 = l_v == l_v1;
+	bool l_b1 = l_v.can_take(0.0);
+	bk::real l_r = l_v.get<double>();
 	{
 	bk::application l_app;
 	task0::info l_task0;

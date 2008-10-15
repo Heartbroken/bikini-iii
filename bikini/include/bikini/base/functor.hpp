@@ -31,59 +31,59 @@ struct _functor_base {
 template<typename _Rettype, typename _Arglist> struct _functor_core_;
 
 template<typename _R>
-struct _functor_core_<_R, make_typelist<notype> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<notype> > : _functor_base {
 	typedef _R rettype;
 	virtual rettype operator () () const = 0;
 };
 template<typename _R, typename _A0>
-struct _functor_core_<_R, make_typelist<_A0> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
+	typedef typename traits_<_A0>::parameter arg0;
 	virtual rettype operator () (arg0) const = 0;
 };
 template<typename _R, typename _A0, typename _A1>
-struct _functor_core_<_R, make_typelist<_A0, _A1> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0, _A1> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
-	typedef typename traits<_A1>::parameter arg1;
+	typedef typename traits_<_A0>::parameter arg0;
+	typedef typename traits_<_A1>::parameter arg1;
 	virtual rettype operator () (arg0, arg1) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2>
-struct _functor_core_<_R, make_typelist<_A0, _A1, _A2> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0, _A1, _A2> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
-	typedef typename traits<_A1>::parameter arg1;
-	typedef typename traits<_A2>::parameter arg2;
+	typedef typename traits_<_A0>::parameter arg0;
+	typedef typename traits_<_A1>::parameter arg1;
+	typedef typename traits_<_A2>::parameter arg2;
 	virtual rettype operator () (arg0, arg1, arg2) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3>
-struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0, _A1, _A2, _A3> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
-	typedef typename traits<_A1>::parameter arg1;
-	typedef typename traits<_A2>::parameter arg2;
-	typedef typename traits<_A3>::parameter arg3;
+	typedef typename traits_<_A0>::parameter arg0;
+	typedef typename traits_<_A1>::parameter arg1;
+	typedef typename traits_<_A2>::parameter arg2;
+	typedef typename traits_<_A3>::parameter arg3;
 	virtual rettype operator () (arg0, arg1, arg2, arg3) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4>
-struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3, _A4> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0, _A1, _A2, _A3, _A4> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
-	typedef typename traits<_A1>::parameter arg1;
-	typedef typename traits<_A2>::parameter arg2;
-	typedef typename traits<_A3>::parameter arg3;
-	typedef typename traits<_A4>::parameter arg4;
+	typedef typename traits_<_A0>::parameter arg0;
+	typedef typename traits_<_A1>::parameter arg1;
+	typedef typename traits_<_A2>::parameter arg2;
+	typedef typename traits_<_A3>::parameter arg3;
+	typedef typename traits_<_A4>::parameter arg4;
 	virtual rettype operator () (arg0, arg1, arg2, arg3, arg4) const = 0;
 };
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5>
-struct _functor_core_<_R, make_typelist<_A0, _A1, _A2, _A3, _A4, _A5> > : _functor_base {
+struct _functor_core_<_R, make_typelist_<_A0, _A1, _A2, _A3, _A4, _A5> > : _functor_base {
 	typedef _R rettype;
-	typedef typename traits<_A0>::parameter arg0;
-	typedef typename traits<_A1>::parameter arg1;
-	typedef typename traits<_A2>::parameter arg2;
-	typedef typename traits<_A3>::parameter arg3;
-	typedef typename traits<_A4>::parameter arg4;
-	typedef typename traits<_A5>::parameter arg5;
+	typedef typename traits_<_A0>::parameter arg0;
+	typedef typename traits_<_A1>::parameter arg1;
+	typedef typename traits_<_A2>::parameter arg2;
+	typedef typename traits_<_A3>::parameter arg3;
+	typedef typename traits_<_A4>::parameter arg4;
+	typedef typename traits_<_A5>::parameter arg5;
 	virtual rettype operator () (arg0, arg1, arg2, arg3, arg4, arg5) const = 0;
 };
 
@@ -192,7 +192,7 @@ template<
 	typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype
 > struct functor_ {
 	typedef _R rettype;
-	typedef make_typelist<_A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> arglist;
+	typedef make_typelist_<_A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> arglist;
 	typedef _functor_core_<rettype, arglist> core;
 	typedef typename core::arg0 arg0;
 	typedef typename core::arg1 arg1;

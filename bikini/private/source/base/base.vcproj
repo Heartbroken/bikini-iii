@@ -360,6 +360,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\typelist.inl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\variant.inl"
 				>
 			</File>
