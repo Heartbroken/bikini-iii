@@ -28,7 +28,7 @@ struct task0 : bk::application::task {
 #endif
 		l_window.clear();
 		bk::gui l_gui;
-		l_gui.create();
+		l_gui.create("test");
 		l_gui.resize(l_window);
 		bk::ge::panel::info l_panel;
 		l_gui.spawn(l_panel, 100, 100, 100, 100, l_gui.screen_ID());
@@ -66,6 +66,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	bool l_b0 = l_v == l_v1;
 	bool l_b1 = l_v.can_take(0.0);
 	bk::real l_r = l_v.get<double>();
+	bk::real2 l_a = bk::r1x2_0, l_b = bk::r1x2_x, l_c = l_a + l_b * bk::real(3);
 	{
 	bk::application l_app;
 	task0::info l_task0;

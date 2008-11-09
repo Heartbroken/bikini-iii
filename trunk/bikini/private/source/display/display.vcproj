@@ -352,6 +352,18 @@
 				RelativePath="..\..\..\include\bikini\display\gui.inl"
 				>
 			</File>
+			<Filter
+				Name="swf"
+				>
+				<File
+					RelativePath=".\swf\tagstream.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\include\bikini\display\swf\tagstream.inl"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="header"
@@ -376,6 +388,22 @@
 				RelativePath="..\..\..\include\bikini\display\gui.hpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\display\swf.hpp"
+				>
+			</File>
+			<Filter
+				Name="swf"
+				>
+				<File
+					RelativePath="..\..\..\include\bikini\display\swf\tagcodes.hpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\include\bikini\display\swf\tagstream.hpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>

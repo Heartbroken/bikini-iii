@@ -254,7 +254,7 @@ inline const matrix_<_H, _W, _T> matrix_<_H, _W, _T>::operator - () const {
 }
 template<uint _H, uint _W, typename _T>
 inline const matrix_<_H, _W, _T> operator + (const matrix_<_H, _W, _T> &_a, const matrix_<_H, _W, _T> &_b) {
-	matrix_ l_c;
+	matrix_<_H, _W, _T> l_c;
 	_a._add(_b, l_c);
 	return l_c;
 }
@@ -265,7 +265,7 @@ inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator += (const matrix_ &_b)
 }
 template<uint _H, uint _W, typename _T>
 inline const matrix_<_H, _W, _T> operator - (const matrix_<_H, _W, _T> &_a, const matrix_<_H, _W, _T> &_b) {
-	matrix_ l_c;
+	matrix_<_H, _W, _T> l_c;
 	_a._sub(_b, l_c);
 	return l_c;
 }
@@ -275,14 +275,14 @@ inline matrix_<_H, _W, _T>& matrix_<_H, _W, _T>::operator -= (const matrix_ &_b)
 	return *this;
 }
 template<uint _H, uint _W, typename _T>
-inline const matrix_<_H, _W, _T> operator * (const matrix_<_W, _H, _T> &_a, _T _b) {
-	matrix_ l_c;
+inline const matrix_<_H, _W, _T> operator * (const matrix_<_H, _W, _T> &_a, _T _b) {
+	matrix_<_H, _W, _T> l_c;
 	_a._mul(_b, l_c);
 	return l_c;
 }
 template<uint _H, uint _W, typename _T>
-inline const matrix_<_W, _H, _T> operator * (_T _a, const matrix_<_W, _H, _T> &_b) {
-	matrix_ l_c;
+inline const matrix_<_H, _W, _T> operator * (_T _a, const matrix_<_H, _W, _T> &_b) {
+	matrix_<_H, _W, _T> l_c;
 	_b._mul(_a, l_c);
 	return l_c;
 }
@@ -304,7 +304,7 @@ inline const matrix_<_W, _H, _T> matrix_<_H, _W, _T>::operator ~ () const {
 	return l_m;
 }
 template<uint _H, uint _W, typename _T>
-inline const matrix_<_H, _W, _T> operator | (const matrix_<_H, _W, _T> &_a, const matrix_<_H, _W, _T> &_b) {
+inline const _T operator | (const matrix_<_H, _W, _T> &_a, const matrix_<_H, _W, _T> &_b) {
 	c_assert(_H == 1);
 	return dot(_a, _b);
 }

@@ -13,6 +13,7 @@ template<typename _Type>
 struct color_ : matrix_<1, 4, _Type> {
 	inline color_();
 	inline color_(_Type _r, _Type _g, _Type _b, _Type _a = _Type(1));
+	inline color_(u8 _r, u8 _g, u8 _b, u8 _a = u8(255));
 	inline color_(u32 _c);
 	inline const _Type r() const;
 	inline _Type& r();

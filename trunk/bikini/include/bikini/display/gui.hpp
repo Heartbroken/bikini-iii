@@ -13,8 +13,8 @@ struct gui : manager {
 		screen, panel,
 		count
 	};};
-	typedef matrix_<1, 2, sint> point;
 	struct rect {
+		typedef sint2 point;
 		inline rect();
 		inline rect(sint _l, sint _t, uint _w, uint _h);
 		inline sint left() const;
@@ -32,6 +32,10 @@ struct gui : manager {
 		inline const rect operator & (const rect &_r) const;
 	private:
 		point m_lt, m_rb;
+	};
+	struct exposer {
+		virtual uint create_bitmap(pointer _data);
+		virtual uint create_bitmap(const str &_path);
 	};
 	struct element : manager::object {
 		struct info : manager::object::info {
@@ -54,17 +58,54 @@ struct gui : manager {
 		inline void add_kid(uint _ID);
 		inline uint kid_count() const;
 		inline uint kid_ID(uint _i) const;
+
+		struct polyline {
+			typedef real2 point;
+			typedef std::vector<point> points;
+			typedef std::vector<uint> line;
+			typedef std::vector<line> lines;
+			inline polyline() : m_lines(1) {}
+			inline void add_point(const point &_point) {
+				points::iterator l_it = std::find_if(m_points.begin(), m_points.end(), _equal_to(_point));
+				if(l_it == m_points.end()) m_lines.back().push_back(m_points.size()), m_points.push_back(_point);
+				else m_lines.back().push_back(l_it - m_points.begin());
+			}
+			inline void new_line() { m_lines.resize(m_lines.size() + 1); }
+			inline polyline& operator << (const point &_p) { add_point(_p); return *this; }
+		private:
+			struct _equal_to {
+				const point &p; const real eps;
+				inline _equal_to(const point &_p, real _eps = bk::eps) : p(_p), eps(_eps * _eps) {}
+				inline bool operator () (const point &_p) { point l_diff = p - _p; return (l_diff | l_diff) < eps; }
+			};
+			points m_points;
+			lines m_lines;
+		};
+		struct polygon {
+			typedef real2 point;
+			typedef std::vector<point> points;
+			typedef std::vector<uint> poly;
+			typedef std::vector<poly> polys;
+			inline polygon() : m_polys(1) {}
+		private:
+			points m_points;
+			polys m_polys;
+		};
+		void draw_polyline(const polyline &_polyline);
+		void draw_polygon(const polygon &_polygon);
+		virtual bool expose(exposer &_exposer) const;
 		virtual bool render(window &_window) const;
 	private:
-		rect m_rect; color m_color; bool m_clip;
 		uint m_parent_dependency;
+		rect m_rect; color m_color; bool m_clip;
 		std::vector<uint> m_kids;
 	};
 	inline uint screen_ID() const;
 	gui();
 	~gui();
-	bool create();
+	bool create(const astr &_name);
 	void destroy();
+	bool expose(exposer &_exposer) const;
 	bool render(window &_window) const;
 	void resize(window &_window) const;
 private:

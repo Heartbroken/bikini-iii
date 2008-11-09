@@ -360,6 +360,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\rect.inl"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\typelist.inl"
 				>
 			</File>
@@ -441,6 +445,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\base\random.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\base\rect.hpp"
 				>
 			</File>
 			<File

@@ -17,6 +17,10 @@ inline color_<_T>::color_(_T _r, _T _g, _T _b, _T _a) :
 	matrix_<1, 4, _T>(_r, _g, _b, _a)
 {}
 template<typename _T>
+inline color_<_T>::color_(u8 _r, u8 _g, u8 _b, u8 _a) :
+	matrix_<1, 4, _T>(_T(_r)/_T(255), _T(_g)/_T(255), _T(_b)/_T(255), _T(_a)/_T(255))
+{}
+template<typename _T>
 inline color_<_T>::color_(u32 _c) :
 	matrix_<1, 4, _T>(_T((_c>>16)&0xff)/_T(255), _T((_c>>8)&0xff)/_T(255), _T((_c>>0)&0xff)/_T(255), _T((_c>>24)&0xff)/_T(255))
 {}

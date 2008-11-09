@@ -3,8 +3,25 @@
 
 #include "stdafx.h"
 
+template<typename _T> struct A {
+	A(_T &_t) : m_t(_t) { m_t.c++; }
+	~A() { m_t.c--; }
+private:
+	_T &m_t;
+};
+
+struct B {
+	B() : c(0) {}
+private:
+	friend A<B>;
+	int c;
+};
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	B l_b;
+	A<B> l_a(l_b);
+	
 	{
 	bk::r2x2 l_r2x2 = bk::minor<0, 2>(bk::r3x3_1);
 	std::cout << l_r2x2[0][0] << " " << l_r2x2[0][1] << "\n";
@@ -39,7 +56,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "\n";
 	}
 	{
-	bk::r1x3 l_b(-bk::r1x3_1);
+	bk::r1x3 l_b(-bk::r1x3_1); l_b = bk::r1x3_z - bk::r1x3_y;
 	bk::r3x3 l_r(bk::r1x3_x,-bk::r1x3_z, bk::r1x3_y); //l_r = ~l_r;
 	bk::real l_00 = l_b[0][0];
 	bk::uint l_count = 1000000;
@@ -55,7 +72,8 @@ int _tmain(int argc, _TCHAR* argv[])
 //	std::cout << l_v3.x << " " << l_v3.y << " " << l_v3.z << "\n";
 	std::cout << l_b[0][1] << " " << l_b[0][1] << " " << l_b[0][2] << "\n";
 	std::cout << l_time << "\n";
-	}
+	}	/**/
+
 	return 0;
 }
 
