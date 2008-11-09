@@ -8,11 +8,20 @@
 
 #pragma once
 
+///	stream
+/**	[TODO]
+ */
+struct stream {
+	virtual ~stream() {}
+	virtual u8 get() = 0;
+};
+
 ///	tagstream
 /**	[TODO]
  */
 struct tagstream {
-	tagstream(std::istream &_stream);
+	template<typename _Stream> inline tagstream(_Stream &_stream);
+	~tagstream();
 	inline bool good() const { return m_version != bad_ID; }
 	inline uint version() const { return m_version; }
 	inline uint lingth() const { return m_length; }
@@ -24,13 +33,14 @@ struct tagstream {
 	bool read_bit();
 	void skip(uint _bytes);
 private:
-	std::istream &m_stream;
+	stream &m_stream;
 	u8 m_byte, m_bit;
 	uint m_version, m_length;
 	bool m_compressed;
 	sint2 m_frame_size;
 	real m_frame_rate;
 	uint m_frame_count;
+	void m_read_header();
 };
 
 ///

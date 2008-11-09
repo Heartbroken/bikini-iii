@@ -12,9 +12,10 @@ namespace bk { /*---------------------------------------------------------------
 
 namespace swf { /*-------------------------------------------------------------------------------*/
 
-tagstream::tagstream(std::istream &_stream) :
-	m_stream(_stream), m_bit(u8(-1))
-{
+tagstream::~tagstream() {
+	delete &m_stream;
+}
+void tagstream::m_read_header() {
 	SWFHEADER l_header; *this >> l_header;
 	if(l_header.version != bad_ID) {
 		m_version = l_header.version;
