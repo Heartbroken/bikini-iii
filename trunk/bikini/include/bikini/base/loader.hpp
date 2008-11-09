@@ -11,7 +11,7 @@
 struct loader {
 	~loader();
 	uint open(const char* _name);
-	voin close(uint _ID);
+	void close(uint _ID);
 	u8 get(uint _ID);
 private:
 	std::vector<std::ifstream*> m_streams;
