@@ -428,6 +428,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\loader.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\manager.hpp"
 				>
 			</File>
