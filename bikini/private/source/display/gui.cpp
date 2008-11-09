@@ -22,7 +22,7 @@ bool gui::create(const astr &_name) {
 	m_screen_ID = spawn(sl_screen);
 	//
 	astr l_file = astr("data/gui/") + _name + ".swf";
-	std::ifstream l_stream(l_file.data()/*, std::ios_base::in|std::ios_base::binary*/);
+	std::fstream l_stream(l_file.data()/*, std::ios_base::in|std::ios_base::binary*/);
 	if(l_stream.good()) {
 		swf::tagstream l_tags(l_stream);
 		if(l_tags.good()) {

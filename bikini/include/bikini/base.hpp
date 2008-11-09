@@ -58,5 +58,6 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/variant.hpp"
 #include "base/manager.hpp"
 #include "base/fsm.hpp"
+#include "base/loader.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/
