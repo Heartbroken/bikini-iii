@@ -39,13 +39,13 @@ inline uint gui::rect::width() const {
 inline uint gui::rect::height() const {
 	return bottom() - top();
 }
-inline const gui::point& gui::rect::lefttop() const {
+inline const gui::rect::point& gui::rect::lefttop() const {
 	return m_lt;
 }
-inline const gui::point& gui::rect::rightbottom() const {
+inline const gui::rect::point& gui::rect::rightbottom() const {
 	return m_rb;
 }
-inline const gui::point gui::rect::size() const {
+inline const gui::rect::point gui::rect::size() const {
 	return rightbottom() - lefttop();
 }
 inline gui::rect& gui::rect::operator = (const rect &_r) {
@@ -99,11 +99,12 @@ inline const gui::rect gui::element::abs_rect() const {
 }
 inline const gui::rect gui::element::clip_rect() const {
 	rect l_r = abs_rect();
-	const element *l_e_p = this;
-	while(l_e_p->has_parent()) {
-		l_e_p = &l_e_p->get_parent();
-		if(l_e_p->clip()) l_r = l_r & l_e_p->abs_rect();
-	}
+	if(has_parent() && get_parent().clip()) l_r = l_r & get_parent().clip_rect();
+	//const element *l_e_p = this;
+	//while(l_e_p->has_parent()) {
+	//	l_e_p = &l_e_p->get_parent();
+	//	if(l_e_p->clip()) l_r = l_r & l_e_p->abs_rect();
+	//}
 	return l_r;
 }
 inline void gui::element::add_kid(uint _ID) {

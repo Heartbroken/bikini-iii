@@ -157,17 +157,17 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// unary minus
 	inline const matrix_ operator - () const;
 	/// add
-	friend inline const matrix_ operator + (const matrix_ &_a, const matrix_ &_b);
+	template<u8> friend inline const matrix_ operator + (const matrix_ &_a, const matrix_ &_b);
 	/// add assign
 	inline matrix_& operator += (const matrix_ &_b);
 	/// subtract
-	friend inline const matrix_ operator - (const matrix_ &_a, const matrix_ &_b);
+	template<u8> friend inline const matrix_ operator - (const matrix_ &_a, const matrix_ &_b);
 	/// subtract assign
 	inline matrix_& operator -= (const matrix_ &_b);
 	/// multiply by scalar
-	friend inline const matrix_ operator * (const matrix_ &_a, _Type _b);
+	template<u8> friend inline const matrix_ operator * (const matrix_ &_a, _Type _b);
 	/// multiply by scalar
-	friend inline const matrix_ operator * (_Type _a, const matrix_ &_b);
+	template<u8> friend inline const matrix_ operator * (_Type _a, const matrix_ &_b);
 	/// multiply assign
 	inline matrix_& operator *= (_Type _b);
 	/// multiply martices
@@ -175,11 +175,11 @@ struct matrix_ : matrix_<_Height - 1, _Width, _Type> {
 	/// get transposed matrix
 	inline const matrix_<_Width, _Height, _Type> operator ~ () const;
 	/// dot product
-	friend inline const matrix_ operator | (const matrix_ &_a, const matrix_ &_b);
+	template<u8> friend inline const _Type operator | (const matrix_ &_a, const matrix_ &_b);
 	/// cross product
-	friend inline const cross_type operator ^ (const matrix_ &_a, const matrix_ &_b);
+	template<u8> friend inline const cross_type operator ^ (const matrix_ &_a, const matrix_ &_b);
 	/// compare matrices
-	friend inline bool operator == (const matrix_ &_a, const matrix_ &_b);
+	template<u8> friend inline bool operator == (const matrix_ &_a, const matrix_ &_b);
 	///
 	inline operator const row_type () const;
 	// some aux functions
@@ -255,6 +255,8 @@ typedef matrix_<1, 3, real> r1x3, real3;
 typedef matrix_<1, 4, real> r1x4, real4;
 /// 2x2 matrix of real
 typedef matrix_<2, 2, real> r2x2;
+/// 3x2 matrix of real
+typedef matrix_<3, 2, real> r3x2;
 /// 3x3 matrix of real
 typedef matrix_<3, 3, real> r3x3;
 /// 4x3 matrix of real
@@ -300,6 +302,8 @@ const r1x4 r1x4_w(r_0, r_0, r_0, r_1);
 const r2x2 r2x2_0(r1x2_0, r1x2_0);
 /// unit 2x2 matrix of real
 const r2x2 r2x2_1(r1x2_x, r1x2_y);
+/// unit 3x2 matrix of real
+const r3x2 r3x2_1(r1x2_x, r1x2_y, r1x2_0);
 /// zero 3x3 matrix of real
 const r3x3 r3x3_0(r1x3_0, r1x3_0, r1x3_0);
 /// unit 3x3 matrix of real
@@ -312,5 +316,23 @@ const r4x3 r4x3_1(r1x3_x, r1x3_y, r1x3_z, r1x3_0);
 const r4x4 r4x4_0(r1x4_0, r1x4_0, r1x4_0, r1x4_0);
 /// unit 4x4 matrix of real
 const r4x4 r4x4_1(r1x4_x, r1x4_y, r1x4_z, r1x4_w);
+
+/// 1x1 matrix of sint
+typedef matrix_<1, 1, sint> s1x1, sint1;
+/// 1x2 matrix of sint
+typedef matrix_<1, 2, sint> s1x2, sint2;
+
+/// zero 1x1 matrix of sint
+const s1x1 s1x1_0(s_0);
+/// unit 1x1 matrix of sint
+const s1x1 s1x1_1(s_1);
+/// [0 0] vector of sint
+const s1x2 s1x2_0(s_0, s_0);
+/// [1 1] vector of sint
+const s1x2 s1x2_1(s_1, s_1);
+/// [1 0] vector of sint
+const s1x2 s1x2_x(s_1, s_0);
+/// [0 1] vector of sint
+const s1x2 s1x2_y(s_0, s_1);
 
 #include "matrix.inl"

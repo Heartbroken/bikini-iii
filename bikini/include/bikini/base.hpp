@@ -51,6 +51,7 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/matrix.hpp"
 #include "base/quat.hpp"
 #include "base/color.hpp"
+#include "base/rect.hpp"
 #include "base/random.hpp"
 #include "base/GUID.hpp"
 #include "base/functor.hpp"

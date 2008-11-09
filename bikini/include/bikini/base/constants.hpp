@@ -10,6 +10,10 @@
 
 /// bad ID
 const uint bad_ID = uint(-1);
+/// sint 0
+const sint s_0 = sint(0);
+/// sint 1
+const sint s_1 = sint(1);
 /// real 0
 const real r_0 = real(0);
 /// real 1

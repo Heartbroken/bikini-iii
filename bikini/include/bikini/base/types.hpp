@@ -8,7 +8,7 @@
 
 #pragma once
 
-// bikini.ii types
+// types with exact size
 typedef unsigned char		u8, byte;
 typedef char				s8;
 typedef unsigned short		u16;
@@ -19,6 +19,8 @@ typedef unsigned __int64	u64;
 typedef __int64				s64;
 typedef float				f32;
 typedef double				f64;
+
+/// string
 typedef std::string			str;
 
 /// unsigned integer number
