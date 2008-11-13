@@ -23,7 +23,6 @@ uint loader::open(const wchar* _path) {
 	std::ifstream &l_stream = * new std::ifstream(_path);
 	if(l_stream.good()) {
 		file l_file; l_file.stream_p = &l_stream;
-		const uint ID_half_size = sizeof(uint) / 2;
 		uint l_index;
 		if(m_free_IDs.empty()) {
 			l_index = m_files.size();
