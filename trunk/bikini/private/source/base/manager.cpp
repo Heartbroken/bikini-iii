@@ -22,18 +22,17 @@ manager::~manager() {
 }
 
 uint manager::add(object &_object) {
-	uint l_ID = bad_ID;
+	uint l_index;
 	if(m_free_IDs.empty()) {
 		assert(m_objects.size() < index_mask);
-		l_ID = m_objects.size();
+		l_index = m_objects.size();
 		m_objects.push_back(&_object);
 	} else {
-		l_ID = m_free_IDs.back(); m_free_IDs.pop_back();
-		assert(l_ID < m_objects.size());
-		m_objects[l_ID] = &_object;
+		l_index = m_free_IDs.back(); m_free_IDs.pop_back();
+		assert(l_index < m_objects.size());
+		m_objects[l_index] = &_object;
 	}
-	l_ID = l_ID | (m_counter << ID_half_size);
-	m_counter = m_counter++ & index_mask;
+	uint l_ID = (++m_counter << ID_half_size) | l_index;
 	return l_ID;
 }
 
