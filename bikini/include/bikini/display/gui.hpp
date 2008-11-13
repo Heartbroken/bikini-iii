@@ -35,7 +35,7 @@ struct gui : manager {
 	};
 	struct exposer {
 		virtual uint create_bitmap(pointer _data);
-		virtual uint create_bitmap(const str &_path);
+		virtual uint create_bitmap(const astring &_path);
 	};
 	struct element : manager::object {
 		struct info : manager::object::info {
@@ -103,7 +103,7 @@ struct gui : manager {
 	inline uint screen_ID() const;
 	gui();
 	~gui();
-	bool create(const astr &_name);
+	bool create(const astring &_name);
 	void destroy();
 	bool expose(exposer &_exposer) const;
 	bool render(window &_window) const;

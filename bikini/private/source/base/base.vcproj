@@ -336,6 +336,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\loader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\manager.cpp"
 				>
 			</File>

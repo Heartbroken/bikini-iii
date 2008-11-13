@@ -17,11 +17,11 @@ gui::gui() :
 gui::~gui() {
 	assert(m_screen_ID == bad_ID);
 }
-bool gui::create(const astr &_name) {
+bool gui::create(const astring &_name) {
 	static ge::screen::info sl_screen;
 	m_screen_ID = spawn(sl_screen);
 	//
-	astr l_file = astr("data/gui/") + _name + ".swf";
+	astring l_file = astring("data/gui/") + _name + ".swf";
 	std::fstream l_stream(l_file.data()/*, std::ios_base::in|std::ios_base::binary*/);
 	if(l_stream.good()) {
 		swf::tagstream l_tags(l_stream);

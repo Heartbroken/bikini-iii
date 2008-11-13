@@ -150,8 +150,8 @@ struct FB {
 };
 ///
 struct STRING {
-	wstr v;
-	inline operator wstr () const { return v; }
+	wstring v;
+	inline operator wstring () const { return v; }
 	friend tagstream& operator >> (tagstream &_s, STRING &_v);
 };
 ///

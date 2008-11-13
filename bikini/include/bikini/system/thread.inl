@@ -218,7 +218,7 @@ inline void task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::clear()
 
 // flag
 
-inline flag::flag(bool _reset, bool _state, const astr &_name) : m_handle(CreateEventA(0, _reset, _state, _name.c_str())) {
+inline flag::flag(bool _reset, bool _state, const astring &_name) : m_handle(CreateEventA(0, _reset, _state, _name.c_str())) {
 }
 inline flag::~flag() {
 	if(m_handle != 0) CloseHandle(m_handle);
@@ -239,7 +239,7 @@ inline bool flag::wait(real _timeout) {
 
 // mutex
 
-inline mutex::mutex(bool _owned, const astr &_name) : m_handle(CreateMutexA(0, _owned, _name.c_str())) {
+inline mutex::mutex(bool _owned, const astring &_name) : m_handle(CreateMutexA(0, _owned, _name.c_str())) {
 }
 inline mutex::~mutex() {
 	if(m_handle != 0) CloseHandle(m_handle);
