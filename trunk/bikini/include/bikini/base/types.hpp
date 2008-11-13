@@ -20,9 +20,6 @@ typedef __int64				s64;
 typedef float				f32;
 typedef double				f64;
 
-/// string
-typedef std::string			str;
-
 /// unsigned integer number
 typedef uintptr_t			uint;
 /// signed integer number
@@ -43,8 +40,11 @@ typedef float				real;
 typedef void*				handle;
 typedef const void*			pointer;
 
-typedef std::string			astr;
-typedef std::wstring		wstr;
+typedef char				achar;
+typedef wchar_t				wchar;
+
+typedef std::string			astring;
+typedef std::wstring		wstring;
 
 /// type selector template
 template<bool _C, typename _T0, typename _T1>

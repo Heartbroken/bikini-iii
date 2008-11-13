@@ -61,7 +61,7 @@ typedef task_<void> task;
  */
 struct flag : uncopyble {
 	/// constructor
-	inline flag(bool _reset = false, bool _state = false, const astr &_name = "");
+	inline flag(bool _reset = false, bool _state = false, const astring &_name = "");
 	/// destructor
 	inline ~flag();
 	/// set event signaled state
@@ -78,7 +78,7 @@ private:
 /**	
  */
 struct mutex {
-	inline mutex(bool _owned = false, const astr &_name = "");
+	inline mutex(bool _owned = false, const astring &_name = "");
 	inline ~mutex();
 	inline bool take(real _timeout = infinity);
 	inline void drop();

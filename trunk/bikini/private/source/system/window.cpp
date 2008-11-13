@@ -99,10 +99,10 @@ void window::show(bool _yes) {
 void window::hide() {
 	ShowWindow(m_handle, SW_HIDE);
 }
-void window::set_caption(const wstr &_s) {
+void window::set_caption(const wstring &_s) {
 	SetWindowTextW(m_handle, _s.c_str());
 }
-void window::set_caption(const astr &_s) {
+void window::set_caption(const astring &_s) {
 	SetWindowTextA(m_handle, _s.c_str());
 }
 void window::set_size(uint _width, uint _height) {
