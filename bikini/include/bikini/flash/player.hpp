@@ -8,5 +8,14 @@
 
 #pragma once
 
-struct player {
+///	flash player
+/**	[TODO]
+ */
+struct player : manager {
+	struct object : manager::object {
+		struct info : manager::object::info {
+			typedef player manager;
+			info(uint _type);
+		};
+	};
 };
