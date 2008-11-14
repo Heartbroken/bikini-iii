@@ -52,30 +52,18 @@ struct task0 : bk::application::task {
 };
 
 #if defined(XBOX)
-void main()
-#elif defined(WIN32)
-int _tmain(int argc, _TCHAR* argv[])
-#endif
-{
-	bk::variant_<bk::fundamentals, false> l_v;
-	l_v = true;
-	l_v = 1;
-	l_v = 1.f;
-	l_v = 1.0;
-	bk::variant_<bk::fundamentals, false> l_v1(1.0);
-	bool l_b0 = l_v == l_v1;
-	bool l_b1 = l_v.can_take(0.0);
-	bk::real l_r = l_v.get<double>();
-	bk::real2 l_a = bk::r1x2_0, l_b = bk::r1x2_x, l_c = l_a + l_b * bk::real(3);
-	{
+void main() {
 	bk::application l_app;
 	task0::info l_task0;
 	l_app.spawn(l_task0);
-	//l_app.spawn(l_task0);
 	l_app.run();
-	}
-#if defined(WIN32)
-	return 0;
-#endif
 }
-
+#elif defined(WIN32)
+int _tmain(int argc, _TCHAR* argv[]) {
+	bk::application l_app;
+	task0::info l_task0;
+	l_app.spawn(l_task0);
+	l_app.run();
+	return 0;
+}
+#endif
