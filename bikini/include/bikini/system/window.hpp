@@ -11,9 +11,9 @@
 struct window {
 	window(video &_video);
 	virtual ~window();
-#	if defined(XBOX)
-	bool create();
-#	elif defined(WIN32)
+//#	if defined(XBOX)
+//	bool create();
+//#	elif defined(WIN32)
 	bool create(uint _width, uint _height, HICON _icon = 0);
 	bool create(HWND _handle);
 	HWND get_handle();
@@ -22,7 +22,7 @@ struct window {
 	void set_caption(const wstring &_s);
 	void set_caption(const astring &_s);
 	void set_size(uint _width, uint _height);
-#	endif
+//#	endif
 	uint width() const;
 	uint height() const;
 	bool update(real _dt);

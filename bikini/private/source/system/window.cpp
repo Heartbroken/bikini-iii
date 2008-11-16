@@ -43,20 +43,21 @@ window::window(video &_video) :
 }
 window::~window() {
 }
-#if defined(XBOX)
-bool window::create() {
-	if(!m_video.ready()) return false;
-	m_screen.ID = m_video.spawn(m_screen.info);
-	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info);
-	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
-	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
-	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
-	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
-	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
-	return true;
-}
-#elif defined(WIN32)
+//#if defined(XBOX)
+//bool window::create() {
+//	if(!m_video.ready()) return false;
+//	m_screen.ID = m_video.spawn(m_screen.info);
+//	m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info);
+//	m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
+//	m_rstates.ID = m_rstates.def_ID = m_video.spawn(m_rstates.info);
+//	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
+//	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
+//	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
+//	return true;
+//}
+//#elif defined(WIN32)
 bool window::create(uint _width, uint _height, HICON _icon) {
+#	if defined(WIN32)
 	HINSTANCE l_instance = GetModuleHandleA(0);
     WNDCLASSW l_window_class = { CS_HREDRAW|CS_VREDRAW, window::window_proc, 0, 0, l_instance, _icon, LoadCursor(NULL, IDC_ARROW), (HBRUSH)GetStockObject(BLACK_BRUSH), NULL, L"bikini-iii window" };
     RegisterClassW(&l_window_class);
@@ -72,8 +73,10 @@ bool window::create(uint _width, uint _height, HICON _icon) {
 	m_vshader.ID = m_vshader.def_ID = m_video.spawn(m_vshader.info);
 	m_pshader.ID = m_pshader.def_ID = m_video.spawn(m_pshader.info);
 	m_vbuffer.start = m_vbuffer.used = 0; m_vbuffer.data = 0;
+#	endif
 	return true;
 }
+#if defined(WIN32)
 bool window::create(HWND _handle) {
 	m_handle = _handle;
 	m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
