@@ -25,7 +25,7 @@ uint player::play(const wchar* _movie_path, uint _layer) {
 	}
 	return l_layer;
 }
-bool player::pause(uint _layer) {
+bool player::pause(uint _layer, bool _yes) {
 	return true;
 }
 bool player::stop(uint _layer) {

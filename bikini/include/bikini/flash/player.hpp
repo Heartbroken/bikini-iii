@@ -32,7 +32,7 @@ struct player : manager {
 	template<typename _Loader> inline void set_loader(_Loader &_loader);
 	inline loader& get_loader() const;
 	uint play(const wchar* _movie_path, uint _layer = bad_ID);
-	bool pause(uint _layer);
+	bool pause(uint _layer, bool _yes = true);
 	bool stop(uint _layer);
 	bool show(uint _layer);
 	bool hide(uint _layer);
