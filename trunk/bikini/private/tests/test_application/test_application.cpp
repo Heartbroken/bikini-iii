@@ -16,16 +16,17 @@ struct task0 : bk::application::task {
 		bk::application::task(_info, _application)
 	{}
 	void main() {
+		//
+		bk::flash::player l_player;
+		bk::flash::movie l_movie;
+		l_movie.load(L"data/gui/test.swf");
+		//
 		bk::video l_video;
 		l_video.create();
 		bk::window l_window(l_video);
-#if defined(XBOX)
-		l_window.create();
-#elif defined(WIN32)
 		l_window.create(1024U, 640U);
 		l_window.set_caption("test_application ");
 		l_window.show();
-#endif
 		l_window.clear();
 		bk::gui l_gui;
 		l_gui.create("test");

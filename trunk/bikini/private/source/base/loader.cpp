@@ -31,34 +31,34 @@ uint loader::open(const wchar* _path) {
 			l_index = m_free_IDs.back(); m_free_IDs.pop_back();
 			m_files[l_index] = l_file;
 		}
-		l_file.ID = (++m_counter << (sizeof(uint) / 2)) | l_index;
+		l_file.ID = (++m_counter << (sizeof(uint) * 8 / 2)) | l_index;
 		return l_file.ID;
 	}
 	delete &l_stream;
 	return bad_ID;
 }
 bool loader::good(uint _ID) const {
-	uint l_index = _ID & (bad_ID >> (sizeof(uint) / 2));
+	uint l_index = _ID & (bad_ID >> (sizeof(uint) * 8 / 2));
 	if(l_index > m_files.size() || m_files[l_index].ID != _ID || m_files[l_index].stream_p == 0) return false;
 	std::ifstream &l_stream = *m_files[l_index].stream_p;
 	return l_stream.good();
 }
 uint loader::seek(uint _ID, sint _offset, uint _from) {
-	uint l_index = _ID & (bad_ID >> (sizeof(uint) / 2));
+	uint l_index = _ID & (bad_ID >> (sizeof(uint) * 8 / 2));
 	if(l_index > m_files.size() || m_files[l_index].ID != _ID || m_files[l_index].stream_p == 0) return bad_ID;
 	std::ifstream &l_stream = *m_files[l_index].stream_p;
 	if(_offset != 0) l_stream.seekg(_offset, _from);
 	return l_stream.tellg();
 }
 uint loader::read(uint _ID, handle _buffer, uint _length) {
-	uint l_index = _ID & (bad_ID >> (sizeof(uint) / 2));
+	uint l_index = _ID & (bad_ID >> (sizeof(uint) * 8 / 2));
 	if(l_index > m_files.size() || m_files[l_index].ID != _ID || m_files[l_index].stream_p == 0) return bad_ID;
 	std::ifstream &l_stream = *m_files[l_index].stream_p;
 	l_stream.read((achar*)_buffer, _length);
 	return l_stream.gcount();
 }
 void loader::close(uint _ID) {
-	uint l_index = _ID & (bad_ID >> (sizeof(uint) / 2));
+	uint l_index = _ID & (bad_ID >> (sizeof(uint) * 8 / 2));
 	if(l_index > m_files.size() || m_files[l_index].ID != _ID || m_files[l_index].stream_p == 0) return;
 	std::ifstream &l_stream = *m_files[l_index].stream_p;
 	l_stream.close();

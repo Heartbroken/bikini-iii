@@ -175,7 +175,19 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\movie.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\movie.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\player.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\player.inl"
 				>
 			</File>
 		</Filter>
@@ -194,6 +206,10 @@
 			>
 			<File
 				RelativePath="..\..\..\include\bikini\flash.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\movie.hpp"
 				>
 			</File>
 			<File
