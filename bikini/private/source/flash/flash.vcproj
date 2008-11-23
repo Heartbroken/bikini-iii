@@ -155,6 +155,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\clip.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\flash.cpp"
 				>
 				<FileConfiguration
@@ -187,7 +191,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\player.inl"
+				RelativePath="..\..\..\include\bikini\flash\player.inl"
+				>
+			</File>
+			<File
+				RelativePath=".\shape.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\swfstream.cpp"
 				>
 			</File>
 		</Filter>
@@ -205,6 +217,10 @@
 			Name="interface"
 			>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\clip.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash.hpp"
 				>
 			</File>
@@ -213,7 +229,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\objects.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash\player.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\shape.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\swfstream.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\swftagcodes.hpp"
 				>
 			</File>
 		</Filter>

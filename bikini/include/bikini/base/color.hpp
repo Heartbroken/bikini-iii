@@ -36,4 +36,25 @@ const color yellow(r_1, r_1, r_0);
 const color cyan(r_0, r_1, r_1);
 const color magenta(r_1, r_0, r_1);
 
+/// cxform
+template<typename _Type>
+struct cxform_ {
+	typedef color_<_Type> color;
+	inline cxform_() : m_mul(white), m_add(black) {}
+	inline cxform_(const color &_mul, const color &_add) : m_mul(_mul), m_add(_add) {}
+	inline const color transform(const color &_c) const {
+		return color(
+			clamp(_c.r * m_mul.r + m_add.r, _Type(0), _Type(1)),
+			clamp(_c.g * m_mul.g + m_add.g, _Type(0), _Type(1)),
+			clamp(_c.b * m_mul.b + m_add.b, _Type(0), _Type(1)),
+			clamp(_c.a * m_mul.a + m_add.a, _Type(0), _Type(1))
+		);
+	}
+	//friend inline const color operator * (const color &_c, const cxform &_x) {
+	//}
+private:
+	color m_mul, m_add;
+};
+typedef cxform_<real> cxform;
+
 #include "color.inl"

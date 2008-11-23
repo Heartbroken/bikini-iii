@@ -16,7 +16,7 @@ struct player : manager {
 		virtual ~loader() {}
 		virtual uint open(const wchar* _path) = 0;
 		virtual bool good(uint _ID) const = 0;
-		virtual uint seek(uint _ID, sint _offset = 0, uint _from = 0) = 0;
+		virtual uint seek(uint _ID, sint _offset = 0, uint _from = 1) = 0;
 		virtual uint read(uint _ID, handle _buffer, uint _length) = 0;
 		virtual void close(uint _ID) = 0;
 	};
@@ -28,18 +28,26 @@ struct player : manager {
 			typedef player manager;
 			info(uint _type);
 		};
+		object(const info &_info, player &_player);
+		inline player& get_player() const;
+		uint open_stream(const wchar* _path) const;
 	};
+	player();
+	~player();
 	template<typename _Loader> inline void set_loader(_Loader &_loader);
 	inline loader& get_loader() const;
-	uint play(const wchar* _movie_path, uint _layer = bad_ID);
-	bool pause(uint _layer, bool _yes = true);
-	bool stop(uint _layer);
-	bool show(uint _layer);
-	bool hide(uint _layer);
 	bool update(real _dt);
-	bool render(uint _layer = bad_ID);
+	uint play(const wchar* _path, uint _level = bad_ID);
+	uint play(const achar* _path, uint _level = bad_ID);
+	bool pause(uint _level = bad_ID);
+	bool stop(uint _level = bad_ID);
+	bool show(uint _level = bad_ID);
+	bool hide(uint _level = bad_ID);
+	bool render(uint _level = bad_ID);
 private:
 	loader *m_loader_p;
 	bk::loader m_def_loader;
-	std::vector<uint> m_layers;
+	std::vector<uint> m_levels;
 };
+
+#include "player.inl"

@@ -8,21 +8,16 @@
 
 #pragma once
 
-struct movie : player::object {
+struct shape : player::object {
 	struct info : player::object::info {
-		typedef movie object;
-		typedef const wchar* a0;
+		typedef shape object;
+		typedef uint a0;
+		typedef tag::code a1;
 		info();
 	};
-	movie(const info &_info, player &_player, const wchar* _path);
-	~movie();
-	void define_shape(uint _swfstream_ID, tag::code _type);
-	void define_clip(uint _swfstream_ID);
+	shape(const info &_info, player &_player, uint _swfstream_ID, tag::code _type);
+	~shape();
 private:
-	sint2 m_frame_size;
-	real m_frame_rate;
-	uint m_mainclip_ID;
-	std::vector<uint> m_defines;
+	uint m_swfstream_ID;
+	rect m_rect;
 };
-
-#include "movie.inl"
