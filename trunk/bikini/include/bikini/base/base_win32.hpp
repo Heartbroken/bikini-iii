@@ -54,3 +54,7 @@
 #ifdef UNICODE
 #	undef UNICODE
 #endif
+
+#ifdef RGB
+#	undef RGB
+#endif

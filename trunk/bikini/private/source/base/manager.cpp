@@ -71,6 +71,7 @@ uint manager::get_next_ID(uint _prev_ID, uint _type /*= bad_ID*/) const {
 void manager::kill(uint _ID) {
 	assert(exists(_ID) && get(_ID).ref_count() == 0);
 	delete m_objects[_ID & index_mask];
+	m_objects[_ID & index_mask] = 0;
 }
 uint manager::release(uint _ID) {
 	if(exists(_ID) && get(_ID).ref_count() > 0) return get(_ID).release();

@@ -33,7 +33,7 @@ struct loader {
 		to _from (0 - from begin, 1 - from current, 2 - from end). return current
 		absolute position or uint(-1) if failed
 	 */
-	uint seek(uint _ID, sint _offset = 0, uint _from = 0);
+	uint seek(uint _ID, sint _offset = 0, uint _from = 1);
 
 	/// read from a file
 	/**	read _length bytes from the file specified by _ID to _buffer

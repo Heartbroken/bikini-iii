@@ -16,11 +16,6 @@ struct task0 : bk::application::task {
 		bk::application::task(_info, _application)
 	{}
 	void main() {
-		//
-		bk::flash::player l_player;
-		bk::flash::movie l_movie;
-		l_movie.load(L"data/gui/test.swf");
-		//
 		bk::video l_video;
 		l_video.create();
 		bk::window l_window(l_video);
@@ -28,11 +23,8 @@ struct task0 : bk::application::task {
 		l_window.set_caption("test_application ");
 		l_window.show();
 		l_window.clear();
-		bk::gui l_gui;
-		l_gui.create("test");
-		l_gui.resize(l_window);
-		bk::ge::panel::info l_panel;
-		l_gui.spawn(l_panel, 100, 100, 100, 100, l_gui.screen_ID());
+		bk::flash::player l_player;
+		l_player.play("data/gui/test.swf");
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
@@ -40,13 +32,11 @@ struct task0 : bk::application::task {
 			l_video.update(l_dt);
 			if(!l_window.update(l_dt)) break;
 			// do something useful
-			l_gui.update(l_dt);
+			l_player.update(l_dt);
 			l_window.present();
-			l_gui.render(l_window);
 			//
 			l_ticker.sync();
 		}
-		l_gui.destroy();
 		l_window.destroy();
 		l_video.destroy();
 	}
