@@ -8,14 +8,11 @@
 
 #pragma once
 
-struct shape : player::object {
-	struct info : player::object::info {
-		typedef shape object;
-		info(swfstream &_s, tag::type _type);
-	private:
-		rect m_rect;
-	};
-	shape(const info &_info, player &_player);
-	~shape();
-private:
+struct loader {
+	virtual ~loader() {}
+	virtual uint open(const wchar* _path) = 0;
+	virtual bool good(uint _ID) const = 0;
+	virtual uint seek(uint _ID, sint _offset = 0, uint _from = 1) = 0;
+	virtual uint read(uint _ID, handle _buffer, uint _length) = 0;
+	virtual void close(uint _ID) = 0;
 };

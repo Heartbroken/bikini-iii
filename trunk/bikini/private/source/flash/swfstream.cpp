@@ -12,22 +12,19 @@ namespace bk { /*---------------------------------------------------------------
 
 namespace flash { /*-----------------------------------------------------------------------------*/
 
-namespace po { /*--------------------------------------------------------------------------------*/
-
 // swfstream
 
-swfstream::swfstream(const info &_info, player &_player, const wchar* _path) :
-	player::object(_info, _player),
-	m_path(_path), m_position(0)
+swfstream::swfstream(loader &_loader, const wchar* _path) :
+	m_loader(_loader), m_path(_path), m_position(0)
 {
-	m_file_ID = _player.get_loader().open(_path);
+	m_file_ID = m_loader.open(_path);
 	if(m_file_ID != bad_ID) {
 		u8 l_b0 = BYTE(), l_b1 = BYTE(), l_b2 = BYTE();
 		if((l_b0 == 0x46 || l_b0 == 0x43) && l_b1 == 0x57 && l_b2 == 0x53) { // "FWS" or "CWS"
 			m_version = UI8(); m_length = UI32();
 			m_compressed = (l_b0 == 0x43);
 		} else {
-			_player.get_loader().close(m_file_ID);
+			m_loader.close(m_file_ID);
 			m_file_ID = bad_ID;
 			m_version = bad_ID;
 			std::cerr << "ERROR: Bad SWF file header\n";
@@ -35,16 +32,16 @@ swfstream::swfstream(const info &_info, player &_player, const wchar* _path) :
 	}
 }
 swfstream::~swfstream() {
-	if(m_file_ID != bad_ID) get_player().get_loader().close(m_file_ID);
+	if(m_file_ID != bad_ID) m_loader.close(m_file_ID);
 }
 uint swfstream::seek(sint _offset, uint _from) {
-	return get_player().get_loader().seek(m_file_ID, _offset, _from);
+	return m_loader.seek(m_file_ID, _offset, _from);
 }
 void swfstream::align() {
 	m_bit = u8(-1);
 }
 u8 swfstream::BYTE() {
-	get_player().get_loader().read(m_file_ID, &m_byte, 1);
+	m_loader.read(m_file_ID, &m_byte, 1);
 	m_bit = u8(-1);
 	return m_byte;
 }
@@ -204,24 +201,17 @@ cxform swfstream::CXFORMWITHALPHA() {
 	}
 	return cxform(l_m, l_a);
 }
-swfstream::record swfstream::RECORD() {
-	record l_v;
-	uint l_c = UI16();
-	l_v.type = (tag::code)((l_c & 0xffc0) >> 6);
-	l_v.length = l_c & 0x3f;
-	if(l_v.length == 0x3f) {
-		sint l_l = SI32();
-		l_v.length = l_l;
-	}
-	return l_v;
-}
-
-// swfstream::info
-
-swfstream::info::info() : player::object::info(ot::swfstream) {
-}
-
-} /* namespace po -------------------------------------------------------------------------------*/
+//swfstream::record swfstream::RECORD() {
+//	record l_v;
+//	uint l_c = UI16();
+//	l_v.type = (tag::code)((l_c & 0xffc0) >> 6);
+//	l_v.length = l_c & 0x3f;
+//	if(l_v.length == 0x3f) {
+//		sint l_l = SI32();
+//		l_v.length = l_l;
+//	}
+//	return l_v;
+//}
 
 } /* namespace flash ----------------------------------------------------------------------------*/
 

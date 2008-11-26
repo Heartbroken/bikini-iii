@@ -17,8 +17,6 @@ namespace ot { enum object_type {
 	shape,
 };}
 
-#include "swftagcodes.hpp"
-#include "swfstream.hpp"
 #include "movie.hpp"
 #include "clip.hpp"
 #include "shape.hpp"

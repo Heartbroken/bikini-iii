@@ -20,6 +20,10 @@ namespace bk { /*---------------------------------------------------------------
 
 namespace flash { /*-----------------------------------------------------------------------------*/
 
+#include "flash/loader.hpp"
+#include "flash/renderer.hpp"
+#include "flash/swftagtypes.hpp"
+#include "flash/swfstream.hpp"
 #include "flash/player.hpp"
 #include "flash/objects.hpp"
 
