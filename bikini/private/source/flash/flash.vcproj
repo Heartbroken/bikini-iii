@@ -225,6 +225,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\loader.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash\movie.hpp"
 				>
 			</File>
@@ -237,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\renderer.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash\shape.hpp"
 				>
 			</File>
@@ -245,7 +253,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\include\bikini\flash\swftagcodes.hpp"
+				RelativePath="..\..\..\include\bikini\flash\swftagtypes.hpp"
 				>
 			</File>
 		</Filter>

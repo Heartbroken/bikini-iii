@@ -12,17 +12,6 @@
 /**	[TODO]
  */
 struct player : manager {
-	struct loader {
-		virtual ~loader() {}
-		virtual uint open(const wchar* _path) = 0;
-		virtual bool good(uint _ID) const = 0;
-		virtual uint seek(uint _ID, sint _offset = 0, uint _from = 1) = 0;
-		virtual uint read(uint _ID, handle _buffer, uint _length) = 0;
-		virtual void close(uint _ID) = 0;
-	};
-	struct renderer {
-		virtual ~renderer() {}
-	};
 	struct object : manager::object {
 		struct info : manager::object::info {
 			typedef player manager;
@@ -30,13 +19,17 @@ struct player : manager {
 		};
 		object(const info &_info, player &_player);
 		inline player& get_player() const;
-		uint open_stream(const wchar* _path) const;
 	};
 	player();
 	~player();
-	template<typename _Loader> inline void set_loader(_Loader &_loader);
+	inline renderer& get_renderer() const;
 	inline loader& get_loader() const;
+	bool create(renderer &_renderer);
+	bool create(renderer &_renderer, loader &_loader);
+	template<typename _Renderer> inline bool create(_Renderer &_renderer);
+	template<typename _Renderer, typename _Loader> inline bool create(_Renderer &_renderer, _Loader &_loader);
 	bool update(real _dt);
+	void destroy();
 	uint play(const wchar* _path, uint _level = bad_ID);
 	uint play(const achar* _path, uint _level = bad_ID);
 	bool pause(uint _level = bad_ID);
@@ -45,9 +38,13 @@ struct player : manager {
 	bool hide(uint _level = bad_ID);
 	bool render(uint _level = bad_ID);
 private:
-	loader *m_loader_p;
+	renderer *m_renderer_p; bool m_delete_renderer;
+	loader *m_loader_p; bool m_delete_loader;
 	bk::loader m_def_loader;
 	std::vector<uint> m_levels;
+	std::vector<object::info*> m_movies;
+	std::vector<wstring> m_movie_names;
+	object::info& m_load_movie(const wchar* _path);
 };
 
 #include "player.inl"

@@ -14,46 +14,55 @@ namespace flash { /*------------------------------------------------------------
 
 namespace po { /*--------------------------------------------------------------------------------*/
 
+// record
+
+struct record {
+	tag::type type; uint length;
+};
+static record RECORD(swfstream &_s) {
+	record l_v;
+	uint l_c = _s.UI16();
+	l_v.type = (tag::type)((l_c & 0xffc0) >> 6);
+	l_v.length = l_c & 0x3f;
+	if(l_v.length == 0x3f) {
+		sint l_l = _s.SI32();
+		l_v.length = l_l;
+	}
+	return l_v;
+}
+
 // clip
 
-clip::clip(const info &_info, player &_player, uint _movie_ID, uint _swfstream_ID) :
-	player::object(_info, _player), m_movie_ID(_movie_ID), m_swfstream_ID(_swfstream_ID)
-{
-	player &l_player = get_player();
-	if(l_player.exists(m_movie_ID) && l_player.exists(m_swfstream_ID)) {
-		movie &l_movie = l_player.get<movie>(m_movie_ID);
-		swfstream &l_stream = l_player.get<swfstream>(m_swfstream_ID);
-		if(l_stream.good()) {
-			m_frame_count = l_stream.UI16();
-			while(true) {
-				swfstream::record l_record = l_stream.RECORD();
-				if(l_record.type == tag::End) break;
-				switch(l_record.type) {
-					case tag::DefineShape :
-					case tag::DefineShape2 :
-					case tag::DefineShape3 :
-					case tag::DefineShape4 : {
-						l_movie.define_shape(m_swfstream_ID, l_record.type);
-					} break;
-					case tag::DefineSprite : {
-						l_movie.define_clip(m_swfstream_ID);
-					} break;
-					default : l_stream.seek(l_record.length);
-				}
-			}
-		}
-	}
-}
+clip::clip(const info &_info, player &_player, uint _movie_ID) :
+	player::object(_info, _player), m_movie_ID(_movie_ID)
+{}
 clip::~clip() {
-	while(!m_frames.empty()) {
-		get_player().kill(m_frames.back());
-		m_frames.pop_back();
-	}
 }
 
 // clip::info
 
-clip::info::info() : player::object::info(ot::clip) {
+clip::info::info(movie::info &_movie, swfstream &_s) : player::object::info(ot::clip) {
+	if(_s.good()) {
+		m_frame_count = _s.UI16();
+		while(true) {
+			record l_record = RECORD(_s);
+			if(l_record.type == tag::End) break;
+			switch(l_record.type) {
+				case tag::DefineShape :
+				case tag::DefineShape2 :
+				case tag::DefineShape3 :
+				case tag::DefineShape4 : {
+					_movie.define_shape(_s, l_record.type);
+				} break;
+				case tag::DefineSprite : {
+					_movie.define_clip(_s);
+				} break;
+				default : {
+					_s.seek(l_record.length);
+				}
+			}
+		}
+	}
 }
 
 } /* namespace po -------------------------------------------------------------------------------*/

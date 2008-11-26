@@ -14,8 +14,10 @@ namespace flash { /*------------------------------------------------------------
 
 // player
 
-player::player() : m_loader_p(0) {
-}
+player::player() :
+	m_renderer_p(0), m_delete_renderer(false),
+	m_loader_p(0), m_delete_loader(false)
+{}
 player::~player() {
 	while(!m_levels.empty()) {
 		if(exists(m_levels.back())) kill(m_levels.back());
@@ -23,11 +25,30 @@ player::~player() {
 	}
 	delete m_loader_p;
 }
+bool player::create(renderer &_renderer) {
+	m_renderer_p = &_renderer;
+	m_delete_loader = true;
+	m_loader_p = new _player_loader_proxy_<bk::loader>(m_def_loader);
+	return true;
+}
+bool player::create(renderer &_renderer, loader &_loader) {
+	m_renderer_p = &_renderer;
+	m_loader_p = &_loader;
+	return true;
+}
 bool player::update(real _dt) {
 	return true;
 }
+void player::destroy() {
+	if(m_delete_renderer) delete m_renderer_p;
+	m_renderer_p = 0;
+	if(m_delete_loader) delete m_loader_p;
+	m_loader_p = 0;
+}
 uint player::play(const wchar* _path, uint _level) {
-	if(m_loader_p == 0) set_loader(m_def_loader);
+	assert(m_renderer_p != 0 && m_loader_p != 0);
+	if(m_renderer_p == 0 || m_loader_p == 0) return bad_ID;
+	po::movie::info &l_movie = static_cast<po::movie::info&>(m_load_movie(_path));
 	uint l_level = _level;
 	if(l_level > m_levels.size()) {
 		if(l_level == bad_ID) l_level = m_levels.size();
@@ -36,8 +57,7 @@ uint player::play(const wchar* _path, uint _level) {
 		if(exists(m_levels[l_level])) kill(m_levels[l_level]);
 		m_levels[l_level] = bad_ID;
 	}
-	static po::movie::info sl_movie;
-	m_levels[l_level] = spawn(sl_movie, _path);
+	m_levels[l_level] = spawn(l_movie);
 	return l_level;
 }
 uint player::play(const achar* _path, uint _level) {
@@ -61,16 +81,20 @@ bool player::hide(uint _level) {
 bool player::render(uint _level) {
 	return true;
 }
+player::object::info& player::m_load_movie(const wchar* _path) {
+	std::vector<wstring>::iterator l_it = std::find(m_movie_names.begin(), m_movie_names.end(), _path);
+	if(l_it != m_movie_names.end()) return *m_movies[l_it - m_movie_names.begin()];
+	m_movie_names.push_back(_path);
+	po::movie::info &l_movie = * new po::movie::info(swfstream(get_loader(), _path));
+	m_movies.push_back(&l_movie);
+	return l_movie;
+}
 
 // player::object
 
 player::object::object(const info &_info, player &_player) :
 	manager::object(_info, _player)
 {}
-uint player::object::open_stream(const wchar* _path) const {
-	static po::swfstream::info sl_swfstream;
-	return get_player().spawn(sl_swfstream, _path);
-}
 
 // player::object::info
 
