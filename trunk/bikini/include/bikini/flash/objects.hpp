@@ -11,7 +11,6 @@
 namespace po { /* player objects ----------------------------------------------------------------*/
 
 namespace ot { enum object_type {
-	swfstream,
 	movie,
 	clip,
 	shape,

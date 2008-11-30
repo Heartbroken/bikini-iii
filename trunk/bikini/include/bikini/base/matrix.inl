@@ -233,12 +233,12 @@ inline typename matrix_<_H, _W, _T>::component_type& matrix_<_H, _W, _T>::w() {
 }
 template<uint _H, uint _W, typename _T>
 inline const typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) const {
-	assert(_i < _H && _i < _W);
+	assert(_i < _H);
 	return *(&row<0>() + _i);
 }
 template<uint _H, uint _W, typename _T>
 inline typename matrix_<_H, _W, _T>::row_type& matrix_<_H, _W, _T>::operator [] (uint _i) {
-	assert(_i < _H && _i < _W);
+	assert(_i < _H);
 	return *(&row<0>() + _i);
 }
 template<uint _H, uint _W, typename _T>
@@ -479,6 +479,13 @@ template<uint _S, typename _T>
 inline const _T dot(const matrix_<1, _S, _T> &_a, const matrix_<1, _S, _T> &_b) {
 	return _vector_dot_helper_<_S, _T>::dot(_a, _b);
 }
+
+// vector length
+template<uint _S, typename _T>
+inline const _T length(const matrix_<1, _S, _T> &_a) {
+	return sqrt(dot(_a, _a));
+}
+
 
 // vectors cross product
 template<typename _T>

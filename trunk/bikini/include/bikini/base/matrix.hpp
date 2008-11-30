@@ -235,6 +235,10 @@ inline const matrix_<_Size, _Size, _Type> inverse(const matrix_<_Size, _Size, _T
 template<uint _Size, typename _Type>
 inline const _Type dot(const matrix_<1, _Size, _Type> &_a, const matrix_<1, _Size, _Type> &_b);
 
+/// vector length
+template<uint _Size, typename _Type>
+inline const _Type length(const matrix_<1, _Size, _Type> &_a);
+
 /// vectors cross product
 template<typename _Type>
 inline const matrix_<1, 2, _Type> cross(const matrix_<1, 2, _Type> &_a);

@@ -37,6 +37,9 @@ bool player::create(renderer &_renderer, loader &_loader) {
 	return true;
 }
 bool player::update(real _dt) {
+	for(uint i = 0, s = m_levels.size(); i < s; ++i) if(exists(m_levels[i])) {
+		get(m_levels[i]).update(_dt);
+	}
 	return true;
 }
 void player::destroy() {
@@ -78,7 +81,12 @@ bool player::show(uint _level) {
 bool player::hide(uint _level) {
 	return true;
 }
-bool player::render(uint _level) {
+bool player::render(uint _level) const {
+	for(uint i = 0, s = m_levels.size(); i < s; ++i) {
+		if((_level == bad_ID || _level == i) && exists(m_levels[i])) {
+			get<po::movie>(m_levels[i]).render();
+		}
+	}
 	return true;
 }
 player::object::info& player::m_load_movie(const wchar* _path) {

@@ -260,6 +260,40 @@ bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, 
 	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
 	return true;
 }
+void window::draw_line(const real2 &_s, const real2 &_e, const color &_c, real _width) {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return;
+	f32 l_length = (f32)length(_e - _s);
+	f1x4 l_p0(-.5f * (f32)_width, .5f * (f32)_width, 0, 1);
+	f1x4 l_p1(-.5f * (f32)_width,-.5f * (f32)_width, 0, 1);
+	f1x4 l_p2(l_length + .5f * (f32)_width,-.5f * (f32)_width, 0, 1);
+	f1x4 l_p3(l_length + .5f * (f32)_width, .5f * (f32)_width, 0, 1);
+	f32 l_angle = atan2(f32(_e.y() - _s.y()), f32(_e.x() - _s.x()));
+	f32 l_s = (f32)sin(l_angle), l_c = (f32)cos(l_angle);
+	f4x4 l_rotate  (f1x4( l_c, l_s, 0.f, 0.f),
+					f1x4(-l_s, l_c, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4( 0.f, 0.f, 0.f, 1.f));
+	f32 l_x = (f32)_s.x(), l_y = (f32)_s.y();
+	f4x4 l_trans   (f1x4( 1.f, 0.f, 0.f, 0.f),
+					f1x4( 0.f, 1.f, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4( l_x, l_y, 0.f, 1.f));
+	f32 l_w = 2.f / (f32)width(), l_h = 2.f / (f32)height();
+	f4x4 l_project (f1x4( l_w, 0.f, 0.f, 0.f),
+					f1x4( 0.f,-l_h, 0.f, 0.f),
+					f1x4( 0.f, 0.f, 1.f, 0.f),
+					f1x4(-1.f, 1.f, 0.f, 1.f));
+	f4x4 l_xform = l_rotate * l_trans * l_project;
+	l_p0 = l_p0 * l_xform; l_p1 = l_p1 * l_xform; l_p2 = l_p2 * l_xform; l_p3 = l_p3 * l_xform;
+	vertex l_v[6];
+	l_v[0].p = l_p0; l_v[0].c = _c;
+	l_v[1].p = l_p1; l_v[1].c = _c;
+	l_v[2].p = l_p2; l_v[2].c = _c;
+	l_v[3].p = l_p2; l_v[3].c = _c;
+	l_v[4].p = l_p3; l_v[4].c = _c;
+	l_v[5].p = l_p0; l_v[5].c = _c;
+	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
+}
 bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
 	f32 l_w = (f32)width(), l_h = (f32)height();

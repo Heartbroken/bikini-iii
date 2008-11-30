@@ -103,6 +103,9 @@ inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename
 inline const manager::object::info& manager::object::get_info() const {
 	return m_info;
 }
+template<typename _I> const _I& manager::object::get_info() const {
+	return static_cast<const _I&>(m_info);
+}
 inline manager& manager::object::get_manager() const {
 	return m_manager;
 }

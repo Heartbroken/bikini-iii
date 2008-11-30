@@ -36,7 +36,7 @@ struct player : manager {
 	bool stop(uint _level = bad_ID);
 	bool show(uint _level = bad_ID);
 	bool hide(uint _level = bad_ID);
-	bool render(uint _level = bad_ID);
+	bool render(uint _level = bad_ID) const;
 private:
 	renderer *m_renderer_p; bool m_delete_renderer;
 	loader *m_loader_p; bool m_delete_loader;
