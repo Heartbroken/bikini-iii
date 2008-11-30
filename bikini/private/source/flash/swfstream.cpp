@@ -114,6 +114,7 @@ uint swfstream::UB(uint _size) {
 	return l_v;
 }
 sint swfstream::SB(uint _size) {
+	if(_size == 0) return 0;
 	sint l_v = (BIT() ? -1 : 0);
 	for(uint i = 1; i < _size; ++i) l_v = (l_v << 1) | (BIT() ? 1 : 0);
 	return l_v;
@@ -147,9 +148,9 @@ rect swfstream::RECT() {
 	sint l_x0 = SB(l_s), l_x1 = SB(l_s), l_y0 = SB(l_s), l_y1 = SB(l_s);
 	return rect(l_x0, l_y0, l_x1 - l_x0, l_y1 - l_y0);
 }
-r3x2 swfstream::MATRIX() {
+r3x3 swfstream::MATRIX() {
 	m_bit = u8(-1);
-	r3x2 l_v = r3x2_1;
+	r3x3 l_v = r3x3_1;
 	uint l_has_scale = UB(1);
 	if(l_has_scale) {
 		uint l_scale_bits = UB(5);
@@ -201,17 +202,6 @@ cxform swfstream::CXFORMWITHALPHA() {
 	}
 	return cxform(l_m, l_a);
 }
-//swfstream::record swfstream::RECORD() {
-//	record l_v;
-//	uint l_c = UI16();
-//	l_v.type = (tag::code)((l_c & 0xffc0) >> 6);
-//	l_v.length = l_c & 0x3f;
-//	if(l_v.length == 0x3f) {
-//		sint l_l = SI32();
-//		l_v.length = l_l;
-//	}
-//	return l_v;
-//}
 
 } /* namespace flash ----------------------------------------------------------------------------*/
 

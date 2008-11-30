@@ -24,8 +24,7 @@ struct task0 : bk::application::task {
 		l_window.show();
 		l_window.clear();
 		bk::flash::player l_player;
-		bk::flash::renderer m_flash_renderer;
-		l_player.create(m_flash_renderer);
+		l_player.create(l_window);
 		l_player.play("data/gui/test.swf");
 		bk::ticker l_ticker(1.f/30.f);
 		bk::rbig l_time = bk::sys_time();
@@ -35,6 +34,11 @@ struct task0 : bk::application::task {
 			if(!l_window.update(l_dt)) break;
 			// do something useful
 			l_player.update(l_dt);
+			l_window.clear();
+			l_window.begin();
+			l_player.render();
+			l_window.flush_drawings();
+			l_window.end();
 			l_window.present();
 			//
 			l_ticker.sync();

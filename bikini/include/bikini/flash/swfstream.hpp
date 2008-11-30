@@ -41,10 +41,9 @@ struct swfstream {
 	color RGBA();
 	color ARGB();
 	rect RECT();
-	r3x2 MATRIX();
+	r3x3 MATRIX();
 	cxform CXFORM();
 	cxform CXFORMWITHALPHA();
-	//record RECORD();
 private:
 	loader &m_loader;
 	wstring m_path;

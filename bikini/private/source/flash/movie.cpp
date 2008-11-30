@@ -28,7 +28,18 @@ movie::movie(const info &_info, player &_player) :
 movie::~movie() {
 	if(get_player().exists(m_clip_ID)) get_player().kill(m_clip_ID);
 }
-
+bool movie::update(real _dt) {
+	if(get_player().exists(m_clip_ID)) {
+		get_player().get(m_clip_ID).update(_dt);
+	}
+	return true;
+}
+bool movie::render() const {
+	if(get_player().exists(m_clip_ID)) {
+		get_player().get<clip>(m_clip_ID).render();
+	}
+	return true;
+}
 
 // movie::info
 

@@ -29,7 +29,7 @@ template<typename _Typelist, bool _Dynamic = true> struct variant_ {
 	/// Pointer to value's data
 	inline pointer data() const;
 	/// Construct a variant of specified type from specified data
-	inline void construct(u32 _type, pointer _data);
+	inline void construct(uint _type, pointer _data);
 	/// Destruct a variant
 	inline void destruct();
 	/// Assign

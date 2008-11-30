@@ -29,6 +29,7 @@ struct manager : uncopyble {
 		};
 
 		inline const info& get_info() const;
+		template<typename _Info> const _Info& get_info() const;
 		inline manager& get_manager() const;
 		inline uint type() const;
 		inline uint ID() const;

@@ -15,6 +15,7 @@
 #endif
 
 #pragma warning(disable:4355)	// warning C4355: 'this' : used in base member initializer list
+#pragma warning(disable:4503)	// warning C4503: '...' : decorated name length exceeded, name was truncated
 
 #include "../config.hpp"
 
