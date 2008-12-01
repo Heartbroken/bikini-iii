@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="Vertex Shader Compiler"
 			DisplayName="Vertex Shader"
-			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; $(InputFileName)"
+			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; &quot;$(InputFileName)&quot;"
 			Outputs="$(IntDir)\$(InputFileName).o"
 			FileExtensions="*.vs"
 			ExecutionDescription="Compiling vertex shader ..."
@@ -59,7 +59,7 @@
 					DisplayName="Output header file containing object code"
 					Category="Output"
 					Description="Output header file containing object code (/Fh &lt;file&gt;)"
-					Switch="/Fh [value]"
+					Switch="/Fh &quot;[value]&quot;"
 					DefaultValue="$(InputPath).h"
 				/>
 				<StringProperty
@@ -75,14 +75,14 @@
 					DisplayName="Output assembly code listing file"
 					Category="Output"
 					Description="Output assembly code listing file (/Fc &lt;file&gt;)"
-					Switch="/Fc [value]"
+					Switch="/Fc &quot;[value]&quot;"
 				/>
 				<StringProperty
 					Name="Fx"
 					DisplayName="Output assembly code and hex listing file"
 					Category="Output"
 					Description="Output assembly code and hex listing file (/Fx &lt;file&gt;)"
-					Switch="/Fx [value]"
+					Switch="/Fx &quot;[value]&quot;"
 				/>
 				<StringProperty
 					Name="I"
@@ -97,7 +97,7 @@
 		<CustomBuildRule
 			Name="Pixel Shader Compiler"
 			DisplayName="Pixel Shader"
-			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; $(InputFileName)"
+			CommandLine="fxc.exe [T] [E] [D] [Fc] [Fh] [Vn] /Fo &quot;$(IntDir)\$(InputFileName).o&quot; &quot;$(InputFileName)&quot;"
 			Outputs="$(IntDir)\$(InputFileName).o"
 			FileExtensions="*.ps"
 			ExecutionDescription="Compiling pixel shader ..."
@@ -149,7 +149,7 @@
 					DisplayName="Output header file containing object code"
 					Category="Output"
 					Description="Output header file containing object code (/Fh &lt;file&gt;)"
-					Switch="/Fh [value]"
+					Switch="/Fh &quot;[value]&quot;"
 					DefaultValue="$(InputPath).h"
 				/>
 				<StringProperty
@@ -165,14 +165,14 @@
 					DisplayName="Output assembly code listing file"
 					Category="Output"
 					Description="Output assembly code listing file (/Fc &lt;file&gt;)"
-					Switch="/Fc [value]"
+					Switch="/Fc &quot;[value]&quot;"
 				/>
 				<StringProperty
 					Name="Fx"
 					DisplayName="Output assembly code and hex listing file"
 					Category="Output"
 					Description="Output assembly code and hex listing file (/Fx &lt;file&gt;)"
-					Switch="/Fx [value]"
+					Switch="/Fx &quot;[value]&quot;"
 				/>
 				<StringProperty
 					Name="I"
