@@ -44,12 +44,10 @@ bool movie::render() const {
 // movie::info
 
 movie::info::info(swfstream &_s) : player::object::info(ot::movie) {
-	if(_s.good()) {
-		m_frame_size = _s.RECT().size();
-		m_frame_rate = _s.FIXED8();
-		m_defines.resize(1);
-		m_defines[0] = new clip::info(*this, _s);
-	}
+	m_frame_size = _s.RECT().size();
+	m_frame_rate = _s.FIXED8();
+	m_defines.resize(1);
+	m_defines[0] = new clip::info(*this, _s);
 }
 movie::info::~info() {
 	while(!m_defines.empty()) {
