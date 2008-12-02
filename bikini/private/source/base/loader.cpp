@@ -20,7 +20,7 @@ loader::~loader() {
 	}
 }
 uint loader::open(const wchar* _path) {
-	std::ifstream &l_stream = * new std::ifstream(_path);
+	std::ifstream &l_stream = * new std::ifstream(_path, std::ios_base::binary);
 	if(l_stream.good()) {
 		file l_file; l_file.stream_p = &l_stream;
 		uint l_index;

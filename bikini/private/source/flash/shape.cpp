@@ -37,16 +37,14 @@ bool shape::render() const {
 // shape::info
 
 shape::info::info(swfstream &_s, tag::type _type) : player::object::info(ot::shape) {
-	if(_s.good()) {
-		m_rect = m_edge_rect = _s.RECT();
-		if(_type == tag::DefineShape4) {
-			m_edge_rect = _s.RECT();
-			uint l_reserved = _s.UB(6);
-			uint l_nonscalingstrokes = _s.UB(1);
-			uint l_scalingstrokes = _s.UB(1);
-		}
-		m_read_shape_records(_s, _type);
+	m_rect = m_edge_rect = _s.RECT();
+	if(_type == tag::DefineShape4) {
+		m_edge_rect = _s.RECT();
+		uint l_reserved = _s.UB(6);
+		uint l_nonscalingstrokes = _s.UB(1);
+		uint l_scalingstrokes = _s.UB(1);
 	}
+	m_read_shape_records(_s, _type);
 }
 void shape::info::m_read_fill_styles(swfstream &_s, tag::type _type) {
 	uint l_count = _s.UI8();
