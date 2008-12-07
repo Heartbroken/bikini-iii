@@ -239,6 +239,10 @@ inline const _Type dot(const matrix_<1, _Size, _Type> &_a, const matrix_<1, _Siz
 template<uint _Size, typename _Type>
 inline const _Type length(const matrix_<1, _Size, _Type> &_a);
 
+/// vector length square
+template<uint _Size, typename _Type>
+inline const _Type length2(const matrix_<1, _Size, _Type> &_a);
+
 /// vectors cross product
 template<typename _Type>
 inline const matrix_<1, 2, _Type> cross(const matrix_<1, 2, _Type> &_a);

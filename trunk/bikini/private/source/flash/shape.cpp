@@ -10,6 +10,38 @@
 
 namespace bk { /*--------------------------------------------------------------------------------*/
 
+// triangulator
+
+struct triangulator {
+	typedef std::vector<real2> points;
+	typedef std::vector<uint> poly;
+	typedef std::vector<poly> polys;
+	struct vertex { uint p, e0, e1; };
+	typedef std::vector<vertex> vertices;
+	typedef std::vector<uint> point_map;
+	struct edge { uint v0, v1; };
+	typedef std::vector<edge> edges;
+	bool build(const points &_points, const polys &_polys) {
+		vertices l_vertices; point_map l_point_map; 
+		m_create_vertices(_points, l_vertices, l_point_map);
+	}
+private:
+	std::vector<uint> &m_tris;
+	void m_create_vertices(const points &_points, vertices &_vertices, point_map &_point_map) {
+		for(uint i = 0, s = _points.size(); i < s; ++i) {
+			vertex l_v; l_v.p = i; l_v.e0 = l_v.e1 = bad_ID;
+			const real2 &l_p = _points[i];
+			for(uint i = 0, s = _vertices.size(); i < s; ++i) {
+				const real2 &l_p0 = _points[_vertices[i].p];
+				if((l_p.x() < l_p0.x()) || (abs(l_p.x() - l_p0.x()) < eps && (l_p.y() < l_p0.y()))) {
+					_vertices.insert(_vertices.begin() + i, l_v); l_v.p = bad_ID; break;
+				}
+			}
+			if(l_v.p != bad_ID) _vertices.push_back(l_v);
+		}
+	}
+};
+
 namespace flash { /*-----------------------------------------------------------------------------*/
 
 namespace po { /*--------------------------------------------------------------------------------*/
@@ -25,11 +57,54 @@ bool shape::render() const {
 	player &l_player = get_player();
 	renderer &l_renderer = l_player.get_renderer();
 	const info &l_info = get_info<info>();
-	for(uint i = 1, s = l_info.point_count(); i < s; ++i) {
-		const sint2 &l_p0 = l_info.get_point(i - 1), &l_p1 = l_info.get_point(i);
-		real2 l_s = real(0.05) * real3(l_p0.x(), l_p0.y(), 1) * m_position;
-		real2 l_e = real(0.05) * real3(l_p1.x(), l_p1.y(), 1) * m_position;
-		l_renderer.draw_line(l_s, l_e, red, r_1);
+	static std::vector<real2> l_points; l_points.resize(0);
+	for(uint i = 0, s = l_info.point_count(); i < s; ++i) {
+		const real2 &l_p = l_info.get_point(i);
+		l_points.push_back(real(0.05) * real3(l_p.x(), l_p.y(), 1) * m_position);
+	}
+	for(uint i = 0, s = l_info.line_path_count(); i < s; ++i) {
+		const path &l_path = l_info.get_line_path(i);
+		const line_style &l_line_style = l_info.get_line_style(l_path.style);
+		if(l_line_style.w == 0) continue;
+		uint l_line_start = 0;
+		std::vector<std::vector<uint> > l_polys;
+		//static std::vector<real2> l_poly; l_poly.resize(0);
+		for(uint i = 0, s = l_path.edges.size(); i < s; ++i) {
+			const edge &l_edge = l_path.edges[i];
+			if(l_polys.back().back() != l_edge.s) {
+				l_polys.push_back(std::vector<uint>());
+				l_polys.back().push_back(l_edge.s);
+			}
+			//const real2 &l_ps = l_info.get_point(l_edge.s);
+			//const real2 &l_pe = l_info.get_point(l_edge.e);
+			//real2 l_s = real(0.05) * real3(l_ps.x(), l_ps.y(), 1) * m_position;
+			//real2 l_e = real(0.05) * real3(l_pe.x(), l_pe.y(), 1) * m_position;
+			//if(i == 0) l_poly.push_back(l_s);
+			//if(length2(l_poly.back() - l_s) > eps) {
+			//	for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
+			//		l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
+			//	}
+			//	l_line_start = l_poly.size(); l_poly.push_back(l_s);
+			//}
+			if(l_edge.c == bad_ID) {
+				l_polys.back().push_back(l_edge.e);
+				//l_poly.push_back(l_e);
+			} else {
+				const real2 &l_pc = l_info.get_point(l_edge.c);
+				real2 l_c = real(0.05) * real3(l_pc.x(), l_pc.y(), 1) * m_position;
+				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_poly) {
+					const real l_tolerance = real(0.5);
+					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
+					if(length2(l_p - l_p0) <= l_tolerance) { _poly.push_back(_e); return; }
+					tesselate(_s, (_s + _c) * real(0.5), l_p, _poly);
+					tesselate(l_p, (_c + _e) * real(0.5), _e, _poly);
+				}};
+				_l::tesselate(l_s, l_c, l_e, l_poly);
+			}
+		}
+		for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
+			l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
+		}
 	}
 	return true;
 }
@@ -37,6 +112,8 @@ bool shape::render() const {
 // shape::info
 
 shape::info::info(swfstream &_s, tag::type _type) : player::object::info(ot::shape) {
+	line_style l_line_style; l_line_style.c = 0; l_line_style.w = 0;
+	m_line_styles.push_back(l_line_style);
 	m_rect = m_edge_rect = _s.RECT();
 	if(_type == tag::DefineShape4) {
 		m_edge_rect = _s.RECT();
@@ -53,8 +130,8 @@ void shape::info::m_read_fill_styles(swfstream &_s, tag::type _type) {
 		uint l_type = _s.UI8();
 		switch(l_type) {
 			case 0x00 : {
-				color l_c = (_type > tag::DefineShape2) ? _s.RGBA() : _s.RGB();
-				uint a=0;
+				color l_color = (_type > tag::DefineShape2) ? _s.RGBA() : _s.RGB();
+				uint a = 0;
 			} break;
 		}
 		_s.align();
@@ -65,83 +142,108 @@ void shape::info::m_read_line_styles(swfstream &_s, tag::type _type) {
 	if(l_count == 0xff) l_count = _s.UI16();
 	for(uint i = 0; i < l_count; ++i) {
 		uint l_width = _s.UI16();
-		uint l_startcapstyle = _s.UB(2);
-		uint l_joinstyle = _s.UB(2);
-		uint l_hasfillflag = _s.UB(1);
-		uint l_nohscaleflag = _s.UB(1);
-		uint l_novscaleflag = _s.UB(1);
-		uint l_pixelhintingflag = _s.UB(1);
-		uint l_reservedflag = _s.UB(5);
-		uint l_noclose = _s.UB(1);
-		uint l_endcapstyle = _s.UB(2);
-		if(l_joinstyle == 2) {
-			uint l_miterlimitfactor = _s.UI16();
-		}
-		if(l_hasfillflag == 0) {
-			color l_color = _s.RGBA();
-		}
-		if(l_hasfillflag == 1) {
-			//
+		switch(_type) {
+			case tag::DefineShape :
+			case tag::DefineShape2 :
+			case tag::DefineShape3 : {
+				color l_color = (_type > tag::DefineShape2) ? _s.RGBA() : _s.RGB();
+				line_style l_line_style; l_line_style.c = l_color; l_line_style.w = l_width;
+				m_line_styles.push_back(l_line_style);
+			} break;
+			case tag::DefineShape4 : {
+				uint l_startcapstyle = _s.UB(2);
+				uint l_joinstyle = _s.UB(2);
+				uint l_hasfillflag = _s.UB(1);
+				uint l_nohscaleflag = _s.UB(1);
+				uint l_novscaleflag = _s.UB(1);
+				uint l_pixelhintingflag = _s.UB(1);
+				uint l_reservedflag = _s.UB(5);
+				uint l_noclose = _s.UB(1);
+				uint l_endcapstyle = _s.UB(2);
+				if(l_joinstyle == 2) {
+					uint l_miterlimitfactor = _s.UI16();
+				}
+				color l_color = l_hasfillflag == 0 ? _s.RGBA() : 0;
+				if(l_hasfillflag == 1) {
+					//
+				}
+				line_style l_line_style; l_line_style.c = l_color; l_line_style.w = l_width;
+				m_line_styles.push_back(l_line_style);
+			} break;
 		}
 		_s.align();
 	}
 }
 void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 	enum {
-		newstyles	= 1<<4,
-		linestyle	= 1<<3,
-		fillstyle1	= 1<<2,
-		fillstyle0	= 1<<1,
-		moveto		= 1<<0,
+		new_styles		= 1<<4,
+		line_style		= 1<<3,
+		fill_style1		= 1<<2,
+		fill_style0		= 1<<1,
+		move_to			= 1<<0,
 	};
 	m_read_fill_styles(_s, _type);
 	m_read_line_styles(_s, _type);
-	uint l_numfillbits = _s.UB(4);
-	uint l_numlinebits = _s.UB(4);
-	sint2 l_curr_point;
+	uint l_fill_bits = _s.UB(4);
+	uint l_line_bits = _s.UB(4);
+	//m_line_paths.push_back(path());
+	real2 l_curr_point;
 	while(true) {
 		uint l_type = _s.UB(1);
 		if(l_type == 0) {
 			uint l_flags = _s.UB(5);
 			if(l_flags == 0) break;
-			if(l_flags & moveto) {
-				uint l_movebits = _s.UB(5);
-				sint l_movex = _s.SB(l_movebits);
-				sint l_movey = _s.SB(l_movebits);
-				m_points.push_back(l_curr_point = sint2(l_movex, l_movey));
+			if(l_flags & move_to) {
+				uint l_move_bits = _s.UB(5);
+				real l_move_x = _s.SB(l_move_bits);
+				real l_move_y = _s.SB(l_move_bits);
+				m_points.push_back(l_curr_point = real2(l_move_x, l_move_y));
+				//m_paths.push_back(path());
 			}
-			if(l_flags & fillstyle0) {
-				uint l_fill0 = _s.UB(l_numfillbits);
+			if(l_flags & fill_style0) {
+				uint l_fill0 = _s.UB(l_fill_bits);
 			}
-			if(l_flags & fillstyle1) {
-				uint l_fill1 = _s.UB(l_numfillbits);
+			if(l_flags & fill_style1) {
+				uint l_fill1 = _s.UB(l_fill_bits);
 			}
-			if(l_flags & linestyle) {
-				uint l_line = _s.UB(l_numlinebits);
+			if(l_flags & line_style) {
+				uint l_style = _s.UB(l_line_bits);
+				path l_path; l_path.style = l_style;
+				m_line_paths.push_back(l_path);
 			}
-			if(l_flags & newstyles) {
+			if(l_flags & new_styles) {
 				m_read_fill_styles(_s, _type);
 				m_read_line_styles(_s, _type);
-				l_numfillbits = _s.UB(4);
-				l_numlinebits = _s.UB(4);
+				l_fill_bits = _s.UB(4);
+				l_line_bits = _s.UB(4);
 			}
 		} else {
 			uint l_straight = _s.UB(1);
-			uint l_numbits = _s.UB(4) + 2;
+			uint l_delta_bits = _s.UB(4) + 2;
+			edge l_edge;
 			if(l_straight) {
-				uint l_generalline = _s.UB(1);
-				uint l_vertline = (l_generalline == 0) ? _s.UB(1) : 0;
-				sint l_deltax = (l_generalline == 1 || l_vertline == 0) ? _s.SB(l_numbits) : 0;
-				sint l_deltay = (l_generalline == 1 || l_vertline == 1) ? _s.SB(l_numbits) : 0;
-				m_points.push_back(l_curr_point += sint2(l_deltax, l_deltay));
+				uint l_general_line = _s.UB(1);
+				uint l_vert_line = (l_general_line == 0) ? _s.UB(1) : 0;
+				real l_delta_x = (l_general_line == 1 || l_vert_line == 0) ? _s.SB(l_delta_bits) : 0;
+				real l_delta_y = (l_general_line == 1 || l_vert_line == 1) ? _s.SB(l_delta_bits) : 0;
+				m_points.push_back(l_curr_point += real2(l_delta_x, l_delta_y));
+				l_edge.s = m_points.size() - 2; l_edge.c = bad_ID; l_edge.e = m_points.size() - 1;
 			} else {
-				sint l_cdeltax = _s.SB(l_numbits);
-				sint l_cdeltay = _s.SB(l_numbits);
-				sint l_adeltax = _s.SB(l_numbits);
-				sint l_adeltay = _s.SB(l_numbits);
-				m_points.push_back(l_curr_point += sint2(l_cdeltax, l_cdeltay));
-				m_points.push_back(l_curr_point += sint2(l_adeltax, l_adeltay));
+				real l_control_delta_x = _s.SB(l_delta_bits);
+				real l_control_delta_y = _s.SB(l_delta_bits);
+				real l_anchor_delta_x = _s.SB(l_delta_bits);
+				real l_anchor_delta_y = _s.SB(l_delta_bits);
+				m_points.push_back(l_curr_point += real2(l_control_delta_x, l_control_delta_y));
+				m_points.push_back(l_curr_point += real2(l_anchor_delta_x, l_anchor_delta_y));
+				l_edge.s = m_points.size() - 3; l_edge.c = m_points.size() - 2; l_edge.e = m_points.size() - 1;
 			}
+			const real2 &l_s0 = m_points[m_line_paths.back().edges.front().s];
+			const real2 &l_e0 = m_points.back();
+			if(length2(l_e0 - l_s0) < eps) {
+				l_edge.e = m_line_paths.back().edges.front().s;
+				m_points.pop_back();
+			}
+			m_line_paths.back().edges.push_back(l_edge);
 		}
 	}
 }
