@@ -34,7 +34,7 @@ struct task0 : bk::application::task {
 			if(!l_window.update(l_dt)) break;
 			// do something useful
 			l_player.update(l_dt);
-			l_window.clear();
+			l_window.clear(bk::cf::all, bk::white);
 			l_window.begin();
 			l_player.render();
 			l_window.flush_drawings();

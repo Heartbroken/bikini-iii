@@ -224,6 +224,7 @@ bool screen::create() {
 		l_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
 		l_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
 		l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
+		l_d3dpresent_parameters.MultiSampleQuality = 0;
 		l_d3dpresent_parameters.EnableAutoDepthStencil = false;
 		l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		l_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
@@ -243,7 +244,7 @@ bool screen::create() {
 				return false;
 			}
 		}
-		if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, (D3DMULTISAMPLE_TYPE)4, 0, 0, &m_depthstencil_p, 0))) {
+		if(FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(m_width, m_height, D3DFMT_D24S8, l_d3dpresent_parameters.MultiSampleType, l_d3dpresent_parameters.MultiSampleQuality, 0, &m_depthstencil_p, 0))) {
 			m_backbuffer_p->Release(); m_backbuffer_p = 0;
 			std::cerr << "ERROR: Can't create depth buffer\n";
 			return false;

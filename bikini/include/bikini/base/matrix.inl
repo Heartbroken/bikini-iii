@@ -486,6 +486,11 @@ inline const _T length(const matrix_<1, _S, _T> &_a) {
 	return sqrt(dot(_a, _a));
 }
 
+// vector length square
+template<uint _S, typename _T>
+inline const _T length2(const matrix_<1, _S, _T> &_a) {
+	return dot(_a, _a);
+}
 
 // vectors cross product
 template<typename _T>
