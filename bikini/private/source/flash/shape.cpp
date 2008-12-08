@@ -40,6 +40,10 @@ private:
 			}
 			if(l_v.p != bad_ID) _vertices.push_back(l_v);
 		}
+		_point_map.resize(_vertices.size());
+		for(uint i = 0, s = _vertices.size(); i < s; ++i) {
+			_point_map[i] = _vertices[i].p;
+		}
 	}
 };
 
@@ -77,7 +81,7 @@ bool shape::render() const {
 			}
 			if(l_edge.c != bad_ID) {
 				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
-					const real l_tolerance = real(0.5);
+					const real l_tolerance = real(0.1);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
 					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
 					tesselate(_s, (_s + _c) * real(0.5), l_p, _points);
