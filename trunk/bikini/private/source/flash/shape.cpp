@@ -71,7 +71,7 @@ bool shape::render() const {
 		//static std::vector<real2> l_poly; l_poly.resize(0);
 		for(uint i = 0, s = l_path.edges.size(); i < s; ++i) {
 			const edge &l_edge = l_path.edges[i];
-			if(l_polys.back().back() != l_edge.s) {
+			if(l_polys.empty() || l_polys.back().back() != l_edge.s) {
 				l_polys.push_back(std::vector<uint>());
 				l_polys.back().push_back(l_edge.s);
 			}
@@ -90,21 +90,39 @@ bool shape::render() const {
 				l_polys.back().push_back(l_edge.e);
 				//l_poly.push_back(l_e);
 			} else {
-				const real2 &l_pc = l_info.get_point(l_edge.c);
-				real2 l_c = real(0.05) * real3(l_pc.x(), l_pc.y(), 1) * m_position;
-				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_poly) {
+				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
 					const real l_tolerance = real(0.5);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
-					if(length2(l_p - l_p0) <= l_tolerance) { _poly.push_back(_e); return; }
-					tesselate(_s, (_s + _c) * real(0.5), l_p, _poly);
-					tesselate(l_p, (_c + _e) * real(0.5), _e, _poly);
+					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
+					tesselate(_s, (_s + _c) * real(0.5), l_p, _points);
+					tesselate(l_p, (_c + _e) * real(0.5), _e, _points);
 				}};
-				_l::tesselate(l_s, l_c, l_e, l_poly);
+				const real2 &l_s = l_points[l_edge.s];
+				const real2 &l_c = l_points[l_edge.c];
+				const real2 &l_e = l_points[l_edge.e];
+				static std::vector<real2> l_edge_points; l_edge_points.resize(0);
+				_l::tesselate(l_s, l_c, l_e, l_edge_points);
+				for(uint i = 0, s = l_edge_points.size() - 1; i < s; ++i) {
+					l_polys.back().push_back(l_points.size());
+					l_points.push_back(l_edge_points[i]);
+				}
+				l_polys.back().push_back(l_edge.e);
+
+				//const real2 &l_pc = l_info.get_point(l_edge.c);
+				//real2 l_c = real(0.05) * real3(l_pc.x(), l_pc.y(), 1) * m_position;
+				//_l::tesselate(l_s, l_c, l_e, l_poly);
 			}
 		}
-		for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
-			l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
+		for(uint i = 0, s = l_polys.size(); i < s; ++i) {
+			const std::vector<uint> &l_poly = l_polys[i];
+			for(uint i = 1, s = l_poly.size(); i < s; ++i) {
+				l_renderer.draw_line(l_points[l_poly[i - 1]], l_points[l_poly[i]], l_line_style.c, l_line_style.w * real(0.05));
+			}
 		}
+
+		//for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
+		//	l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
+		//}
 	}
 	return true;
 }
@@ -237,11 +255,13 @@ void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 				m_points.push_back(l_curr_point += real2(l_anchor_delta_x, l_anchor_delta_y));
 				l_edge.s = m_points.size() - 3; l_edge.c = m_points.size() - 2; l_edge.e = m_points.size() - 1;
 			}
-			const real2 &l_s0 = m_points[m_line_paths.back().edges.front().s];
-			const real2 &l_e0 = m_points.back();
-			if(length2(l_e0 - l_s0) < eps) {
-				l_edge.e = m_line_paths.back().edges.front().s;
-				m_points.pop_back();
+			if(!m_line_paths.back().edges.empty()) {
+				const real2 &l_s0 = m_points[m_line_paths.back().edges.front().s];
+				const real2 &l_e0 = m_points.back();
+				if(length2(l_e0 - l_s0) < eps) {
+					l_edge.e = m_line_paths.back().edges.front().s;
+					m_points.pop_back();
+				}
 			}
 			m_line_paths.back().edges.push_back(l_edge);
 		}
