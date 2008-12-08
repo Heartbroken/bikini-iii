@@ -24,9 +24,10 @@ struct triangulator {
 	bool build(const points &_points, const polys &_polys) {
 		vertices l_vertices; point_map l_point_map; 
 		m_create_vertices(_points, l_vertices, l_point_map);
+		return true;
 	}
 private:
-	std::vector<uint> &m_tris;
+	std::vector<uint> m_tris;
 	void m_create_vertices(const points &_points, vertices &_vertices, point_map &_point_map) {
 		for(uint i = 0, s = _points.size(); i < s; ++i) {
 			vertex l_v; l_v.p = i; l_v.e0 = l_v.e1 = bad_ID;
@@ -68,28 +69,13 @@ bool shape::render() const {
 		if(l_line_style.w == 0) continue;
 		uint l_line_start = 0;
 		std::vector<std::vector<uint> > l_polys;
-		//static std::vector<real2> l_poly; l_poly.resize(0);
 		for(uint i = 0, s = l_path.edges.size(); i < s; ++i) {
 			const edge &l_edge = l_path.edges[i];
 			if(l_polys.empty() || l_polys.back().back() != l_edge.s) {
 				l_polys.push_back(std::vector<uint>());
 				l_polys.back().push_back(l_edge.s);
 			}
-			//const real2 &l_ps = l_info.get_point(l_edge.s);
-			//const real2 &l_pe = l_info.get_point(l_edge.e);
-			//real2 l_s = real(0.05) * real3(l_ps.x(), l_ps.y(), 1) * m_position;
-			//real2 l_e = real(0.05) * real3(l_pe.x(), l_pe.y(), 1) * m_position;
-			//if(i == 0) l_poly.push_back(l_s);
-			//if(length2(l_poly.back() - l_s) > eps) {
-			//	for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
-			//		l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
-			//	}
-			//	l_line_start = l_poly.size(); l_poly.push_back(l_s);
-			//}
-			if(l_edge.c == bad_ID) {
-				l_polys.back().push_back(l_edge.e);
-				//l_poly.push_back(l_e);
-			} else {
+			if(l_edge.c != bad_ID) {
 				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
 					const real l_tolerance = real(0.5);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
@@ -106,23 +92,17 @@ bool shape::render() const {
 					l_polys.back().push_back(l_points.size());
 					l_points.push_back(l_edge_points[i]);
 				}
-				l_polys.back().push_back(l_edge.e);
-
-				//const real2 &l_pc = l_info.get_point(l_edge.c);
-				//real2 l_c = real(0.05) * real3(l_pc.x(), l_pc.y(), 1) * m_position;
-				//_l::tesselate(l_s, l_c, l_e, l_poly);
 			}
+			l_polys.back().push_back(l_edge.e);
 		}
+		triangulator l_triangulator;
+		l_triangulator.build(l_points, l_polys);
 		for(uint i = 0, s = l_polys.size(); i < s; ++i) {
 			const std::vector<uint> &l_poly = l_polys[i];
 			for(uint i = 1, s = l_poly.size(); i < s; ++i) {
 				l_renderer.draw_line(l_points[l_poly[i - 1]], l_points[l_poly[i]], l_line_style.c, l_line_style.w * real(0.05));
 			}
 		}
-
-		//for(uint i = l_line_start + 1, s = l_poly.size(); i < s; ++i) {
-		//	l_renderer.draw_line(l_poly[i - 1], l_poly[i], l_line_style.c, l_line_style.w * real(0.05));
-		//}
 	}
 	return true;
 }
