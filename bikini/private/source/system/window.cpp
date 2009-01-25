@@ -34,7 +34,8 @@ window::window(video &_video) :
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
+	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 
 	m_vshader.info.function = window_vs;
 	m_pshader.info.function = window_ps;
@@ -293,6 +294,22 @@ void window::draw_line(const real2 &_s, const real2 &_e, const color &_c, real _
 	l_v[4].p = l_p3; l_v[4].c = _c;
 	l_v[5].p = l_p0; l_v[5].c = _c;
 	m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
+}
+void window::draw_tris(const real2 *_points, const uint *_tris, uint _count, const color &_c) {
+	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return;
+	f32 l_w = (f32)width(), l_h = (f32)height();
+	for(uint i = 0; i < _count; ++i) {
+		uint l_i0 = _tris[i * 3 + 0], l_i1 = _tris[i * 3 + 1], l_i2 = _tris[i * 3 + 2];
+		const real2 &l_p0 = _points[l_i0], &l_p1 = _points[l_i1], &l_p2 = _points[l_i2];
+		f32 l_x0 = 2.f * ((f32)l_p0.x() - .5f) / l_w - 1.f, l_y0 = -(2.f * ((f32)l_p0.y() - .5f) / l_h - 1.f);
+		f32 l_x1 = 2.f * ((f32)l_p1.x() - .5f) / l_w - 1.f, l_y1 = -(2.f * ((f32)l_p1.y() - .5f) / l_h - 1.f);
+		f32 l_x2 = 2.f * ((f32)l_p2.x() - .5f) / l_w - 1.f, l_y2 = -(2.f * ((f32)l_p2.y() - .5f) / l_h - 1.f);
+		vertex l_v[3];
+		l_v[0].p = f1x3(l_x0, l_y0, 0); l_v[0].c = _c;
+		l_v[1].p = f1x3(l_x1, l_y1, 0); l_v[1].c = _c;
+		l_v[2].p = f1x3(l_x2, l_y2, 0); l_v[2].c = _c;
+		m_add_tris(sizeof(l_v) / sizeof(vertex) / 3, l_v);
+	}
 }
 bool window::draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c) {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
