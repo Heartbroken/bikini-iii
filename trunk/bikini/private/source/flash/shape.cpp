@@ -16,83 +16,368 @@ struct triangulator {
 	typedef real2 point;
 	typedef std::vector<point> points;
 	typedef std::vector<uint> poly;
-	struct vertex { uint p, e0, e1; };
+	struct vertex { uint p, e0, e1; bool n; };
 	typedef std::vector<vertex> vertices;
 	typedef std::vector<uint> point_map;
-	struct edge { uint v0, v1; };
+	struct edge { uint v0, v1, ne; };
 	typedef std::vector<edge> edges;
+	typedef std::vector<uint> edge_list;
+	struct trapezoid { uint v0, v0c, v1, v1c, e0, e1; };
+	typedef std::vector<trapezoid> trapezoids;
+	inline uint tri_count() const { return m_tris.size() / 3; }
+	inline const uint* get_tris() const { return &m_tris[0]; }
 	bool build(const points &_points, const poly &_poly) {
-//		m_points = _points; m_poly = _poly;
-		m_create_vertices(_points);
-		m_create_edges(_poly);
-		m_make_monotone(_points);
+		if(_points.empty() || _poly.empty()) return false;
+		lines.resize(0);
+		//m_create_vertices(_points);
+		m_create_edges(_points, _poly);
+		m_split_monotone();
+		m_triangulate_parts();
 		return true;
 	}
+	std::vector<point> lines;
 private:
-//	points m_points; poly m_poly;
+	const point *m_points;
 	vertices m_vertices; point_map m_point_map;
-	edges m_edges;
-	std::vector<uint> m_tris;
-	void m_create_vertices(const points &_points) {
+	edges m_edges; edge_list m_edge_list; trapezoids m_trapezoids;
+	std::vector<uint> m_monotone, m_tris;
+	//void m_create_vertices(const points &_points) {
+	//	m_vertices.resize(0);
+	//	for(uint i = 0, s = _points.size(); i < s; ++i) {
+	//		vertex l_v; l_v.p = i; l_v.e0 = l_v.e1 = bad_ID; l_v.n = false;
+	//		const real2 &l_p = _points[i];
+	//		for(uint i = 0, s = m_vertices.size(); i < s; ++i) {
+	//			const real2 &l_p0 = _points[m_vertices[i].p];
+	//			if((l_p.x() < l_p0.x()) || (abs(l_p.x() - l_p0.x()) < eps && (l_p.y() < l_p0.y()))) {
+	//				m_vertices.insert(m_vertices.begin() + i, l_v); l_v.p = bad_ID; break;
+	//			}
+	//		}
+	//		if(l_v.p != bad_ID) m_vertices.push_back(l_v);
+	//	}
+	//	m_point_map.resize(_points.size());
+	//	for(uint i = 0, s = m_vertices.size(); i < s; ++i) {
+	//		m_point_map[m_vertices[i].p] = i;
+	//	}
+	//	m_points = &_points[0]; // @@@
+	//}
+	void m_create_edges(const points &_points, const poly &_poly) {
+		m_edges.resize(0); m_edge_list.resize(0); m_trapezoids.resize(0);
+		m_monotone.resize(0); m_tris.resize(0);
 		m_vertices.resize(0);
-		for(uint i = 0, s = _points.size(); i < s; ++i) {
-			vertex l_v; l_v.p = i; l_v.e0 = l_v.e1 = bad_ID;
-			const real2 &l_p = _points[i];
+		m_points = &_points[0]; // @@@
+		assert(_poly.size() > 1 && _poly.size() % 2 == 0);
+		for(uint i = 1, s = _poly.size(); i < s; i += 2) {
+			vertex l_v; l_v.p = _poly[i]; l_v.e0 = l_v.e1 = bad_ID; l_v.n = false;
+			const real2 &l_p = _points[l_v.p];
+			uint l_i = m_vertices.size();
 			for(uint i = 0, s = m_vertices.size(); i < s; ++i) {
 				const real2 &l_p0 = _points[m_vertices[i].p];
 				if((l_p.x() < l_p0.x()) || (abs(l_p.x() - l_p0.x()) < eps && (l_p.y() < l_p0.y()))) {
-					m_vertices.insert(m_vertices.begin() + i, l_v); l_v.p = bad_ID; break;
+					l_i = i; break;
 				}
 			}
-			if(l_v.p != bad_ID) m_vertices.push_back(l_v);
+			m_vertices.insert(m_vertices.begin() + l_i, l_v);
 		}
 		m_point_map.resize(_points.size());
 		for(uint i = 0, s = m_vertices.size(); i < s; ++i) {
 			m_point_map[m_vertices[i].p] = i;
 		}
-	}
-	void m_create_edges(const poly &_poly) {
-		assert(_poly.size() > 1 && _poly.size() % 2 == 0);
 		for(uint i = 1, s = _poly.size(); i < s; i += 2) {
 			uint l_i0 = _poly[i - 1], l_i1 = _poly[i];
-			edge l_edge; l_edge.v0 = m_point_map[l_i0]; l_edge.v1 = m_point_map[l_i1];
+			edge l_edge; l_edge.v0 = m_point_map[l_i0]; l_edge.v1 = m_point_map[l_i1]; l_edge.ne = bad_ID;
 			vertex &l_v0 = m_vertices[l_edge.v0], &l_v1 = m_vertices[l_edge.v1];
+			assert(l_v0.e1 == bad_ID && l_v1.e0 == bad_ID);
 			l_v0.e1 = l_v1.e0 = m_edges.size();
+			if(l_v0.e0 != bad_ID) m_edges[l_v0.e0].ne = l_v0.e1;
+			if(l_v1.e1 != bad_ID) l_edge.ne = l_v1.e1;
 			m_edges.push_back(l_edge);
 		}
 	}
-	void m_make_monotone(const points &_points) {
-		uint l_vi0 = 0, l_vi1 = 0;
-		while(l_vi0 < m_vertices.size()) {
-			while(l_vi1 < m_vertices.size() - 1 && _points[m_vertices[l_vi0].p].x() == _points[m_vertices[l_vi1 + 1].p].x()) ++l_vi1;
-			for(uint i = l_vi0; i <= l_vi1; ++i) {
-				const vertex &l_v = m_vertices[i];
-				real l_v_x = _points[l_v.p].x();
-				if(l_v.e0 != bad_ID) {
-					const edge &l_e = m_edges[l_v.e0];
-					if(l_e.v0 != bad_ID) {
-						const vertex &l_v0 = m_vertices[l_e.v0];
-						real l_v0_x = _points[l_v0.p].x();
-						if(l_v_x - l_v0_x > eps) {			// -->
-						} else if(l_v_x - l_v0_x < -eps) {	// <--
-						}
-					}
-					assert(l_e.v1 == i);
-				}
-				if(l_v.e1 != bad_ID) {
-					const edge &l_e = m_edges[l_v.e1];
-					assert(l_e.v0 == i);
-					if(l_e.v1 != bad_ID) {
-						const vertex &l_v1 = m_vertices[l_e.v1];
-						real l_v1_x = _points[l_v1.p].x();
-						if(l_v_x - l_v1_x > eps) {			// -->
-						} else if(l_v_x - l_v1_x < -eps) {	// <--
-						}
-					}
-				}
+	void m_split_monotone() {
+		for(uint i = 0, s = m_vertices.size(); i < s; ++i) {
+			uint l_vs = i, l_ve = i;
+			const real l_ps_x = m_points[m_vertices[l_vs].p].x();
+			for(uint s = m_vertices.size(); l_ve + 1 < s; ++l_ve) {
+				const real l_pe_x = m_points[m_vertices[l_ve + 1].p].x();
+				if(abs(l_ps_x - l_pe_x) > eps) break;
 			}
-			l_vi0 = ++l_vi1; 
+			m_close_trapezoids(l_vs, l_ve);
+			m_remove_edges(l_vs, l_ve);
+			m_add_edges(l_vs, l_ve);
+			m_open_trapezoids(l_vs, l_ve);
+			i = l_ve;
 		}
+	}
+	void m_triangulate_parts() {
+		for(uint i = 0, s = m_edges.size(); i < s; ++i) {
+			edge &l_e = m_edges[i];
+			if(l_e.ne == bad_ID) continue;
+			m_monotone.resize(0);
+			uint l_ei = l_e.ne; l_e.ne = bad_ID;
+			while(l_ei != bad_ID) {
+				edge &l_e = m_edges[l_ei];
+				vertex &l_v0 = m_vertices[l_e.v0], &l_v1 = m_vertices[l_e.v1];
+				l_v0.e1 = l_v1.e0 = l_ei;
+				// @@@ // Optimize this. Do not do full sorting, but merge two monotone chains
+				std::vector<uint>::iterator l_insert = m_monotone.end();
+				for(uint i = 0, s = m_monotone.size(); i < s; ++i) {
+					if(l_e.v0 < m_monotone[i]) {
+						l_insert = m_monotone.begin() + i;
+						break;
+					}
+				}
+				m_monotone.insert(l_insert, l_e.v0);
+				// @@@
+				l_ei = l_e.ne; l_e.ne = bad_ID;
+			}
+			//m_triangulate_monotone();
+		}
+		// test
+		for(uint i = 0, s = m_edges.size(); i < s; ++i) {
+			const edge &l_e = m_edges[i];
+			const vertex &l_v0 = m_vertices[l_e.v0], &l_v1 = m_vertices[l_e.v1];
+			lines.push_back(m_points[l_v0.p]);
+			lines.push_back(m_points[l_v1.p]);
+		}
+	}
+	void m_triangulate_monotone() {
+		//if(m_monotone.size() < 3) return;
+		assert(m_monotone.size() > 2);
+		std::vector<uint> l_stack; l_stack.insert(l_stack.end(), m_monotone.begin(), m_monotone.begin() + 2);
+		for(uint i = 2, s = m_monotone.size(); i < s; ++i) {
+			uint l_vi = m_monotone[i];
+			if(m_adjacent_vertices(l_vi, l_stack.front())) {
+				const vertex &l_v0 = m_vertices[l_vi];
+				while(l_stack.size() > 1) {
+					const vertex &l_v1 = m_vertices[l_stack[0]];
+					const vertex &l_v2 = m_vertices[l_stack[1]];
+					m_tris.push_back(l_v0.p); m_tris.push_back(l_v1.p); m_tris.push_back(l_v2.p);
+					l_stack.erase(l_stack.begin());
+				}
+				l_stack.push_back(l_vi);
+			} else if(m_adjacent_vertices(l_vi, l_stack.back())) {
+				const vertex &l_v0 = m_vertices[l_vi];
+				const point &l_p0 = m_points[l_v0.p];
+				while(l_stack.size() > 1) {
+					const vertex &l_v1 = m_vertices[*(l_stack.end() - 2)], &l_v2 = m_vertices[*(l_stack.end() - 1)];
+					const point &l_p1 = m_points[l_v1.p], &l_p2 = m_points[l_v2.p];
+					real l_cross = cross(l_p1 - l_p0, l_p2 - l_p0);
+					if(m_edges[l_v2.e0].v0 == l_vi) l_cross *= real(-1);
+					if(l_cross < eps) break;
+					m_tris.push_back(l_v0.p); m_tris.push_back(l_v1.p); m_tris.push_back(l_v2.p);
+					l_stack.erase(l_stack.end() - 1);
+				}
+				l_stack.push_back(l_vi);
+			} else {
+				assert(0);
+				//l_stack.push_back(l_vi);
+			}
+		}
+	}
+	bool m_adjacent_vertices(uint _v0, uint _v1) {
+		const vertex &l_v = m_vertices[_v0];
+		const edge &l_e0 = m_edges[l_v.e0], &l_e1 = m_edges[l_v.e1];
+		return l_e0.v0 == _v1 || l_e1.v1 == _v1;
+	}
+	bool m_vertical_edge(uint _e) {
+		const edge &l_e = m_edges[_e];
+		const vertex &l_v0 = m_vertices[l_e.v0], &l_v1 = m_vertices[l_e.v1];
+		const point &l_p0 = m_points[l_v0.p], &l_p1 = m_points[l_v1.p];
+		return abs(l_p0.x() - l_p1.x()) < eps;
+	}
+	void m_add_edges(uint _vs, uint _ve) {
+		for(uint i = _vs; i <= _ve; ++i) {
+			uint l_vi = i;
+			const vertex &l_v = m_vertices[i];
+			const edge &l_e0 = m_edges[l_v.e0];
+			const edge &l_e1 = m_edges[l_v.e1];
+			uint l_v0i = l_e0.v0, l_v1i = l_e1.v1;
+			if(l_vi < l_v0i) m_add_edge(l_v.e0);
+			if(l_vi < l_v1i) m_add_edge(l_v.e1);
+		}
+	}
+	void m_add_edge(uint _e) {
+		if(m_vertical_edge(_e)) return;
+		for(uint i = 0, s = m_edge_list.size(); i < s; ++i) {
+			if(m_edge_edge_compare(_e, m_edge_list[i]) < 0) {
+				m_edge_list.insert(m_edge_list.begin() + i, _e);
+				return;
+			}
+		}
+		m_edge_list.push_back(_e);
+	}
+	void m_remove_edges(uint _vs, uint _ve) {
+		for(uint i = _vs; i <= _ve; ++i) {
+			uint l_vi = i;
+			const vertex &l_v = m_vertices[i];
+			const edge &l_e0 = m_edges[l_v.e0];
+			const edge &l_e1 = m_edges[l_v.e1];
+			uint l_v0i = l_e0.v0, l_v1i = l_e1.v1;
+			if(l_vi > l_v0i) m_remove_edge(l_v.e0);
+			if(l_vi > l_v1i) m_remove_edge(l_v.e1);
+		}
+	}
+	void m_remove_edge(uint _e) {
+		if(m_vertical_edge(_e)) return;
+		for(uint i = 0, s = m_edge_list.size(); i < s; ++i) {
+			if(m_edge_list[i] == _e) {
+				m_edge_list.erase(m_edge_list.begin() + i);
+				break;
+			}
+		}
+	}
+	void m_open_trapezoids(uint _vs, uint _ve) {
+		for(uint i = _vs; i <= _ve; ++i) {
+			uint l_v = i;
+			for(uint i = 1, s = m_edge_list.size(); i < s; ++i) {
+				uint l_e0 = m_edge_list[i - 1], l_e1 = m_edge_list[i];
+				if(m_get_trapezoid(l_e0) != m_get_trapezoid(l_e1)) continue;
+				sint l_c0 = m_vertex_edge_compare(l_v, l_e0), l_c1 = m_vertex_edge_compare(l_v, l_e1);
+				if(l_c0 >= 0 && l_c1 <= 0) m_open_trapezoid(l_v, l_e0, l_e1);
+				if(l_c0 < 0) break;
+			}
+		}
+	}
+	void m_open_trapezoid(uint _v, uint _e0, uint _e1) {
+		uint l_i = m_get_trapezoid(_e0, _e1);
+		if(l_i == bad_ID) {
+			l_i = m_trapezoids.size(); m_trapezoids.resize(l_i + 1);
+			trapezoid &l_t = m_trapezoids[l_i];
+			l_t.v0 = l_t.v1 = bad_ID;
+			l_t.v0c = l_t.v1c = 1;
+			l_t.e0 = _e0; l_t.e1 = _e1;
+		}
+		trapezoid &l_t = m_trapezoids[l_i];
+		assert(l_t.v0 == bad_ID || l_t.v0 + l_t.v0c == _v);
+		if(l_t.v0 == bad_ID) l_t.v0 = _v;
+		else l_t.v0c++;
+		vertex &l_v = m_vertices[_v];
+		const edge &l_e0 = m_edges[l_v.e0], &l_e1 = m_edges[l_v.e1];
+		if(l_e0.v0 < _v && l_e1.v1 < _v) l_v.n = true;
+	}
+	void m_close_trapezoids(uint _vs, uint _ve) {
+		for(uint i = _vs; i <= _ve; ++i) {
+			uint l_v = i;
+			for(uint i = 1, s = m_edge_list.size(); i < s; ++i) {
+				uint l_e0 = m_edge_list[i - 1], l_e1 = m_edge_list[i];
+				sint l_c0 = m_vertex_edge_compare(l_v, l_e0), l_c1 = m_vertex_edge_compare(l_v, l_e1);
+				if(l_c0 >= 0 && l_c1 <= 0) m_close_trapezoid(l_v, l_e0, l_e1);
+				if(l_c0 < 0) break;
+			}
+		}
+		if(!m_trapezoids.empty()) {
+			for(uint i = m_trapezoids.size() - 1; ; --i) {
+				if(m_trapezoids[i].v1 != bad_ID) {
+					m_split_trapezoid(i);
+					m_trapezoids.erase(m_trapezoids.begin() + i);
+				}
+				if(i == 0) break;
+			}
+		}
+	}
+	void m_split_trapezoid(uint _t) {
+		const trapezoid &l_t = m_trapezoids[_t];
+		assert(l_t.v0 != bad_ID && l_t.v1 != bad_ID);
+		for(uint i = 0; i < l_t.v0c; ++i) {
+			uint l_v0i = l_t.v0 + i;
+			vertex &l_v0 = m_vertices[l_v0i];
+			if(!l_v0.n) continue;
+			const real l_p0_y = m_points[l_v0.p].y();
+			uint l_v1i = bad_ID; real l_diff = infinity;
+			for(uint i = 0; i < l_t.v1c; ++i) {
+				const vertex &l_v1 = m_vertices[l_t.v1 + i];
+				const real l_p1_y = m_points[l_v1.p].y();
+				real l_diff1 = abs(l_p1_y - l_p0_y);
+				if(l_diff1 < l_diff) l_diff = l_diff1;
+				else break;
+				l_v1i = l_t.v1 + i;
+			}
+			assert(l_v1i != bad_ID);
+			vertex &l_v1 = m_vertices[l_v1i];
+			edge &l_e00 = m_edges[l_v0.e0], &l_e10 = m_edges[l_v1.e0], l_ne0, l_ne1;
+			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
+			l_ne0.ne = l_v1.e1; l_ne1.ne = l_v0.e1;
+			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
+			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
+			l_v0.n = l_v1.n = false;
+		}
+		for(uint i = 0; i < l_t.v1c; ++i) {
+			uint l_v0i = l_t.v1 + i;
+			vertex &l_v0 = m_vertices[l_v0i];
+			if(!l_v0.n) continue;
+			const real l_p0_y = m_points[l_v0.p].y();
+			uint l_v1i = bad_ID; real l_diff = infinity;
+			for(uint i = 0; i < l_t.v0c; ++i) {
+				const vertex &l_v1 = m_vertices[l_t.v0 + i];
+				const real l_p1_y = m_points[l_v1.p].y();
+				real l_diff1 = abs(l_p1_y - l_p0_y);
+				if(l_diff1 < l_diff) l_diff = l_diff1;
+				else break;
+				l_v1i = l_t.v0 + i;
+			}
+			assert(l_v1i != bad_ID);
+			vertex &l_v1 = m_vertices[l_v1i];
+			edge &l_e00 = m_edges[l_v0.e0], &l_e10 = m_edges[l_v1.e0], l_ne0, l_ne1;
+			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
+			l_ne0.ne = l_v1.e1; l_ne1.ne = l_v0.e1;
+			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
+			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
+			l_v0.n = l_v1.n = false;
+		}
+	}
+	void m_close_trapezoid(uint _v, uint _e0, uint _e1) {
+		uint l_i = m_get_trapezoid(_e0, _e1);
+		if(l_i != bad_ID) {
+			trapezoid &l_t = m_trapezoids[l_i];
+			assert(l_t.v1 == bad_ID || l_t.v1 + l_t.v1c == _v);
+			if(l_t.v1 == bad_ID) l_t.v1 = _v;
+			else l_t.v1c++;
+			vertex &l_v = m_vertices[_v];
+			const edge &l_e0 = m_edges[l_v.e0], &l_e1 = m_edges[l_v.e1];
+			if(l_e0.v0 > _v && l_e1.v1 > _v) l_v.n = true;
+		}
+	}
+	uint m_get_trapezoid(uint _e0, uint _e1) const {
+		for(uint i = 0, s = m_trapezoids.size(); i < s; ++i) {
+			const trapezoid &l_t = m_trapezoids[i];
+			if(l_t.e0 == _e0 && l_t.e1 == _e1) return i;
+		}
+		return bad_ID;
+	}
+	uint m_get_trapezoid(uint _e) const {
+		for(uint i = 0, s = m_trapezoids.size(); i < s; ++i) {
+			const trapezoid &l_t = m_trapezoids[i];
+			if(l_t.e0 == _e || l_t.e1 == _e) return i;
+		}
+		return bad_ID;
+	}
+	sint m_vertex_edge_compare(uint _v, uint _e) const {
+		const vertex &l_v = m_vertices[_v];
+		const point &l_p = m_points[l_v.p];
+		const edge &l_e = m_edges[_e];
+		const vertex &l_v0 = m_vertices[l_e.v0];
+		const vertex &l_v1 = m_vertices[l_e.v1];
+		const point &l_p0 = l_e.v0 < l_e.v1 ? m_points[l_v0.p] : m_points[l_v1.p];
+		const point &l_p1 = l_e.v0 < l_e.v1 ? m_points[l_v1.p] : m_points[l_v0.p];
+		real l_cross = cross(l_p1 - l_p0, l_p - l_p0);
+		if(l_cross > eps) return 1;
+		if(l_cross < -eps) return -1;
+		return 0;
+	}
+	sint m_edge_edge_compare(uint _e0, uint _e1) const {
+		const edge &l_e0 = m_edges[_e0];
+		const edge &l_e1 = m_edges[_e1];
+		sint l_c001 = m_vertex_edge_compare(l_e0.v0, _e1);
+		sint l_c011 = m_vertex_edge_compare(l_e0.v1, _e1);
+		if(l_c001 == 0 && l_c011 == 0) return 0;
+		if(l_c001 <= 0 && l_c011 <= 0) return -1;
+		if(l_c001 >= 0 && l_c011 >= 0) return 1;
+		sint l_c100 = m_vertex_edge_compare(l_e1.v0, _e0);
+		sint l_c110 = m_vertex_edge_compare(l_e1.v1, _e0);
+		if(l_c100 == 0 && l_c110 == 0) return 0;
+		if(l_c100 <= 0 && l_c110 <= 0) return 1;
+		if(l_c100 >= 0 && l_c110 >= 0) return -1;
+		return 0;
 	}
 };
 
@@ -123,10 +408,39 @@ bool shape::render() const {
 		triangulator::poly l_poly;
 		for(uint i = 0, s = l_edges.size(); i < s; ++i) {
 			const edge &l_edge = l_edges[i];
-			l_poly.push_back(l_edge.s); l_poly.push_back(l_edge.e);
+			if(l_edge.c != bad_ID) {
+				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
+					const real l_tolerance = real(0.1);
+					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
+					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
+					tesselate(_s, (_s + _c) * real(0.5), l_p, _points);
+					tesselate(l_p, (_c + _e) * real(0.5), _e, _points);
+				}};
+				const real2 &l_s = l_points[l_edge.s];
+				const real2 &l_c = l_points[l_edge.c];
+				const real2 &l_e = l_points[l_edge.e];
+				static std::vector<real2> l_edge_points; l_edge_points.resize(0);
+				_l::tesselate(l_s, l_c, l_e, l_edge_points);
+				l_poly.push_back(l_edge.s);
+				for(uint i = 0, s = l_edge_points.size() - 1; i < s; ++i) {
+					l_poly.push_back(l_points.size()); l_poly.push_back(l_points.size());
+					l_points.push_back(l_edge_points[i]);
+				}
+				l_poly.push_back(l_edge.e);
+			} else {
+				l_poly.push_back(l_edge.s); l_poly.push_back(l_edge.e);
+			}
 		}
 		triangulator l_triangulator;
 		l_triangulator.build(l_points, l_poly);
+		if(l_triangulator.tri_count() > 0) {
+			l_renderer.draw_tris(&l_points[0], l_triangulator.get_tris(), l_triangulator.tri_count(), l_fillstyle.c);
+		}
+		//
+		for(uint i = 1, s = l_triangulator.lines.size(); i < s; i += 2) {
+			const real2 &l_s = l_triangulator.lines[i - 1], &l_e = l_triangulator.lines[i];
+			l_renderer.draw_line(l_s, l_e, l_fillstyle.c, real(0.1));
+		}
 	}
 	//for(uint i = 0, s = l_info.line_path_count(); i < s; ++i) {
 	//	const path &l_path = l_info.get_line_path(i);

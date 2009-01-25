@@ -33,6 +33,7 @@ struct window {
 	bool remove_scissor();
 	bool draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white, uint _width = 1);
 	void draw_line(const real2 &_s, const real2 &_e, const color &_c, real _width);
+	void draw_tris(const real2 *_points, const uint *_tris, uint _count, const color &_c = white);
 	bool draw_rect(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c = white);
 	bool flush_drawings();
 	bool end() const;
