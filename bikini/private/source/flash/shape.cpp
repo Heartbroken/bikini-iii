@@ -13,6 +13,7 @@ namespace bk { /*---------------------------------------------------------------
 // triangulator
 
 struct triangulator {
+	//real eps;
 	typedef real2 point;
 	typedef std::vector<point> points;
 	typedef std::vector<uint> poly;
@@ -28,13 +29,14 @@ struct triangulator {
 	inline const uint* get_tris() const { return &m_tris[0]; }
 	bool build(const points &_points, const poly &_poly) {
 		if(_points.empty() || _poly.empty()) return false;
-		//lines.resize(0);
+		//eps = real(0.00001);
+		lines.resize(0);
 		m_create_edges(_points, _poly);
 		m_split_monotone();
 		m_triangulate_parts();
 		return true;
 	}
-	//std::vector<point> lines;
+	std::vector<point> lines;
 private:
 	const point *m_points;
 	vertices m_vertices; point_map m_point_map;
@@ -323,10 +325,8 @@ private:
 		_e0 = l_v0.e0; _e1 = m_edges[_e0].ne;
 		while(true) {
 			const edge &l_e0 = m_edges[_e0], &l_e1 = m_edges[_e1];
-			const vertex &l_v1 = m_vertices[l_e0.v0];
-			const vertex &l_v2 = m_vertices[l_e1.v1];
-			const point &l_p1 = m_points[l_v1.p];
-			const point &l_p2 = m_points[l_v2.p];
+			const vertex &l_v1 = m_vertices[l_e0.v0], &l_v2 = m_vertices[l_e1.v1];
+			const point &l_p1 = m_points[l_v1.p], &l_p2 = m_points[l_v2.p];
 			point l_d = l_p - l_p0, l_d1 = l_p1 - l_p0, l_d2 = l_p2 - l_p0;
 			real l_a = atan2(l_d.y(), l_d.x()), l_a1 = atan2(l_d1.y(), l_d1.x()), l_a2 = atan2(l_d2.y(), l_d2.x());
 			if(l_a2 - l_a1 < l_a - l_a1) return;
@@ -408,6 +408,7 @@ bool shape::render() const {
 	static std::vector<real2> l_points; l_points.resize(0);
 	for(uint i = 0, s = l_info.point_count(); i < s; ++i) {
 		const real2 &l_p = l_info.get_point(i);
+//		l_points.push_back(l_p);
 		l_points.push_back(real(0.05) * real3(l_p.x(), l_p.y(), 1) * m_position);
 	}
 	for(uint i = 0, s = l_info.fillstyle_count(); i < s; ++i) {
@@ -419,7 +420,7 @@ bool shape::render() const {
 			const edge &l_edge = l_edges[i];
 			if(l_edge.c != bad_ID) {
 				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
-					const real l_tolerance = real(0.1);
+					const real l_tolerance = real(0.1 /** 20.0*/);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
 					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
 					tesselate(_s, (_s + _c) * real(0.5), l_p, _points);
@@ -443,13 +444,13 @@ bool shape::render() const {
 		triangulator l_triangulator;
 		l_triangulator.build(l_points, l_poly);
 		if(l_triangulator.tri_count() > 0) {
-			l_renderer.draw_tris(&l_points[0], l_triangulator.get_tris(), l_triangulator.tri_count(), l_fillstyle.c);
+			l_renderer.draw_tris(&l_points[0], l_triangulator.get_tris(), l_triangulator.tri_count(), l_fillstyle.c, r3x3_1/*real(0.05) * m_position*/);
 		}
-		////
-		//for(uint i = 1, s = l_triangulator.lines.size(); i < s; i += 2) {
-		//	const real2 &l_s = l_triangulator.lines[i - 1], &l_e = l_triangulator.lines[i];
-		//	l_renderer.draw_line(l_s, l_e, l_fillstyle.c, real(0.1));
-		//}
+		//
+		for(uint i = 1, s = l_triangulator.lines.size(); i < s; i += 2) {
+			const real2 &l_s = l_triangulator.lines[i - 1], &l_e = l_triangulator.lines[i];
+			l_renderer.draw_line(l_s, l_e, l_fillstyle.c, real(0.5));
+		}
 	}
 	//for(uint i = 0, s = l_info.line_path_count(); i < s; ++i) {
 	//	const path &l_path = l_info.get_line_path(i);
@@ -635,6 +636,7 @@ void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 				l_curr_point = m_add_point(get_point(l_curr_point) + real2(l_anchor_delta_x, l_anchor_delta_y));
 				l_edge.e = l_curr_point;
 			}
+			assert(l_edge.s != l_edge.e);
 			if(l_fill0) {
 				swap(l_edge.s, l_edge.e);
 				m_filledges[l_fill0].push_back(l_edge);

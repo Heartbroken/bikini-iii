@@ -13,7 +13,7 @@
 template<typename _Renderer> struct _player_renderer_proxy_ : renderer {
 	inline _player_renderer_proxy_(_Renderer &_renderer) : m_renderer(_renderer) {}
 	void draw_line(const real2 &_s, const real2 &_e, const color &_c, real _width) { return m_renderer.draw_line(_s, _e, _c, _width); }
-	void draw_tris(const real2 *_points, const uint *_tris, uint _count, const color &_c) { return m_renderer.draw_tris(_points, _tris, _count, _c); }
+	void draw_tris(const real2 *_points, const uint *_tris, uint _count, const color &_c, const r3x3 &_position) { return m_renderer.draw_tris(_points, _tris, _count, _c, _position); }
 private:
 	_Renderer &m_renderer;
 };
