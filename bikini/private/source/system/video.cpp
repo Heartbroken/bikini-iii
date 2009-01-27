@@ -223,7 +223,7 @@ bool screen::create() {
 		l_d3dpresent_parameters.BackBufferHeight = m_height;
 		l_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
 		l_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
-		l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)8;
+		l_d3dpresent_parameters.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
 		l_d3dpresent_parameters.MultiSampleQuality = 0;
 		l_d3dpresent_parameters.EnableAutoDepthStencil = false;
 		l_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
