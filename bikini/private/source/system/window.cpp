@@ -34,7 +34,7 @@ window::window(video &_video) :
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_ALPHABLENDENABLE, TRUE));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
+	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_POINT));
 
