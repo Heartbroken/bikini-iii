@@ -13,7 +13,6 @@ namespace bk { /*---------------------------------------------------------------
 // triangulator
 
 struct triangulator {
-	//real eps;
 	typedef real2 point;
 	typedef std::vector<point> points;
 	typedef std::vector<uint> poly;
@@ -29,7 +28,6 @@ struct triangulator {
 	inline const uint* get_tris() const { return &m_tris[0]; }
 	bool build(const points &_points, const poly &_poly) {
 		if(_points.empty() || _poly.empty()) return false;
-		//eps = real(0.00001);
 		lines.resize(0);
 		m_create_edges(_points, _poly);
 		m_split_monotone();
@@ -123,16 +121,18 @@ private:
 		//}
 	}
 	void m_triangulate_monotone() {
-		//if(m_monotone.size() < 3) return;
 		assert(m_monotone.size() > 2);
 		std::vector<uint> l_stack; l_stack.insert(l_stack.end(), m_monotone.begin(), m_monotone.begin() + 2);
 		for(uint i = 2, s = m_monotone.size(); i < s; ++i) {
 			uint l_vi = m_monotone[i];
 			if(m_adjacent_vertices(l_vi, l_stack.front())) {
 				const vertex &l_v0 = m_vertices[l_vi];
+				bool l_reverse = (m_vertices[l_stack[0]].e1 == l_v0.e0);
 				while(l_stack.size() > 1) {
-					const vertex &l_v1 = m_vertices[l_stack[0]];
-					const vertex &l_v2 = m_vertices[l_stack[1]];
+					uint l_v1i = l_stack[0], l_v2i = l_stack[1];
+					if(l_reverse) swap(l_v1i, l_v2i);
+					const vertex &l_v1 = m_vertices[l_v1i];
+					const vertex &l_v2 = m_vertices[l_v2i];
 					m_tris.push_back(l_v0.p); m_tris.push_back(l_v1.p); m_tris.push_back(l_v2.p);
 					l_stack.erase(l_stack.begin());
 				}
@@ -140,19 +140,22 @@ private:
 			} else if(m_adjacent_vertices(l_vi, l_stack.back())) {
 				const vertex &l_v0 = m_vertices[l_vi];
 				const point &l_p0 = m_points[l_v0.p];
+				bool l_reverse = (m_vertices[l_stack[l_stack.size() - 1]].e1 == l_v0.e0);
 				while(l_stack.size() > 1) {
-					const vertex &l_v1 = m_vertices[*(l_stack.end() - 2)], &l_v2 = m_vertices[*(l_stack.end() - 1)];
+					uint l_v1i = l_stack[l_stack.size() - 1], l_v2i = l_stack[l_stack.size() - 2];
+					if(l_reverse) swap(l_v1i, l_v2i);
+					const vertex &l_v1 = m_vertices[l_v1i], &l_v2 = m_vertices[l_v2i];
 					const point &l_p1 = m_points[l_v1.p], &l_p2 = m_points[l_v2.p];
-					real l_cross = cross(l_p1 - l_p0, l_p2 - l_p0);
-					if(m_edges[l_v2.e0].v0 == l_vi) l_cross *= real(-1);
-					if(l_cross < eps) break;
+					point l_d0 = l_p0 - l_p2, l_d1 = l_p1 - l_p2;
+					real l_a0 = atan2(l_d0.y(), l_d0.x()), l_a1 = atan2(l_d1.y(), l_d1.x()), l_a = l_a1 - l_a0;
+					while(l_a < 0) l_a += real(2) * pi;
+					if(l_a > pi) break;
 					m_tris.push_back(l_v0.p); m_tris.push_back(l_v1.p); m_tris.push_back(l_v2.p);
 					l_stack.erase(l_stack.end() - 1);
 				}
 				l_stack.push_back(l_vi);
 			} else {
 				assert(0);
-				//l_stack.push_back(l_vi);
 			}
 		}
 	}
@@ -275,16 +278,7 @@ private:
 				l_v1i = l_t.v1 + i;
 			}
 			assert(l_v1i != bad_ID);
-			vertex &l_v1 = m_vertices[l_v1i];
-			uint l_e00i, l_e01i; m_vertex_edges(l_v0i, l_v1i, l_e00i, l_e01i);
-			uint l_e10i, l_e11i; m_vertex_edges(l_v1i, l_v0i, l_e10i, l_e11i);
-			edge &l_e00 = m_edges[l_e00i], &l_e10 = m_edges[l_e10i], l_ne0, l_ne1;
-			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
-			l_ne0.ne = l_e11i; l_ne1.ne = l_e01i;
-			l_ne0.te = m_edges.size() + 1; l_ne1.te = m_edges.size();
-			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
-			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
-			l_v0.n = l_v1.n = false;
+			m_insert_edges(l_v0i, l_v1i);
 		}
 		for(uint i = 0; i < l_t.v1c; ++i) {
 			uint l_v0i = l_t.v1 + i;
@@ -301,17 +295,21 @@ private:
 				l_v1i = l_t.v0 + i;
 			}
 			assert(l_v1i != bad_ID);
-			vertex &l_v1 = m_vertices[l_v1i];
-			uint l_e00i, l_e01i; m_vertex_edges(l_v0i, l_v1i, l_e00i, l_e01i);
-			uint l_e10i, l_e11i; m_vertex_edges(l_v1i, l_v0i, l_e10i, l_e11i);
-			edge &l_e00 = m_edges[l_e00i], &l_e10 = m_edges[l_e10i], l_ne0, l_ne1;
-			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
-			l_ne0.ne = l_e11i; l_ne1.ne = l_e01i;
-			l_ne0.te = m_edges.size() + 1; l_ne1.te = m_edges.size();
-			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
-			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
-			l_v0.n = l_v1.n = false;
+			m_insert_edges(l_v0i, l_v1i);
 		}
+	}
+	void m_insert_edges(uint _v0, uint _v1) {
+		vertex &l_v0 = m_vertices[_v0];
+		vertex &l_v1 = m_vertices[_v1];
+		uint l_e00i, l_e01i; m_vertex_edges(_v0, _v1, l_e00i, l_e01i);
+		uint l_e10i, l_e11i; m_vertex_edges(_v1, _v0, l_e10i, l_e11i);
+		edge &l_e00 = m_edges[l_e00i], &l_e10 = m_edges[l_e10i], l_ne0, l_ne1;
+		l_ne0.v0 = l_ne1.v1 = _v0; l_ne0.v1 = l_ne1.v0 = _v1;
+		l_ne0.ne = l_e11i; l_ne1.ne = l_e01i;
+		l_ne0.te = m_edges.size() + 1; l_ne1.te = m_edges.size();
+		l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
+		m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
+		l_v0.n = l_v1.n = false;
 	}
 	void m_vertex_edges(uint _v0, uint _v1, uint &_e0, uint &_e1) {
 		const vertex &l_v0 = m_vertices[_v0];
@@ -329,7 +327,10 @@ private:
 			const point &l_p1 = m_points[l_v1.p], &l_p2 = m_points[l_v2.p];
 			point l_d = l_p - l_p0, l_d1 = l_p1 - l_p0, l_d2 = l_p2 - l_p0;
 			real l_a = atan2(l_d.y(), l_d.x()), l_a1 = atan2(l_d1.y(), l_d1.x()), l_a2 = atan2(l_d2.y(), l_d2.x());
-			if(l_a2 - l_a1 < l_a - l_a1) return;
+			real l_a01 = l_a - l_a1, l_a21 = l_a2 - l_a1;
+			while(l_a01 < 0) l_a01 += real(2) * pi;
+			while(l_a21 < 0) l_a21 += real(2) * pi;
+			if(l_a21 < l_a01) return;
 			assert(l_e1.te != bad_ID);
 			_e0 = l_e1.te; _e1 = m_edges[_e0].ne;
 		}
@@ -420,7 +421,7 @@ bool shape::render() const {
 			const edge &l_edge = l_edges[i];
 			if(l_edge.c != bad_ID) {
 				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
-					const real l_tolerance = real(0.1 /** 20.0*/);
+					const real l_tolerance = real(0.1);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
 					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
 					tesselate(_s, (_s + _c) * real(0.5), l_p, _points);
@@ -444,7 +445,7 @@ bool shape::render() const {
 		triangulator l_triangulator;
 		l_triangulator.build(l_points, l_poly);
 		if(l_triangulator.tri_count() > 0) {
-			l_renderer.draw_tris(&l_points[0], l_triangulator.get_tris(), l_triangulator.tri_count(), l_fillstyle.c, r3x3_1/*real(0.05) * m_position*/);
+			l_renderer.draw_tris(&l_points[0], l_triangulator.get_tris(), l_triangulator.tri_count(), l_fillstyle.c, r3x3_1 * real(1)/*real(0.05) * m_position*/);
 		}
 		//
 		for(uint i = 1, s = l_triangulator.lines.size(); i < s; i += 2) {
