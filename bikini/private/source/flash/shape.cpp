@@ -280,7 +280,7 @@ private:
 			uint l_e10i, l_e11i; m_vertex_edges(l_v1i, l_v0i, l_e10i, l_e11i);
 			edge &l_e00 = m_edges[l_e00i], &l_e10 = m_edges[l_e10i], l_ne0, l_ne1;
 			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
-			l_ne0.ne = l_v1.e1; l_ne1.ne = l_v0.e1;
+			l_ne0.ne = l_e11i; l_ne1.ne = l_e01i;
 			l_ne0.te = m_edges.size() + 1; l_ne1.te = m_edges.size();
 			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
 			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
@@ -306,7 +306,7 @@ private:
 			uint l_e10i, l_e11i; m_vertex_edges(l_v1i, l_v0i, l_e10i, l_e11i);
 			edge &l_e00 = m_edges[l_e00i], &l_e10 = m_edges[l_e10i], l_ne0, l_ne1;
 			l_ne0.v0 = l_ne1.v1 = l_v0i; l_ne0.v1 = l_ne1.v0 = l_v1i;
-			l_ne0.ne = l_v1.e1; l_ne1.ne = l_v0.e1;
+			l_ne0.ne = l_e11i; l_ne1.ne = l_e01i;
 			l_ne0.te = m_edges.size() + 1; l_ne1.te = m_edges.size();
 			l_e00.ne = m_edges.size(); l_e10.ne = m_edges.size() + 1;
 			m_edges.push_back(l_ne0); m_edges.push_back(l_ne1);
