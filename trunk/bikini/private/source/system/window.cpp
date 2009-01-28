@@ -35,7 +35,7 @@ window::window(video &_video) :
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
+	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_POINT));
 
 	m_vshader.info.function = window_vs;
@@ -229,7 +229,7 @@ bool window::remove_scissor() {
 }
 bool window::draw_line(sint _x0, sint _y0, sint _x1, sint _y1, const color &_c, uint _width) {
 	if(!m_video.ready() || !m_video.exists(m_screen.ID)) return false;
-	f32 l_length = (f32)sqrt((_x1 - _x0) * (_x1 - _x0) + (_y1 - _y0) * (_y1 - _y0));
+	f32 l_length = (f32)sqrt(real((_x1 - _x0) * (_x1 - _x0) + (_y1 - _y0) * (_y1 - _y0)));
 	f1x4 l_p0(-.5f * _width, .5f * _width, 0, 1);
 	f1x4 l_p1(-.5f * _width,-.5f * _width, 0, 1);
 	f1x4 l_p2(l_length + .5f * _width,-.5f * _width, 0, 1);

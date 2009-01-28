@@ -596,8 +596,8 @@ void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 			if(l_flags == 0) break;
 			if(l_flags & move_to) {
 				uint l_move_bits = _s.UB(5);
-				real l_move_x = _s.SB(l_move_bits);
-				real l_move_y = _s.SB(l_move_bits);
+				real l_move_x = (real)_s.SB(l_move_bits);
+				real l_move_y = (real)_s.SB(l_move_bits);
 				l_curr_point = m_add_point(real2(l_move_x, l_move_y));
 			}
 			if(l_flags & fill_style0) {
@@ -623,17 +623,17 @@ void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 				l_edge.c = bad_ID;
 				uint l_general_line = _s.UB(1);
 				uint l_vert_line = (l_general_line == 0) ? _s.UB(1) : 0;
-				real l_delta_x = (l_general_line == 1 || l_vert_line == 0) ? _s.SB(l_delta_bits) : 0;
-				real l_delta_y = (l_general_line == 1 || l_vert_line == 1) ? _s.SB(l_delta_bits) : 0;
+				real l_delta_x = (l_general_line == 1 || l_vert_line == 0) ? (real)_s.SB(l_delta_bits) : 0;
+				real l_delta_y = (l_general_line == 1 || l_vert_line == 1) ? (real)_s.SB(l_delta_bits) : 0;
 				l_curr_point = m_add_point(get_point(l_curr_point) + real2(l_delta_x, l_delta_y));
 				l_edge.e = l_curr_point;
 			} else {
-				real l_control_delta_x = _s.SB(l_delta_bits);
-				real l_control_delta_y = _s.SB(l_delta_bits);
+				real l_control_delta_x = (real)_s.SB(l_delta_bits);
+				real l_control_delta_y = (real)_s.SB(l_delta_bits);
 				l_curr_point = m_add_point(get_point(l_curr_point) + real2(l_control_delta_x, l_control_delta_y));
 				l_edge.c = l_curr_point;
-				real l_anchor_delta_x = _s.SB(l_delta_bits);
-				real l_anchor_delta_y = _s.SB(l_delta_bits);
+				real l_anchor_delta_x = (real)_s.SB(l_delta_bits);
+				real l_anchor_delta_y = (real)_s.SB(l_delta_bits);
 				l_curr_point = m_add_point(get_point(l_curr_point) + real2(l_anchor_delta_x, l_anchor_delta_y));
 				l_edge.e = l_curr_point;
 			}
