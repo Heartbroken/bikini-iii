@@ -19,7 +19,7 @@ struct task0 : bk::application::task {
 		bk::video l_video;
 		l_video.create();
 		bk::window l_window(l_video);
-		l_window.create(1024U, 640U);
+		l_window.create(800, 600, false);
 		l_window.set_caption("test_application ");
 		l_window.show();
 		l_window.clear();

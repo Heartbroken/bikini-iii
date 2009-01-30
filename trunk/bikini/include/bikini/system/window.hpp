@@ -14,7 +14,7 @@ struct window {
 //#	if defined(XBOX)
 //	bool create();
 //#	elif defined(WIN32)
-	bool create(uint _width, uint _height, HICON _icon = 0);
+	bool create(uint _width, uint _height, bool _fullscreen = false, HICON _icon = 0);
 	bool create(HWND _handle);
 	HWND get_handle();
 	void show(bool _yes = true);
