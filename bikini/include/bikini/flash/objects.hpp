@@ -14,10 +14,12 @@ namespace ot { enum object_type {
 	movie,
 	clip,
 	shape,
+	button,
 };}
 
 #include "movie.hpp"
 #include "clip.hpp"
 #include "shape.hpp"
+#include "button.hpp"
 
 } /* namespace po -------------------------------------------------------------------------------*/

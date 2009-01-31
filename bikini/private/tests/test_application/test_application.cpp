@@ -19,17 +19,18 @@ struct task0 : bk::application::task {
 		bk::video l_video;
 		l_video.create();
 		bk::window l_window(l_video);
-		l_window.create(800, 600, false);
+		l_window.create(800, 600, true);
 		l_window.set_caption("test_application ");
 		l_window.show();
 		l_window.clear();
 		bk::flash::player l_player;
 		l_player.create(l_window);
 		l_player.play("data/gui/test.swf");
-		bk::ticker l_ticker(1.f/30.f);
+		bk::ticker l_ticker(bk::real(1.0/30.0));
 		bk::rbig l_time = bk::sys_time();
 		while(true) {
 			bk::real l_dt = bk::real(bk::sys_time() - l_time); l_time = bk::sys_time();
+			l_dt = bk::min(l_dt, bk::real(0.3));
 			l_video.update(l_dt);
 			if(!l_window.update(l_dt)) break;
 			// do something useful

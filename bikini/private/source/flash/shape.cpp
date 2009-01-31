@@ -127,7 +127,7 @@ private:
 			uint l_vi = m_monotone[i];
 			if(m_adjacent_vertices(l_vi, l_stack.front())) {
 				const vertex &l_v0 = m_vertices[l_vi];
-				bool l_reverse = (m_vertices[l_stack[0]].e1 == l_v0.e0);
+				bool l_reverse = (m_vertices[l_stack[0]].e0 == l_v0.e1);
 				while(l_stack.size() > 1) {
 					uint l_v1i = l_stack[0], l_v2i = l_stack[1];
 					if(l_reverse) swap(l_v1i, l_v2i);
@@ -140,7 +140,7 @@ private:
 			} else if(m_adjacent_vertices(l_vi, l_stack.back())) {
 				const vertex &l_v0 = m_vertices[l_vi];
 				const point &l_p0 = m_points[l_v0.p];
-				bool l_reverse = (m_vertices[l_stack[l_stack.size() - 1]].e1 == l_v0.e0);
+				bool l_reverse = (m_vertices[l_stack[l_stack.size() - 1]].e0 == l_v0.e1);
 				while(l_stack.size() > 1) {
 					uint l_v1i = l_stack[l_stack.size() - 1], l_v2i = l_stack[l_stack.size() - 2];
 					if(l_reverse) swap(l_v1i, l_v2i);
@@ -330,7 +330,7 @@ private:
 			real l_a01 = l_a - l_a1, l_a21 = l_a2 - l_a1;
 			while(l_a01 < 0) l_a01 += real(2) * pi;
 			while(l_a21 < 0) l_a21 += real(2) * pi;
-			if(l_a21 < l_a01) return;
+			if(l_a21 > l_a01) return;
 			assert(l_e1.te != bad_ID);
 			_e0 = l_e1.te; _e1 = m_edges[_e0].ne;
 		}
@@ -398,7 +398,7 @@ namespace po { /*---------------------------------------------------------------
 // shape
 
 shape::shape(const info &_info, player &_player) :
-	player::object(_info, _player), m_position(r3x3_1)
+	_placed(_info, _player)
 {}
 shape::~shape() {
 }
@@ -410,7 +410,7 @@ bool shape::render() const {
 	for(uint i = 0, s = l_info.point_count(); i < s; ++i) {
 		const real2 &l_p = l_info.get_point(i);
 //		l_points.push_back(l_p);
-		l_points.push_back(real(0.05) * real3(l_p.x(), l_p.y(), 1) * m_position);
+		l_points.push_back(real3(l_p.x(), l_p.y(), 1) * position() * real(0.05));
 	}
 	for(uint i = 0, s = l_info.fillstyle_count(); i < s; ++i) {
 		const fillstyle &l_fillstyle = l_info.get_fillstyle(i);
@@ -499,7 +499,7 @@ bool shape::render() const {
 
 // shape::info
 
-shape::info::info(swfstream &_s, tag::type _type) : player::object::info(ot::shape) {
+shape::info::info(swfstream &_s, tag::type _type) : _placed::info(ot::shape) {
 	fillstyle l_fillstyle; l_fillstyle.c = 0;
 	m_fillstyles.push_back(l_fillstyle);
 	m_filledges.push_back(edges());
@@ -639,10 +639,10 @@ void shape::info::m_read_shape_records(swfstream &_s, tag::type _type) {
 			}
 			assert(l_edge.s != l_edge.e);
 			if(l_fill0) {
-				swap(l_edge.s, l_edge.e);
 				m_filledges[l_fill0].push_back(l_edge);
 			}
 			if(l_fill1) {
+				swap(l_edge.s, l_edge.e);
 				m_filledges[l_fill1].push_back(l_edge);
 			}
 			//if(!m_line_paths.back().edges.empty()) {

@@ -120,7 +120,7 @@ sint swfstream::SB(uint _size) {
 	return l_v;
 }
 real swfstream::FB(uint _size) {
-	return real(SB(_size)) / real(256);
+	return real(SB(_size)) / real(0xffff);
 }
 wstring swfstream::STRING() {
 	astring l_a;

@@ -55,7 +55,13 @@ movie::info::~info() {
 		m_defines.pop_back();
 	}
 }
-
+void movie::info::define_clip(swfstream &_s) {
+	if(_s.good()) {
+		uint l_define_ID = _s.UI16();
+		if(l_define_ID >= m_defines.size()) m_defines.resize(l_define_ID + 1, 0);
+		m_defines[l_define_ID] = new clip::info(*this, _s);
+	}
+}
 void movie::info::define_shape(swfstream &_s, tag::type _type) {
 	if(_s.good()) {
 		uint l_define_ID = _s.UI16();
@@ -63,11 +69,11 @@ void movie::info::define_shape(swfstream &_s, tag::type _type) {
 		m_defines[l_define_ID] = new shape::info(_s, _type);
 	}
 }
-void movie::info::define_clip(swfstream &_s) {
+void movie::info::define_button(swfstream &_s, tag::type _type) {
 	if(_s.good()) {
 		uint l_define_ID = _s.UI16();
 		if(l_define_ID >= m_defines.size()) m_defines.resize(l_define_ID + 1, 0);
-		m_defines[l_define_ID] = new clip::info(*this, _s);
+		m_defines[l_define_ID] = new button::info(_s, _type);
 	}
 }
 
