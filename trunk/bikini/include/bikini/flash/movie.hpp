@@ -18,8 +18,9 @@ struct movie : player::object {
 		template<typename _Type> inline const typename _Type::info& get_define(uint _i) const;
 		info(swfstream &_s);
 		~info();
-		void define_shape(swfstream &_s, tag::type _type);
 		void define_clip(swfstream &_s);
+		void define_shape(swfstream &_s, tag::type _type);
+		void define_button(swfstream &_s, tag::type _type);
 	private:
 		sint2 m_frame_size; real m_frame_rate;
 		std::vector<player::object::info*> m_defines;

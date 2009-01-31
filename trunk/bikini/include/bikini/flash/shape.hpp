@@ -8,7 +8,7 @@
 
 #pragma once
 
-struct shape : player::object {
+struct shape : _placed {
 	typedef real2 point;
 	typedef std::vector<point> points;
 	struct edge { uint s, c, e; }; typedef std::vector<edge> edges;
@@ -16,7 +16,7 @@ struct shape : player::object {
 	typedef std::vector<edges> filledges;
 	//struct linestyle : fillstyle { uint w; };
 	//struct path { uint style; std::vector<edge> edges; };
-	struct info : player::object::info {
+	struct info : _placed::info {
 		typedef shape object;
 		info(swfstream &_s, tag::type _type);
 		inline uint point_count() const { return m_points.size(); }
@@ -40,11 +40,7 @@ struct shape : player::object {
 		//std::vector<line_style> m_line_styles;
 		//std::vector<path> m_line_paths;
 	};
-	inline const r3x3& position() const { return m_position; }
-	inline void set_position(const r3x3 &_p) { m_position = _p; }
 	shape(const info &_info, player &_player);
 	~shape();
 	bool render() const;
-private:
-	r3x3 m_position;
 };

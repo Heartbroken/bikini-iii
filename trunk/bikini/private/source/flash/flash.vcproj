@@ -155,6 +155,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\button.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\clip.cpp"
 				>
 			</File>
@@ -216,6 +220,10 @@
 		<Filter
 			Name="interface"
 			>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\button.hpp"
+				>
+			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\flash\clip.hpp"
 				>
