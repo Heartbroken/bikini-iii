@@ -190,8 +190,8 @@ clip::info::info(movie::info &_movie, swfstream &_s) : _placed::info(ot::clip) {
 				m_edit_objects(_s, l_record.type, l_objects);
 			} break;
 			case tag::DoAction : {
-				program l_program; m_read_actions(_s, l_program);
-				m_timeline[l_curr_frame].add_program(l_program);
+				bytecode l_bytecode; m_read_actions(_s, l_bytecode);
+				m_timeline[l_curr_frame].add_action(l_bytecode);
 			} break;
 			//case tag::StartSound :
 			//case tag::StartSound2 : {
@@ -254,16 +254,16 @@ void clip::info::m_edit_objects(swfstream &_s, tag::type _tag, frame::objects &_
 		} break;
 	}
 }
-void clip::info::m_read_actions(swfstream &_s, program &_program) {
+void clip::info::m_read_actions(swfstream &_s, bytecode &_bytecode) {
 	while(true) {
 		uint l_code = _s.UI8();
 		if(l_code == 0) break;
-		_program.push_back((u8)l_code);
+		_bytecode.push_back((u8)l_code);
 		if(l_code & 0x80) {
 			uint l_length = _s.UI16();
-			_program.push_back(u8(l_length & 0xff));
-			_program.push_back(u8((l_length >> 8) & 0xff));
-			while(l_length--) _program.push_back((u8)_s.UI8());
+			_bytecode.push_back(u8(l_length & 0xff));
+			_bytecode.push_back(u8((l_length >> 8) & 0xff));
+			while(l_length--) _bytecode.push_back((u8)_s.UI8());
 		}
 	}
 }

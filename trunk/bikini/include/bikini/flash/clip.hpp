@@ -21,50 +21,23 @@ private:
 
 /// clip
 struct clip : _placed {
-	typedef std::vector<u8> program;
+	typedef std::vector<u8> bytecode;
 	struct frame {
 		struct object {
 			uint ID; r3x3 position; cxform tinge; real ratio; wstring name; uint clipdepth;
 			inline object() : ID(bad_ID) {}
 		};
 		typedef std::vector<object> objects;
-		typedef std::vector<program> programs;
+		typedef std::vector<bytecode> actions;
 		inline void set_objects(const objects &_objects) { m_objects = _objects; }
 		inline uint object_count() const { return m_objects.size(); }
 		inline const object& get_object(uint _i) const { return m_objects[_i]; }
-		inline void add_program(const program &_program) { m_programs.push_back(_program); }
-		inline uint program_count() const { return m_programs.size(); }
-		inline const program& get_program(uint _i) const { return m_programs[_i]; }
-		////
-		//struct add_object { uint ID, depth; };
-		//struct select_object { uint depth; };
-		//struct move_object { r3x3 position; };
-		//struct tinge_object { cxform cxf; };
-		//struct morph_object { real ratio; };
-		//struct name_object { wstring name; };
-		//struct clipoff_object { uint clipdepth; };
-		//struct remove_object { uint depth; };
-		//struct do_action { std::vector<u8> program; };
-		//typedef make_typelist_<
-		//	add_object,
-		//	select_object,
-		//	move_object,
-		//	tinge_object,
-		//	morph_object,
-		//	name_object,
-		//	clipoff_object,
-		//	remove_object,
-		//	do_action
-		//>::type commands;
-		//typedef variant_<commands> command;
-		//void add_command(swfstream &_s, tag::type _type);
-		//inline uint command_count() const { return m_commands.size(); }
-		//inline const command& get_command(uint _i) const { return m_commands[_i]; }
+		inline void add_action(const bytecode &_bytecode) { m_actions.push_back(_bytecode); }
+		inline uint action_count() const { return m_actions.size(); }
+		inline const bytecode& get_action(uint _i) const { return m_actions[_i]; }
 	private:
 		objects m_objects;
-		programs m_programs;
-		////
-		//std::vector<command> m_commands;
+		actions m_actions;
 	};
 	struct info : _placed::info {
 		typedef clip object;
@@ -75,7 +48,7 @@ struct clip : _placed {
 	private:
 		std::vector<frame> m_timeline;
 		void m_edit_objects(swfstream &_s, tag::type _tag, frame::objects &_objects);
-		void m_read_actions(swfstream &_s, program &_program);
+		void m_read_actions(swfstream &_s, bytecode &_bytecode);
 	};
 	clip(const info &_info, player &_player, uint _movie_ID);
 	~clip();
