@@ -47,7 +47,7 @@ struct manager : uncopyble {
 		const info &m_info;
 		manager &m_manager;
 		uint m_ID;
-		std::vector<uint> m_dependencies;
+		array_<uint> m_dependencies;
 		uint m_ref_count;
 		inline uint add_ref();
 		inline uint ref_count() const;
@@ -84,11 +84,11 @@ private:
 	static const uint index_mask = bad_ID >> ID_half_size;
 	uint add(object &_object);
 	void remove(uint _ID);
-	std::vector<object*> m_objects;
-	std::vector<uint> m_shared;
+	array_<object*> m_objects;
+	array_<uint> m_shared;
 	template<typename _Info> inline uint m_find_shared(const _Info &_info);
-	std::vector<uint> m_free_IDs;
-	std::vector<uint> m_update_order;
+	array_<uint> m_free_IDs;
+	array_<uint> m_update_order;
 	void m_build_update_order();
 	uint m_counter;
 };

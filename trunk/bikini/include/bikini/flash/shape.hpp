@@ -10,10 +10,10 @@
 
 struct shape : _placed {
 	typedef real2 point;
-	typedef std::vector<point> points;
-	struct edge { uint s, c, e; }; typedef std::vector<edge> edges;
-	struct fillstyle { color c; }; typedef std::vector<fillstyle> fillstyles;
-	typedef std::vector<edges> filledges;
+	typedef array_<point> points;
+	struct edge { uint s, c, e; }; typedef array_<edge> edges;
+	struct fillstyle { color c; }; typedef array_<fillstyle> fillstyles;
+	typedef array_<edges> filledges;
 	//struct linestyle : fillstyle { uint w; };
 	//struct path { uint style; std::vector<edge> edges; };
 	struct info : _placed::info {

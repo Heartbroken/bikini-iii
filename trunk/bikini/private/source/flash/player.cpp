@@ -90,7 +90,7 @@ bool player::render(uint _level) const {
 	return true;
 }
 player::object::info& player::m_load_movie(const wchar* _path) {
-	std::vector<wstring>::iterator l_it = std::find(m_movie_names.begin(), m_movie_names.end(), _path);
+	array_<wstring>::iterator l_it = std::find(m_movie_names.begin(), m_movie_names.end(), _path);
 	if(l_it != m_movie_names.end()) return *m_movies[l_it - m_movie_names.begin()];
 	m_movie_names.push_back(_path);
 	po::movie::info &l_movie = * new po::movie::info(swfstream(get_loader(), _path));

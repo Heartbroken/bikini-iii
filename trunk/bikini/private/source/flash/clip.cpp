@@ -35,7 +35,12 @@ static record RECORD(swfstream &_s) {
 
 clip::clip(const info &_info, player &_player, uint _movie_ID) :
 	_placed(_info, _player), m_movie_ID(_movie_ID), m_time(0), m_curr_frame(bad_ID)
-{}
+{
+	player &l_player = get_player();
+	movie &l_movie = l_player.get<movie>(m_movie_ID);
+	const array_<byte>& l_abc = _info.get_ABC();
+	if(!l_abc.empty()) l_movie.get_script().do_ABC(&l_abc[0], l_abc.size());
+}
 clip::~clip() {
 	while(!m_objects.empty()) {
 		if(get_player().exists(m_objects.back())) get_player().kill(m_objects.back());
@@ -169,6 +174,14 @@ clip::info::info(movie::info &_movie, swfstream &_s) : _placed::info(ot::clip) {
 		uint l_position = _s.seek();
 		assert(l_curr_frame < m_timeline.size());
 		switch(l_record.type) {
+			case tag::FileAttributes : {
+				uint l_flags = _s.UI8();
+				assert(l_flags & (1 << 3));
+				if((l_flags & (1 << 3)) == 0) {
+					std::cerr << "ERROR: Not Action Script 3.0 file\n";
+				}
+				_s.UB(24);
+			} break;
 			case tag::DefineShape :
 			case tag::DefineShape2 :
 			case tag::DefineShape3 :
@@ -189,10 +202,26 @@ clip::info::info(movie::info &_movie, swfstream &_s) : _placed::info(ot::clip) {
 			case tag::RemoveObject2 : {
 				m_edit_objects(_s, l_record.type, l_objects);
 			} break;
-			case tag::DoAction : {
-				bytecode l_bytecode; m_read_actions(_s, l_bytecode);
-				m_timeline[l_curr_frame].add_action(l_bytecode);
+			case tag::SymbolClass : {
+				uint l_count = _s.UI16();
+				while(l_count--) {
+					uint l_ID = _s.UI16();
+					wstring l_name = _s.STRING();
+					int a=0;
+				}
 			} break;
+			case tag::DoABC : {
+				uint l_flags = _s.UI32();
+				wstring l_name = _s.STRING();
+				uint l_abc_length = l_record.length - (_s.seek() - l_position);
+				assert(m_abc.empty());
+				m_abc.resize(l_abc_length);
+				for(uint i = 0, s = l_abc_length; i < s; ++i) m_abc[i] = _s.BYTE();
+			} break;
+			//case tag::DoAction : {
+			//	bytecode l_bytecode; m_read_actions(_s, l_bytecode);
+			//	m_timeline[l_curr_frame].add_action(l_bytecode);
+			//} break;
 			//case tag::StartSound :
 			//case tag::StartSound2 : {
 			//	m_timeline[l_curr_frame].add_command(_s, l_record.type);

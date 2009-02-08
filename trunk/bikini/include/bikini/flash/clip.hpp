@@ -21,14 +21,14 @@ private:
 
 /// clip
 struct clip : _placed {
-	typedef std::vector<u8> bytecode;
+	typedef array_<byte> bytecode;
 	struct frame {
 		struct object {
 			uint ID; r3x3 position; cxform tinge; real ratio; wstring name; uint clipdepth;
 			inline object() : ID(bad_ID) {}
 		};
-		typedef std::vector<object> objects;
-		typedef std::vector<bytecode> actions;
+		typedef array_<object> objects;
+		typedef array_<bytecode> actions;
 		inline void set_objects(const objects &_objects) { m_objects = _objects; }
 		inline uint object_count() const { return m_objects.size(); }
 		inline const object& get_object(uint _i) const { return m_objects[_i]; }
@@ -45,10 +45,12 @@ struct clip : _placed {
 		info(movie::info &_movie, swfstream &_s);
 		inline uint frame_count() const { return m_timeline.size(); }
 		inline const frame& get_frame(uint _i) const { return m_timeline[_i]; }
+		inline const array_<byte>& get_ABC() const { return m_abc; }
 	private:
-		std::vector<frame> m_timeline;
+		array_<frame> m_timeline;
 		void m_edit_objects(swfstream &_s, tag::type _tag, frame::objects &_objects);
 		void m_read_actions(swfstream &_s, bytecode &_bytecode);
+		array_<byte> m_abc;
 	};
 	clip(const info &_info, player &_player, uint _movie_ID);
 	~clip();
@@ -58,5 +60,5 @@ private:
 	uint m_movie_ID;
 	real m_time;
 	uint m_curr_frame;
-	std::vector<uint> m_objects;
+	array_<uint> m_objects;
 };

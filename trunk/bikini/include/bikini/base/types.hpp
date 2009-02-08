@@ -46,6 +46,38 @@ typedef wchar_t				wchar;
 typedef std::string			astring;
 typedef std::wstring		wstring;
 
+/// array class template
+template<typename _Type, typename _Allocator = std::allocator<_Type> >
+struct array_ : std::vector<_Type, _Allocator> {
+	typedef _Type value_type;
+	typedef _Allocator allocator_type;
+	typedef std::vector<value_type, allocator_type> parent_type;
+	typedef parent_type& parent_type_ref;
+	typedef const parent_type& parent_type_const_ref;
+	inline array_() {}
+	inline array_(const parent_type &_right) : parent_type(_right) {}
+	inline array_(const allocator_type &_allocator) : parent_type(_allocator) {}
+	inline array_(uint _count) : parent_type(_count) {}
+	inline array_(uint _count, const value_type &_value) : parent_type(_count, _value) {}
+	inline array_(uint _count, const value_type &_value, const allocator_type &_allocator) : parent_type(_count, _value, _allocator) {}
+	inline array_(const array_ &_right) : parent_type(static_cast<const parent_type&>(_right)) {}
+	template<typename _Iterator> inline array_(_Iterator _first, _Iterator _last) : parent_type(_first, _last) {}
+	template<typename _Iterator> inline array_(_Iterator _first, _Iterator _last, const allocator_type &_allocator) : parent_type(_first, _last, _allocator) {}
+	inline operator parent_type_ref () { return static_cast<parent_type&>(*this); }
+	inline operator parent_type_const_ref () const { return static_cast<const parent_type&>(*this); }
+};
+
+///
+typedef array_<byte> byte_array;
+typedef array_<uint> uint_array;
+typedef array_<sint> sint_array;
+typedef array_<real> real_array;
+typedef array_<rbig> rbig_array;
+typedef array_<achar> achar_array;
+typedef array_<wchar> wchar_array;
+typedef array_<astring> astring_array;
+typedef array_<wstring> wstring_array;
+
 /// type selector template
 template<bool _C, typename _T0, typename _T1>
 struct select_ {

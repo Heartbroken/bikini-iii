@@ -41,9 +41,9 @@ private:
 	renderer *m_renderer_p; bool m_delete_renderer;
 	loader *m_loader_p; bool m_delete_loader;
 	bk::loader m_def_loader;
-	std::vector<uint> m_levels;
-	std::vector<object::info*> m_movies;
-	std::vector<wstring> m_movie_names;
+	array_<uint> m_levels;
+	array_<object::info*> m_movies;
+	array_<wstring> m_movie_names;
 	object::info& m_load_movie(const wchar* _path);
 };
 

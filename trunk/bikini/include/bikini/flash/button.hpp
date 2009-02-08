@@ -22,5 +22,5 @@ private:
 	uint m_movie_ID;
 	uint m_curr_state;
 	r3x3 m_position;
-	std::vector<uint> m_objects;
+	array_<uint> m_objects;
 };
