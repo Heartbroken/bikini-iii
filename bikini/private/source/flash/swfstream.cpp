@@ -55,7 +55,7 @@ uint swfstream::UI8() {
 }
 uint swfstream::UI16() {
 	u8 l_b0 = BYTE(), l_b1 = BYTE();
-	return uint(l_b0) | uint(l_b1 << 8);
+	return uint(l_b0) + uint(l_b1 << 8);
 }
 uint swfstream::UI32() {
 	u8 l_b0 = BYTE(), l_b1 = BYTE(), l_b2 = BYTE(), l_b3 = BYTE();
@@ -126,9 +126,10 @@ wstring swfstream::STRING() {
 	astring l_a;
 	for(u8 l_b = BYTE(); l_b > 0; l_b = BYTE()) l_a += (achar)l_b;
 	if(l_a.length() == 0) return L"";
-	wchar* l_w = (wchar*)_malloca(l_a.length() * 2);
-	MultiByteToWideChar(CP_UTF8, 0, l_a.data(), (int)l_a.length(), l_w, (int)l_a.length() * 2);
-	return l_w;
+	uint l_size = MultiByteToWideChar(CP_UTF8, 0, l_a.data(), (int)l_a.length(), 0, 0);
+	wchar* l_buffer = (wchar*)calloc(l_size, sizeof(wchar));
+	MultiByteToWideChar(CP_UTF8, 0, l_a.data(), (int)l_a.length(), l_buffer, (int)l_size);
+	return wstring(l_buffer, l_size);
 }
 color swfstream::RGB() {
 	u8 l_r = BYTE(), l_g = BYTE(), l_b = BYTE();

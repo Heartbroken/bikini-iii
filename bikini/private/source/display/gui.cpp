@@ -48,7 +48,7 @@ void gui::destroy() {
 	}
 }
 bool gui::expose(exposer &_exposer) const {
-	std::vector<uint> l_order;
+	array_<uint> l_order;
 	l_order.push_back(m_screen_ID);
 	for(uint i = 0; i < l_order.size(); ++i) {
 		uint l_element_ID = l_order[i];
@@ -66,7 +66,7 @@ bool gui::render(window &_window) const {
 	bool l_save_active = _window.active();
 	if(_window.active() || _window.begin()) {
 		_window.clear(cf::all);
-		std::vector<uint> l_order;
+		array_<uint> l_order;
 		l_order.push_back(m_screen_ID);
 		for(uint i = 0; i < l_order.size(); ++i) {
 			uint l_element_ID = l_order[i];

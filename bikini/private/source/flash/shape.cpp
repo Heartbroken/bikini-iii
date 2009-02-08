@@ -14,16 +14,16 @@ namespace bk { /*---------------------------------------------------------------
 
 struct triangulator {
 	typedef real2 point;
-	typedef std::vector<point> points;
-	typedef std::vector<uint> poly;
+	typedef array_<point> points;
+	typedef array_<uint> poly;
 	struct vertex { uint p, e0, e1; bool n; };
-	typedef std::vector<vertex> vertices;
-	typedef std::vector<uint> point_map;
+	typedef array_<vertex> vertices;
+	typedef array_<uint> point_map;
 	struct edge { uint v0, v1, ne, te; };
-	typedef std::vector<edge> edges;
-	typedef std::vector<uint> edge_list;
+	typedef array_<edge> edges;
+	typedef array_<uint> edge_list;
 	struct trapezoid { uint v0, v0c, v1, v1c, e0, e1; };
-	typedef std::vector<trapezoid> trapezoids;
+	typedef array_<trapezoid> trapezoids;
 	inline uint tri_count() const { return m_tris.size() / 3; }
 	inline const uint* get_tris() const { return &m_tris[0]; }
 	bool build(const points &_points, const poly &_poly) {
@@ -34,12 +34,12 @@ struct triangulator {
 		m_triangulate_parts();
 		return true;
 	}
-	std::vector<point> lines;
+	array_<point> lines;
 private:
 	const point *m_points;
 	vertices m_vertices; point_map m_point_map;
 	edges m_edges; edge_list m_edge_list; trapezoids m_trapezoids;
-	std::vector<uint> m_monotone, m_tris;
+	array_<uint> m_monotone, m_tris;
 	void m_create_edges(const points &_points, const poly &_poly) {
 		m_edges.resize(0); m_edge_list.resize(0); m_trapezoids.resize(0);
 		m_monotone.resize(0); m_tris.resize(0);
@@ -99,7 +99,7 @@ private:
 				vertex &l_v0 = m_vertices[l_e.v0], &l_v1 = m_vertices[l_e.v1];
 				l_v0.e1 = l_v1.e0 = l_ei;
 				// @@@ // Optimize this. Do not do full sorting, but merge two monotone chains
-				std::vector<uint>::iterator l_insert = m_monotone.end();
+				array_<uint>::iterator l_insert = m_monotone.end();
 				for(uint i = 0, s = m_monotone.size(); i < s; ++i) {
 					if(l_e.v0 < m_monotone[i]) {
 						l_insert = m_monotone.begin() + i;
@@ -122,7 +122,7 @@ private:
 	}
 	void m_triangulate_monotone() {
 		assert(m_monotone.size() > 2);
-		std::vector<uint> l_stack; l_stack.insert(l_stack.end(), m_monotone.begin(), m_monotone.begin() + 2);
+		array_<uint> l_stack; l_stack.insert(l_stack.end(), m_monotone.begin(), m_monotone.begin() + 2);
 		for(uint i = 2, s = m_monotone.size(); i < s; ++i) {
 			uint l_vi = m_monotone[i];
 			if(m_adjacent_vertices(l_vi, l_stack.front())) {
@@ -406,7 +406,7 @@ bool shape::render() const {
 	player &l_player = get_player();
 	renderer &l_renderer = l_player.get_renderer();
 	const info &l_info = get_info<info>();
-	static std::vector<real2> l_points; l_points.resize(0);
+	static array_<real2> l_points; l_points.resize(0);
 	for(uint i = 0, s = l_info.point_count(); i < s; ++i) {
 		const real2 &l_p = l_info.get_point(i);
 //		l_points.push_back(l_p);
@@ -420,7 +420,7 @@ bool shape::render() const {
 		for(uint i = 0, s = l_edges.size(); i < s; ++i) {
 			const edge &l_edge = l_edges[i];
 			if(l_edge.c != bad_ID) {
-				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, std::vector<real2> &_points) {
+				struct _l { static void tesselate(const real2 &_s, const real2 &_c, const real2 &_e, array_<real2> &_points) {
 					const real l_tolerance = real(0.1);
 					real2 l_p0 = (_s + _e) * real(0.5), l_p = (l_p0 + _c) * real(0.5);
 					if(length2(l_p - l_p0) <= l_tolerance) { _points.push_back(_e); return; }
@@ -430,7 +430,7 @@ bool shape::render() const {
 				const real2 &l_s = l_points[l_edge.s];
 				const real2 &l_c = l_points[l_edge.c];
 				const real2 &l_e = l_points[l_edge.e];
-				static std::vector<real2> l_edge_points; l_edge_points.resize(0);
+				static array_<real2> l_edge_points; l_edge_points.resize(0);
 				_l::tesselate(l_s, l_c, l_e, l_edge_points);
 				l_poly.push_back(l_edge.s);
 				for(uint i = 0, s = l_edge_points.size() - 1; i < s; ++i) {

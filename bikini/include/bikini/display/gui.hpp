@@ -61,9 +61,9 @@ struct gui : manager {
 
 		struct polyline {
 			typedef real2 point;
-			typedef std::vector<point> points;
-			typedef std::vector<uint> line;
-			typedef std::vector<line> lines;
+			typedef array_<point> points;
+			typedef array_<uint> line;
+			typedef array_<line> lines;
 			inline polyline() : m_lines(1) {}
 			inline void add_point(const point &_point) {
 				points::iterator l_it = std::find_if(m_points.begin(), m_points.end(), _equal_to(_point));
@@ -83,9 +83,9 @@ struct gui : manager {
 		};
 		struct polygon {
 			typedef real2 point;
-			typedef std::vector<point> points;
-			typedef std::vector<uint> poly;
-			typedef std::vector<poly> polys;
+			typedef array_<point> points;
+			typedef array_<uint> poly;
+			typedef array_<poly> polys;
 			inline polygon() : m_polys(1) {}
 		private:
 			points m_points;
@@ -98,7 +98,7 @@ struct gui : manager {
 	private:
 		uint m_parent_dependency;
 		rect m_rect; color m_color; bool m_clip;
-		std::vector<uint> m_kids;
+		array_<uint> m_kids;
 	};
 	inline uint screen_ID() const;
 	gui();

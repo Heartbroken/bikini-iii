@@ -107,8 +107,8 @@ void manager::destroy() {
 }
 void manager::m_build_update_order() {
 	m_update_order.resize(0);
-	static std::vector<uint> l_queue; l_queue.resize(0);
-	static std::vector<uint> l_objects; l_objects.resize(m_objects.size());
+	static array_<uint> l_queue; l_queue.resize(0);
+	static array_<uint> l_objects; l_objects.resize(m_objects.size());
 	for(uint i = 0, s = m_objects.size(); i < s; ++i) {
 		if(m_objects[i] != 0) l_objects[i] = m_objects[i]->ID();
 		else l_objects[i] = bad_ID;

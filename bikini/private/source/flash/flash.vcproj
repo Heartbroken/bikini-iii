@@ -183,6 +183,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\machine.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\movie.cpp"
 				>
 			</File>
@@ -221,6 +225,10 @@
 			Name="interface"
 			>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\actionscript.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash\button.hpp"
 				>
 			</File>
@@ -234,6 +242,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\include\bikini\flash\loader.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\include\bikini\flash\machine.hpp"
 				>
 			</File>
 			<File

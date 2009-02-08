@@ -25,6 +25,7 @@ namespace flash { /*------------------------------------------------------------
 #include "flash/swftagtypes.hpp"
 #include "flash/swfstream.hpp"
 #include "flash/player.hpp"
+#include "flash/actionscript.hpp"
 #include "flash/objects.hpp"
 
 } /* namespace flash ----------------------------------------------------------------------------*/

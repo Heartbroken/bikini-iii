@@ -114,7 +114,7 @@ struct vbuffer : video::resource {
 	};
 	struct info : video::resource::info {
 		typedef vbuffer object;
-		std::vector<desc> descs;
+		array_<desc> descs;
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
@@ -128,7 +128,7 @@ struct vbuffer : video::resource {
 	bool end();
 	void destroy();
 private:
-	std::vector<IDirect3DVertexBuffer9*> m_buffers;
+	array_<IDirect3DVertexBuffer9*> m_buffers;
 };
 
 /// vformat
@@ -147,7 +147,7 @@ struct vformat : video::resource {
 	static const element end;
 	struct info : video::resource::info {
 		typedef vformat object;
-		std::vector<element> format;
+		array_<element> format;
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
@@ -169,7 +169,7 @@ struct rstates : video::resource {
 	};
 	struct info : video::resource::info {
 		typedef rstates object;
-		std::vector<state> states;
+		array_<state> states;
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
