@@ -68,6 +68,45 @@ static inline wstring STRING(byte* &_d) {
 	MultiByteToWideChar(CP_UTF8, 0, (achar*)_d, (int)l_s0, l_w, (int)l_s1); _d += l_s0;
 	return wstring(l_w, l_s1);
 }
+static inline machine::ns NAMESPACE(byte* &_d) {
+	machine::ns l_ns;
+	l_ns.kind = (machine::nsk::namespace_kind)U8(_d);
+	l_ns.string = U30(_d);
+	return l_ns;
+}
+static inline machine::ns_set NSSET(byte* &_d) {
+	machine::ns_set l_ns_set;
+	uint l_count = U30(_d); l_ns_set.nss.resize(l_count);
+	for(uint i = 0; i < l_count; ++i) l_ns_set.nss[i] = U32(_d);
+	return l_ns_set;
+}
+static inline machine::multiname MULTINAME(byte* &_d) {
+	machine::multiname l_multiname;
+	l_multiname.kind = (machine::mnk::multiname_kind)U8(_d);
+	l_multiname.ns = l_multiname.name = l_multiname.ns_set = 0;
+	switch(l_multiname.kind) {
+		case machine::mnk::QName :
+		case machine::mnk::QNameA :
+			l_multiname.ns = U30(_d); l_multiname.name = U30(_d);
+			break;
+		case machine::mnk::RTQName :
+		case machine::mnk::RTQNameA :
+			l_multiname.name = U30(_d);
+			break;
+		case machine::mnk::RTQNameL :
+		case machine::mnk::RTQNameLA :
+			break;
+		case machine::mnk::Multiname :
+		case machine::mnk::MultinameA :
+			l_multiname.name = U30(_d); l_multiname.ns_set = U30(_d);
+			break;
+		case machine::mnk::MultinameL :
+		case machine::mnk::MultinameLA :
+			l_multiname.ns_set = U30(_d);
+			break;
+	};
+	return l_multiname;
+}
 //
 
 bool machine::do_ABC(pointer _data, uint _size) {
@@ -93,6 +132,12 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 	rbig_array l_doubles; if(l_double_count) while(--l_double_count) l_doubles.push_back(F64(l_data));
 	uint l_string_count = U30(l_data);
 	wstring_array l_strings; if(l_string_count) while(--l_string_count) l_strings.push_back(STRING(l_data));
+	uint l_namespace_count = U30(l_data);
+	namespaces l_namespaces; if(l_namespace_count) while(--l_namespace_count) l_namespaces.push_back(NAMESPACE(l_data));
+	uint l_ns_set_count = U30(l_data);
+	ns_sets l_ns_sets; if(l_ns_set_count) while(--l_ns_set_count) l_ns_sets.push_back(NSSET(l_data));
+	uint l_multiname_count = U30(l_data);
+	multinames l_multinames; if(l_multiname_count) while(--l_multiname_count) l_multinames.push_back(MULTINAME(l_data));
 	int a=0;
 }
 
