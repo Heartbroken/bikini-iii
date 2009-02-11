@@ -53,6 +53,66 @@ private:
 	friend multiname MULTINAME(byte*&);
 	typedef array_<multiname> multinames;
 	//
+	struct method {
+		uint return_type;
+		uint_array param_types;
+		uint name, flags;
+		struct option {
+			struct mok { enum kind {
+				Int					= 0x03,
+				UInt				= 0x04,
+				Double				= 0x06,
+				Utf8				= 0x01,
+				True				= 0x0B,
+				False				= 0x0A,
+				Null				= 0x0C,
+				Undefined			= 0x00,
+				Namespace			= 0x08,
+				PackageNamespace	= 0x16,
+				PackageInternalNs	= 0x17,
+				ProtectedNamespace	= 0x18,
+				ExplicitNamespace	= 0x19,
+				StaticProtectedNs	= 0x1A,
+				PrivateNs			= 0x05,
+			};};
+			mok::kind kind;
+			uint val;
+		};
+		array_<option> options;
+		uint_array param_names;
+	};
+	friend method METHOD(byte*&);
+	typedef array_<method> methods;
+	//
+	struct metadata {
+		uint name;
+		struct item {
+			uint key, value;
+		};
+		array_<item> items;
+	};
+	friend metadata METADATA(byte*&);
+	typedef array_<metadata> metadatas;
+	//
+	struct instance {
+		uint name, super_name;
+		struct oif { enum flags {
+			ClassSealed			= 0x01,
+			ClassFinal			= 0x02,
+			ClassInterface		= 0x04,
+			ClassProtectedNs	= 0x08,
+		};};
+		uint flags;
+		uint protected_ns;
+		uint_array interfaces;
+		uint iinit;
+		struct trait {
+			uint name, kind;
+			uint_array metadata;
+		};
+		array_<trait> traits;
+	};
+	//
 	struct segment {
 		segment(machine &_machine, pointer _data, uint _size);
 	private:
