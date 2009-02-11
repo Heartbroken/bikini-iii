@@ -107,6 +107,33 @@ static inline machine::multiname MULTINAME(byte* &_d) {
 	};
 	return l_multiname;
 }
+static inline machine::method METHOD(byte* &_d) {
+	machine::method l_method;
+	uint l_param_count = U30(_d);
+	l_method.param_types.resize(l_param_count);
+	l_method.param_names.resize(l_param_count);
+	l_method.return_type = U30(_d);
+	for(uint i = 0; i < l_param_count; ++i) l_method.param_types[i] = U30(_d);
+	l_method.name = U30(_d);
+	l_method.flags = U8(_d);
+	uint l_option_count = U30(_d); l_method.options.resize(l_option_count);
+	for(uint i = 0; i < l_option_count; ++i) {
+		l_method.options[i].val = U30(_d);
+		l_method.options[i].kind = (machine::method::option::mok::kind)U8(_d);
+	}
+	for(uint i = 0; i < l_param_count; ++i) l_method.param_names[i] = U30(_d);
+	return l_method;
+}
+static inline machine::metadata METADATA(byte* &_d) {
+	machine::metadata l_metadata;
+	l_metadata.name = U30(_d);
+	uint l_item_count = U30(_d); l_metadata.items.resize(l_item_count);
+	for(uint i = 0; i < l_item_count; ++i) {
+		l_metadata.items[i].key = U30(_d);
+		l_metadata.items[i].value = U30(_d);
+	}
+	return l_metadata;
+}
 //
 
 bool machine::do_ABC(pointer _data, uint _size) {
@@ -138,6 +165,10 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 	ns_sets l_ns_sets; if(l_ns_set_count) while(--l_ns_set_count) l_ns_sets.push_back(NSSET(l_data));
 	uint l_multiname_count = U30(l_data);
 	multinames l_multinames; if(l_multiname_count) while(--l_multiname_count) l_multinames.push_back(MULTINAME(l_data));
+	uint l_method_count = U30(l_data);
+	methods l_methods; if(l_method_count) while(--l_method_count) l_methods.push_back(METHOD(l_data));
+	uint l_metadata_count = U30(l_data);
+	metadatas l_metadatas; if(l_metadata_count) while(--l_metadata_count) l_metadatas.push_back(METADATA(l_data));
 	int a=0;
 }
 
