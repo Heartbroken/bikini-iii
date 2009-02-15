@@ -45,12 +45,12 @@ struct clip : _placed {
 		info(movie::info &_movie, swfstream &_s);
 		inline uint frame_count() const { return m_timeline.size(); }
 		inline const frame& get_frame(uint _i) const { return m_timeline[_i]; }
-		inline const array_<byte>& get_ABC() const { return m_abc; }
+		inline const byte_array& get_ABC() const { return m_abc; }
 	private:
 		array_<frame> m_timeline;
 		void m_edit_objects(swfstream &_s, tag::type _tag, frame::objects &_objects);
 		void m_read_actions(swfstream &_s, bytecode &_bytecode);
-		array_<byte> m_abc;
+		byte_array m_abc;
 	};
 	clip(const info &_info, player &_player, uint _movie_ID);
 	~clip();
