@@ -14,6 +14,8 @@ namespace flash { /*------------------------------------------------------------
 
 namespace as { /*--------------------------------------------------------------------------------*/
 
+using namespace avmplus;
+
 struct _mmgc_helper {
 	_mmgc_helper() : m_GC_p(0) {
 		MMgc::GCHeap::Init();
@@ -37,12 +39,20 @@ private:
 static _mmgc_helper sg_mmgc_helper;
 
 // avm2
-avm2::avm2() : avmplus::AvmCore(sg_mmgc_helper.get_GC()) {
+
+avm2::avm2() : avmplus::AvmCore(sg_mmgc_helper.get_GC()), m_toplevel_p(0) {
+	//config.verbose = true;
+	initBuiltinPool();
+	m_toplevel_p = initTopLevel();
 }
 bool avm2::do_ABC(pointer _data, uint _size) {
-	avmplus::Toplevel *l_toplevel_p = 0;
 	avmplus::ReadOnlyScriptBufferImpl l_script((byte*)_data, _size);
-	handleActionBlock(avmplus::ScriptBuffer(&l_script), 0, 0, l_toplevel_p, 0, 0);
+	TRY(this, kCatchAction_ReportAsError) {
+		handleActionBlock(avmplus::ScriptBuffer(&l_script), 0, m_toplevel_p->domainEnv(), m_toplevel_p, 0, 0);
+	} CATCH(avmplus::Exception* e) {
+		std::cerr << string(e->atom) << "\n";
+	} END_CATCH
+	END_TRY
 	return true;
 }
 void avm2::interrupt(avmplus::MethodEnv *env) {
