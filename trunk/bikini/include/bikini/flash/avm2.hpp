@@ -14,4 +14,5 @@ struct avm2 : avmplus::AvmCore {
 private:
 	void interrupt(avmplus::MethodEnv *env);
 	void stackOverflow(avmplus::MethodEnv *env);
+	avmplus::Toplevel *m_toplevel_p;
 };
