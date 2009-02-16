@@ -218,63 +218,75 @@ static inline machine::methodbody METHODBODY(const byte* &_d) {
 }
 //
 
-bool machine::do_ABC(pointer _data, uint _size) {
-	segment l_segment(*this, _data, _size);
-	l_segment.run(0);
+// machine
+
+machine::~machine() {
+	while(!m_segments.empty()) {
+		delete m_segments.back();
+		m_segments.pop_back();
+	}
+}
+
+bool machine::do_ABC(pointer _data, uint _size, bool _run/* = true*/) {
+	segment &l_segment = * new segment(*this, _data, _size);
+	m_segments.push_back(&l_segment);
+	if(_run) {
+		assert(0);
+	}
 	return true;
 }
-void machine::map_ints(const sint* _ints, uint* _map, uint _count) {
-	for(uint i = 0; i < _count; ++i) {
-		sint l_int = _ints[i];
-		uint &l_index = _map[i]; l_index = bad_ID;
-		for(uint i = 0, s = m_ints.size(); i < s; ++i) {
-			if(l_int == m_ints[i]) { l_index = i; break; }
-		}
-		if(l_index == bad_ID) {
-			l_index = m_ints.size();
-			m_ints.push_back(l_int);
-		}
-	}
-}
-void machine::map_uints(const uint* _uints, uint* _map, uint _count) {
-	for(uint i = 0; i < _count; ++i) {
-		uint l_uint = _uints[i];
-		uint &l_index = _map[i]; l_index = bad_ID;
-		for(uint i = 0, s = m_uints.size(); i < s; ++i) {
-			if(l_uint == m_uints[i]) { l_index = i; break; }
-		}
-		if(l_index == bad_ID) {
-			l_index = m_uints.size();
-			m_uints.push_back(l_uint);
-		}
-	}
-}
-void machine::map_doubles(const rbig* _doubles, uint* _map, uint _count) {
-	for(uint i = 0; i < _count; ++i) {
-		rbig l_double = _doubles[i];
-		uint &l_index = _map[i]; l_index = bad_ID;
-		for(uint i = 0, s = m_doubles.size(); i < s; ++i) {
-			if(l_double == m_doubles[i]) { l_index = i; break; }
-		}
-		if(l_index == bad_ID) {
-			l_index = m_doubles.size();
-			m_doubles.push_back(l_double);
-		}
-	}
-}
-void machine::map_strings(const wstring* _strings, uint* _map, uint _count) {
-	for(uint i = 0; i < _count; ++i) {
-		const wstring &l_string = _strings[i];
-		uint &l_index = _map[i]; l_index = bad_ID;
-		for(uint i = 0, s = m_strings.size(); i < s; ++i) {
-			if(l_string == m_strings[i]) { l_index = i; break; }
-		}
-		if(l_index == bad_ID) {
-			l_index = m_strings.size();
-			m_strings.push_back(l_string);
-		}
-	}
-}
+//void machine::map_ints(const sint* _ints, uint* _map, uint _count) {
+//	for(uint i = 0; i < _count; ++i) {
+//		sint l_int = _ints[i];
+//		uint &l_index = _map[i]; l_index = bad_ID;
+//		for(uint i = 0, s = m_ints.size(); i < s; ++i) {
+//			if(l_int == m_ints[i]) { l_index = i; break; }
+//		}
+//		if(l_index == bad_ID) {
+//			l_index = m_ints.size();
+//			m_ints.push_back(l_int);
+//		}
+//	}
+//}
+//void machine::map_uints(const uint* _uints, uint* _map, uint _count) {
+//	for(uint i = 0; i < _count; ++i) {
+//		uint l_uint = _uints[i];
+//		uint &l_index = _map[i]; l_index = bad_ID;
+//		for(uint i = 0, s = m_uints.size(); i < s; ++i) {
+//			if(l_uint == m_uints[i]) { l_index = i; break; }
+//		}
+//		if(l_index == bad_ID) {
+//			l_index = m_uints.size();
+//			m_uints.push_back(l_uint);
+//		}
+//	}
+//}
+//void machine::map_doubles(const rbig* _doubles, uint* _map, uint _count) {
+//	for(uint i = 0; i < _count; ++i) {
+//		rbig l_double = _doubles[i];
+//		uint &l_index = _map[i]; l_index = bad_ID;
+//		for(uint i = 0, s = m_doubles.size(); i < s; ++i) {
+//			if(l_double == m_doubles[i]) { l_index = i; break; }
+//		}
+//		if(l_index == bad_ID) {
+//			l_index = m_doubles.size();
+//			m_doubles.push_back(l_double);
+//		}
+//	}
+//}
+//void machine::map_strings(const wstring* _strings, uint* _map, uint _count) {
+//	for(uint i = 0; i < _count; ++i) {
+//		const wstring &l_string = _strings[i];
+//		uint &l_index = _map[i]; l_index = bad_ID;
+//		for(uint i = 0, s = m_strings.size(); i < s; ++i) {
+//			if(l_string == m_strings[i]) { l_index = i; break; }
+//		}
+//		if(l_index == bad_ID) {
+//			l_index = m_strings.size();
+//			m_strings.push_back(l_string);
+//		}
+//	}
+//}
 
 // machine::segment
 
@@ -288,24 +300,24 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 	}
 	// int constants
 	uint l_int_count = U30(l_data); if(l_int_count > 0) --l_int_count;
-	sint_array l_ints; l_ints.resize(l_int_count); m_int_map.resize(l_int_count);
-	for(uint i = 0; i < l_int_count; ++i) l_ints[i] = S32(l_data);
-	if(l_int_count > 0) m_machine.map_ints(&l_ints[0], &m_int_map[0], l_int_count);
+	/*sint_array l_ints;*/ m_ints.resize(l_int_count); /*m_int_map.resize(l_int_count);*/
+	for(uint i = 0; i < l_int_count; ++i) m_ints[i] = S32(l_data);
+	//if(l_int_count > 0) m_machine.map_ints(&l_ints[0], &m_int_map[0], l_int_count);
 	// uint constants
 	uint l_uint_count = U30(l_data); if(l_uint_count > 0) --l_uint_count;
-	uint_array l_uints; l_uints.resize(l_uint_count); m_uint_map.resize(l_uint_count);
-	for(uint i = 0; i < l_uint_count; ++i) l_uints[i] = U32(l_data);
-	if(l_uint_count > 0) m_machine.map_uints(&l_uints[0], &m_uint_map[0], l_uint_count);
+	/*uint_array l_uints;*/ m_uints.resize(l_uint_count); /*m_uint_map.resize(l_uint_count);*/
+	for(uint i = 0; i < l_uint_count; ++i) m_uints[i] = U32(l_data);
+	//if(l_uint_count > 0) m_machine.map_uints(&l_uints[0], &m_uint_map[0], l_uint_count);
 	// double constants
 	uint l_double_count = U30(l_data); if(l_double_count > 0) --l_double_count;
-	rbig_array l_doubles; l_doubles.resize(l_double_count); m_double_map.resize(l_double_count);
-	for(uint i = 0; i < l_double_count; ++i) l_doubles[i] = F64(l_data);
-	if(l_double_count > 0) m_machine.map_doubles(&l_doubles[0], &m_double_map[0], l_double_count);
+	/*rbig_array l_doubles;*/ m_doubles.resize(l_double_count); /*m_double_map.resize(l_double_count);*/
+	for(uint i = 0; i < l_double_count; ++i) m_doubles[i] = F64(l_data);
+	//if(l_double_count > 0) m_machine.map_doubles(&l_doubles[0], &m_double_map[0], l_double_count);
 	// string constants
 	uint l_string_count = U30(l_data); if(l_string_count > 0) --l_string_count;
-	wstring_array l_strings; l_strings.resize(l_string_count); m_string_map.resize(l_string_count);
-	for(uint i = 0; i < l_string_count; ++i) l_strings[i] = STRING(l_data);
-	if(l_string_count > 0) m_machine.map_strings(&l_strings[0], &m_string_map[0], l_string_count);
+	/*wstring_array l_strings;*/ m_strings.resize(l_string_count); /*m_string_map.resize(l_string_count);*/
+	for(uint i = 0; i < l_string_count; ++i) m_strings[i] = STRING(l_data);
+	//if(l_string_count > 0) m_machine.map_strings(&l_strings[0], &m_string_map[0], l_string_count);
 	// namespace constants
 	uint l_namespace_count = U30(l_data); if(l_namespace_count > 0) --l_namespace_count;
 	/*namespaces l_namespaces;*/ m_namespaces.resize(l_namespace_count);
@@ -342,31 +354,6 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 	for(uint i = 0; i < l_methodbody_count; ++i) m_methodbodys[i] = METHODBODY(l_data);
 	//
 	int a=0;
-	//// test
-	//if(!m_scripts.empty()) {
-	//	uint l_s = m_scripts.back().init;
-	//	if(l_s < m_methodbodys.size()) {
-	//		const byte* l_d = &m_methodbodys[l_s].code[0];
-	//		bool l_run = true;
-	//		while(l_run) {
-	//			opcode::opcodes l_code = (opcode::opcodes)U8(l_d);
-	//			switch(l_code) {
-	//				case opcode::getlocal_0 : {
-	//				} break;
-	//				case opcode::pushscope : {
-	//				} break;
-	//				case opcode::getscopeobject : {
-	//					uint l_index = U8(l_d);
-	//				} break;
-	//				case opcode::getlex : {
-	//					uint l_index = U8(l_d);
-	//				} break;
-	//				default:
-	//					l_run = false;
-	//			}
-	//		}
-	//	}
-	//}
 }
 void machine::segment::run(uint _method) {
 	if(_method >= m_methodbodys.size()) return;
@@ -375,157 +362,296 @@ void machine::segment::run(uint _method) {
 	while(l_run) {
 		opcode::opcodes l_op = (opcode::opcodes)U8(l_code);
 		switch(l_op) {
-			case opcode::add : {} break;
-			case opcode::add_i : {} break;
-			case opcode::astype : {} break;
-			case opcode::astypelate : {} break;
-			case opcode::bitand : {} break;
-			case opcode::bitnot : {} break;
-			case opcode::bitor : {} break;
-			case opcode::bitxor : {} break;
-			case opcode::call : {} break;
-			case opcode::callmethod : {} break;
-			case opcode::callproperty : {} break;
-			case opcode::callproplex : {} break;
-			case opcode::callpropvoid : {} break;
-			case opcode::callstatic : {} break;
-			case opcode::callsuper : {} break;
-			case opcode::callsupervoid : {} break;
-			case opcode::checkfilter : {} break;
-			case opcode::coerce : {} break;
-			case opcode::coerce_a : {} break;
-			case opcode::coerce_s : {} break;
-			case opcode::construct : {} break;
-			case opcode::constructprop : {} break;
-			case opcode::constructsuper : {} break;
-			case opcode::convert_b : {} break;
-			case opcode::convert_i : {} break;
-			case opcode::convert_d : {} break;
-			case opcode::convert_o : {} break;
-			case opcode::convert_u : {} break;
-			case opcode::convert_s : {} break;
-			case opcode::debug : {} break;
-			case opcode::debugfile : {} break;
-			case opcode::debugline : {} break;
-			case opcode::declocal : {} break;
-			case opcode::declocal_i : {} break;
-			case opcode::decrement : {} break;
-			case opcode::decrement_i : {} break;
-			case opcode::deleteproperty : {} break;
-			case opcode::divide : {} break;
-			case opcode::dup : {} break;
-			case opcode::dxns : {} break;
-			case opcode::dxnslate : {} break;
-			case opcode::equals : {} break;
-			case opcode::esc_xattr : {} break;
-			case opcode::esc_xelem : {} break;
-			case opcode::findproperty : {} break;
-			case opcode::findpropstrict : {} break;
-			case opcode::getdescendants : {} break;
-			case opcode::getglobalscope : {} break;
-			case opcode::getglobalslot : {} break;
+			case opcode::add : {
+			} continue;
+			case opcode::add_i : {
+			} continue;
+			case opcode::astype : {
+			} continue;
+			case opcode::astypelate : {
+			} continue;
+			case opcode::bitand : {
+			} continue;
+			case opcode::bitnot : {
+			} continue;
+			case opcode::bitor : {
+			} continue;
+			case opcode::bitxor : {
+			} continue;
+			case opcode::call : {
+			} continue;
+			case opcode::callmethod : {
+			} continue;
+			case opcode::callproperty : {
+			} continue;
+			case opcode::callproplex : {
+			} continue;
+			case opcode::callpropvoid : {
+			} continue;
+			case opcode::callstatic : {
+			} continue;
+			case opcode::callsuper : {
+			} continue;
+			case opcode::callsupervoid : {
+			} continue;
+			case opcode::checkfilter : {
+			} continue;
+			case opcode::coerce : {
+			} continue;
+			case opcode::coerce_a : {
+			} continue;
+			case opcode::coerce_s : {
+			} continue;
+			case opcode::construct : {
+			} continue;
+			case opcode::constructprop : {
+			} continue;
+			case opcode::constructsuper : {
+			} continue;
+			case opcode::convert_b : {
+			} continue;
+			case opcode::convert_i : {
+			} continue;
+			case opcode::convert_d : {
+			} continue;
+			case opcode::convert_o : {
+			} continue;
+			case opcode::convert_u : {
+			} continue;
+			case opcode::convert_s : {
+			} continue;
+			case opcode::debug : {
+			} continue;
+			case opcode::debugfile : {
+			} continue;
+			case opcode::debugline : {
+			} continue;
+			case opcode::declocal : {
+			} continue;
+			case opcode::declocal_i : {
+			} continue;
+			case opcode::decrement : {
+			} continue;
+			case opcode::decrement_i : {
+			} continue;
+			case opcode::deleteproperty : {
+			} continue;
+			case opcode::divide : {
+			} continue;
+			case opcode::dup : {
+			} continue;
+			case opcode::dxns : {
+			} continue;
+			case opcode::dxnslate : {
+			} continue;
+			case opcode::equals : {
+			} continue;
+			case opcode::esc_xattr : {
+			} continue;
+			case opcode::esc_xelem : {
+			} continue;
+			case opcode::findproperty : {
+			} continue;
+			case opcode::findpropstrict : {
+			} continue;
+			case opcode::getdescendants : {
+			} continue;
+			case opcode::getglobalscope : {
+			} continue;
+			case opcode::getglobalslot : {
+			} continue;
 			case opcode::getlex : {
 				uint l_index = U8(l_code);
-			} break;
-			case opcode::getlocal : {} break;
-			case opcode::getlocal_0 : {} break;
-			case opcode::getlocal_1 : {} break;
-			case opcode::getlocal_2 : {} break;
-			case opcode::getlocal_3 : {} break;
-			case opcode::getproperty : {} break;
+			} continue;
+			case opcode::getlocal : {
+			} continue;
+			case opcode::getlocal_0 : {
+			} continue;
+			case opcode::getlocal_1 : {
+			} continue;
+			case opcode::getlocal_2 : {
+			} continue;
+			case opcode::getlocal_3 : {
+			} continue;
+			case opcode::getproperty : {
+			} continue;
 			case opcode::getscopeobject : {
 				uint l_index = U8(l_code);
-			} break;
-			case opcode::getslot : {} break;
-			case opcode::getsuper : {} break;
-			case opcode::greaterequals : {} break;
-			case opcode::greaterthan : {} break;
-			case opcode::hasnext : {} break;
-			case opcode::hasnext2 : {} break;
-			case opcode::ifeq : {} break;
-			case opcode::iffalse : {} break;
-			case opcode::ifge : {} break;
-			case opcode::ifgt : {} break;
-			case opcode::ifle : {} break;
-			case opcode::iflt : {} break;
-			case opcode::ifnge : {} break;
-			case opcode::ifngt : {} break;
-			case opcode::ifnle : {} break;
-			case opcode::ifnlt : {} break;
-			case opcode::ifne : {} break;
-			case opcode::ifstricteq : {} break;
-			case opcode::ifstrictne : {} break;
-			case opcode::iftrue : {} break;
-			case opcode::in : {} break;
-			case opcode::inclocal : {} break;
-			case opcode::inclocal_i : {} break;
-			case opcode::increment : {} break;
-			case opcode::increment_i : {} break;
-			case opcode::initproperty : {} break;
-			case opcode::instanceof : {} break;
-			case opcode::istype : {} break;
-			case opcode::istypelate : {} break;
-			case opcode::jump : {} break;
-			case opcode::kill : {} break;
-			case opcode::label : {} break;
-			case opcode::lessequals : {} break;
-			case opcode::lessthan : {} break;
-			case opcode::lookupswitch : {} break;
-			case opcode::lshift : {} break;
-			case opcode::modulo : {} break;
-			case opcode::multiply : {} break;
-			case opcode::multiply_i : {} break;
-			case opcode::negate : {} break;
-			case opcode::negate_i : {} break;
-			case opcode::newactivation : {} break;
-			case opcode::newarray : {} break;
-			case opcode::newcatch : {} break;
-			case opcode::newclass : {} break;
-			case opcode::newfunction : {} break;
-			case opcode::newobject : {} break;
-			case opcode::nextname : {} break;
-			case opcode::nextvalue : {} break;
-			case opcode::nop : {} break;
-			case opcode::not : {} break;
-			case opcode::pop : {} break;
-			case opcode::popscope : {} break;
-			case opcode::pushbyte : {} break;
-			case opcode::pushdouble : {} break;
-			case opcode::pushfalse : {} break;
-			case opcode::pushint : {} break;
-			case opcode::pushnamespace : {} break;
-			case opcode::pushnan : {} break;
-			case opcode::pushnull : {} break;
-			case opcode::pushscope : {} break;
-			case opcode::pushshort : {} break;
-			case opcode::pushstring : {} break;
-			case opcode::pushtrue : {} break;
-			case opcode::pushuint : {} break;
-			case opcode::pushundefined : {} break;
-			case opcode::pushwith : {} break;
+			} continue;
+			case opcode::getslot : {
+			} continue;
+			case opcode::getsuper : {
+			} continue;
+			case opcode::greaterequals : {
+			} continue;
+			case opcode::greaterthan : {
+			} continue;
+			case opcode::hasnext : {
+			} continue;
+			case opcode::hasnext2 : {
+			} continue;
+			case opcode::ifeq : {
+			} continue;
+			case opcode::iffalse : {
+			} continue;
+			case opcode::ifge : {
+			} continue;
+			case opcode::ifgt : {
+			} continue;
+			case opcode::ifle : {
+			} continue;
+			case opcode::iflt : {
+			} continue;
+			case opcode::ifnge : {
+			} continue;
+			case opcode::ifngt : {
+			} continue;
+			case opcode::ifnle : {
+			} continue;
+			case opcode::ifnlt : {
+			} continue;
+			case opcode::ifne : {
+			} continue;
+			case opcode::ifstricteq : {
+			} continue;
+			case opcode::ifstrictne : {
+			} continue;
+			case opcode::iftrue : {
+			} continue;
+			case opcode::in : {
+			} continue;
+			case opcode::inclocal : {
+			} continue;
+			case opcode::inclocal_i : {
+			} continue;
+			case opcode::increment : {
+			} continue;
+			case opcode::increment_i : {
+			} continue;
+			case opcode::initproperty : {
+			} continue;
+			case opcode::instanceof : {
+			} continue;
+			case opcode::istype : {
+			} continue;
+			case opcode::istypelate : {
+			} continue;
+			case opcode::jump : {
+			} continue;
+			case opcode::kill : {
+			} continue;
+			case opcode::label : {
+			} continue;
+			case opcode::lessequals : {
+			} continue;
+			case opcode::lessthan : {
+			} continue;
+			case opcode::lookupswitch : {
+			} continue;
+			case opcode::lshift : {
+			} continue;
+			case opcode::modulo : {
+			} continue;
+			case opcode::multiply : {
+			} continue;
+			case opcode::multiply_i : {
+			} continue;
+			case opcode::negate : {
+			} continue;
+			case opcode::negate_i : {
+			} continue;
+			case opcode::newactivation : {
+			} continue;
+			case opcode::newarray : {
+			} continue;
+			case opcode::newcatch : {
+			} continue;
+			case opcode::newclass : {
+			} continue;
+			case opcode::newfunction : {
+			} continue;
+			case opcode::newobject : {
+			} continue;
+			case opcode::nextname : {
+			} continue;
+			case opcode::nextvalue : {
+			} continue;
+			case opcode::nop : {
+			} continue;
+			case opcode::not : {
+			} continue;
+			case opcode::pop : {
+			} continue;
+			case opcode::popscope : {
+			} continue;
+			case opcode::pushbyte : {
+			} continue;
+			case opcode::pushdouble : {
+			} continue;
+			case opcode::pushfalse : {
+			} continue;
+			case opcode::pushint : {
+			} continue;
+			case opcode::pushnamespace : {
+			} continue;
+			case opcode::pushnan : {
+			} continue;
+			case opcode::pushnull : {
+			} continue;
+			case opcode::pushscope : {
+			} continue;
+			case opcode::pushshort : {
+			} continue;
+			case opcode::pushstring : {
+			} continue;
+			case opcode::pushtrue : {
+			} continue;
+			case opcode::pushuint : {
+			} continue;
+			case opcode::pushundefined : {
+			} continue;
+			case opcode::pushwith : {
+			} continue;
 			case opcode::returnvalue : {
 				l_run = false;
-			} break;
+			} continue;
 			case opcode::returnvoid : {
 				l_run = false;
-			} break;
-			case opcode::rshift : {} break;
-			case opcode::setlocal : {} break;
-			case opcode::setlocal_0 : {} break;
-			case opcode::setlocal_1 : {} break;
-			case opcode::setlocal_2 : {} break;
-			case opcode::setlocal_3 : {} break;
-			case opcode::setglobalslot : {} break;
-			case opcode::setproperty : {} break;
-			case opcode::setslot : {} break;
-			case opcode::setsuper : {} break;
-			case opcode::strictequals : {} break;
-			case opcode::subtract : {} break;
-			case opcode::subtract_i : {} break;
-			case opcode::swap : {} break;
-			case opcode::throw_ : {} break;
-			case opcode::typeof : {} break;
-			case opcode::urshift : {} break;
+			} continue;
+			case opcode::rshift : {
+			} continue;
+			case opcode::setlocal : {
+			} continue;
+			case opcode::setlocal_0 : {
+			} continue;
+			case opcode::setlocal_1 : {
+			} continue;
+			case opcode::setlocal_2 : {
+			} continue;
+			case opcode::setlocal_3 : {
+			} continue;
+			case opcode::setglobalslot : {
+			} continue;
+			case opcode::setproperty : {
+			} continue;
+			case opcode::setslot : {
+			} continue;
+			case opcode::setsuper : {
+			} continue;
+			case opcode::strictequals : {
+			} continue;
+			case opcode::subtract : {
+			} continue;
+			case opcode::subtract_i : {
+			} continue;
+			case opcode::swap : {
+			} continue;
+			case opcode::throw_ : {
+			} continue;
+			case opcode::typeof : {
+			} continue;
+			case opcode::urshift : {
+			} continue;
 			default : {
 				assert(0);
 				l_run = false;

@@ -30,15 +30,16 @@ struct movie : player::object {
 	inline uint define_count() const { return get_info<info>().define_count(); }
 	inline uint define_type(uint _i) const { return get_info<info>().define_type(_i); }
 	template<typename _Type> inline const typename _Type::info& get_define(uint _i) const { return get_info<info>().get_define<_Type>(_i); }
-	inline as::avm2& get_script() { return m_script; }
+	inline as::machine& get_script() { return m_script; }
+	//inline as::avm2& get_script() { return m_script; }
 	movie(const info &_info, player &_player);
 	~movie();
 	bool update(real _dt);
 	bool render() const;
 private:
 	uint m_clip_ID;
-	//as::machine m_script;
-	as::avm2 m_script;
+	as::machine m_script;
+	//as::avm2 m_script;
 };
 
 #include "movie.inl"
