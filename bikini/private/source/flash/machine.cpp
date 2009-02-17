@@ -148,7 +148,7 @@ static inline machine::trait TRAIT(const byte* &_d) {
 			l_trait.slot_id = U30(_d);
 			l_trait.type_name = U30(_d);
 			l_trait.vindex = U30(_d);
-			l_trait.vkind = U8(_d);
+			if(l_trait.vindex != 0) l_trait.vkind = U8(_d);
 			break;
 		case machine::trait::itt::Class :
 			l_trait.slot_id = U30(_d);
@@ -165,6 +165,10 @@ static inline machine::trait TRAIT(const byte* &_d) {
 			l_trait.method = U30(_d);
 			break;
 	}
+	if((l_trait.kind >> 4) & machine::trait::ita::Metadata) {
+		uint l_metadata_count = U30(_d); machine::metadatas l_metadatas; l_metadatas.resize(l_metadata_count);
+		for(uint i = 0; i < l_metadata_count; ++i) l_metadatas[i] = METADATA(_d);
+	}
 	return l_trait;
 }
 static inline machine::instance INSTANCE(const byte* &_d) {
@@ -172,7 +176,7 @@ static inline machine::instance INSTANCE(const byte* &_d) {
 	l_instance.name = U30(_d);
 	l_instance.super_name = U30(_d);
 	l_instance.flags = U8(_d);
-	l_instance.protected_ns = U30(_d);
+	l_instance.protected_ns = (l_instance.flags & machine::instance::oif::ClassProtectedNs) ? U30(_d) : 0;
 	uint l_intrf_count = U30(_d); l_instance.interfaces.resize(l_intrf_count);
 	for(uint i = 0; i < l_intrf_count; ++i) l_instance.interfaces[i] = U30(_d);
 	l_instance.iinit = U30(_d);
@@ -299,58 +303,42 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 		return;
 	}
 	// int constants
-	uint l_int_count = U30(l_data); if(l_int_count > 0) --l_int_count;
-	/*sint_array l_ints;*/ m_ints.resize(l_int_count); /*m_int_map.resize(l_int_count);*/
-	for(uint i = 0; i < l_int_count; ++i) m_ints[i] = S32(l_data);
-	//if(l_int_count > 0) m_machine.map_ints(&l_ints[0], &m_int_map[0], l_int_count);
+	uint l_int_count = U30(l_data); m_ints.resize(l_int_count);
+	for(uint i = 1; i < l_int_count; ++i) m_ints[i] = S32(l_data);
 	// uint constants
-	uint l_uint_count = U30(l_data); if(l_uint_count > 0) --l_uint_count;
-	/*uint_array l_uints;*/ m_uints.resize(l_uint_count); /*m_uint_map.resize(l_uint_count);*/
-	for(uint i = 0; i < l_uint_count; ++i) m_uints[i] = U32(l_data);
-	//if(l_uint_count > 0) m_machine.map_uints(&l_uints[0], &m_uint_map[0], l_uint_count);
+	uint l_uint_count = U30(l_data); m_uints.resize(l_uint_count);
+	for(uint i = 1; i < l_uint_count; ++i) m_uints[i] = U32(l_data);
 	// double constants
-	uint l_double_count = U30(l_data); if(l_double_count > 0) --l_double_count;
-	/*rbig_array l_doubles;*/ m_doubles.resize(l_double_count); /*m_double_map.resize(l_double_count);*/
-	for(uint i = 0; i < l_double_count; ++i) m_doubles[i] = F64(l_data);
-	//if(l_double_count > 0) m_machine.map_doubles(&l_doubles[0], &m_double_map[0], l_double_count);
+	uint l_double_count = U30(l_data); m_doubles.resize(l_double_count);
+	for(uint i = 1; i < l_double_count; ++i) m_doubles[i] = F64(l_data);
 	// string constants
-	uint l_string_count = U30(l_data); if(l_string_count > 0) --l_string_count;
-	/*wstring_array l_strings;*/ m_strings.resize(l_string_count); /*m_string_map.resize(l_string_count);*/
-	for(uint i = 0; i < l_string_count; ++i) m_strings[i] = STRING(l_data);
-	//if(l_string_count > 0) m_machine.map_strings(&l_strings[0], &m_string_map[0], l_string_count);
+	uint l_string_count = U30(l_data); m_strings.resize(l_string_count);
+	for(uint i = 1; i < l_string_count; ++i) m_strings[i] = STRING(l_data);
 	// namespace constants
-	uint l_namespace_count = U30(l_data); if(l_namespace_count > 0) --l_namespace_count;
-	/*namespaces l_namespaces;*/ m_namespaces.resize(l_namespace_count);
-	for(uint i = 0; i < l_namespace_count; ++i) m_namespaces[i] = NAMESPACE(l_data);
+	uint l_namespace_count = U30(l_data); m_namespaces.resize(l_namespace_count);
+	for(uint i = 1; i < l_namespace_count; ++i) m_namespaces[i] = NAMESPACE(l_data);
 	// ns_set constants
-	uint l_ns_set_count = U30(l_data); if(l_ns_set_count > 0) --l_ns_set_count;
-	/*ns_sets l_ns_sets;*/ m_ns_sets.resize(l_ns_set_count);
-	for(uint i = 0; i < l_ns_set_count; ++i) m_ns_sets[i] = NSSET(l_data);
+	uint l_ns_set_count = U30(l_data); m_ns_sets.resize(l_ns_set_count);
+	for(uint i = 1; i < l_ns_set_count; ++i) m_ns_sets[i] = NSSET(l_data);
 	// multiname constants
-	uint l_multiname_count = U30(l_data); if(l_multiname_count > 0) --l_multiname_count;
-	/*multinames l_multinames;*/ m_multinames.resize(l_multiname_count);
-	for(uint i = 0; i < l_multiname_count; ++i) m_multinames[i] = MULTINAME(l_data);
+	uint l_multiname_count = U30(l_data); m_multinames.resize(l_multiname_count);
+	for(uint i = 1; i < l_multiname_count; ++i) m_multinames[i] = MULTINAME(l_data);
 	// methods
-	uint l_method_count = U30(l_data);
-	/*methods l_methods;*/ m_methods.resize(l_method_count);
+	uint l_method_count = U30(l_data); m_methods.resize(l_method_count);
 	for(uint i = 0; i < l_method_count; ++i) m_methods[i] = METHOD(l_data);
 	// metadata
-	uint l_metadata_count = U30(l_data);
-	metadatas l_metadatas; l_metadatas.resize(l_metadata_count);
+	uint l_metadata_count = U30(l_data); metadatas l_metadatas; l_metadatas.resize(l_metadata_count);
 	for(uint i = 0; i < l_metadata_count; ++i) l_metadatas[i] = METADATA(l_data);
 	// classes
 	uint l_class_count = U30(l_data);
-	/*instances l_instances;*/ m_instances.resize(l_class_count);
+	m_instances.resize(l_class_count); m_classinfos.resize(l_class_count);
 	for(uint i = 0; i < l_class_count; ++i) m_instances[i] = INSTANCE(l_data);
-	/*classinfos l_classinfos;*/ m_classinfos.resize(l_class_count);
 	for(uint i = 0; i < l_class_count; ++i) m_classinfos[i] = CLASS(l_data);
 	// scripts
-	uint l_script_count = U30(l_data);
-	/*scripts l_scripts;*/ m_scripts.resize(l_script_count);
+	uint l_script_count = U30(l_data); m_scripts.resize(l_script_count);
 	for(uint i = 0; i < l_script_count; ++i) m_scripts[i] = SCRIPT(l_data);
 	// methods bodies
-	uint l_methodbody_count = U30(l_data);
-	/*methodbodys l_methodbodys;*/ m_methodbodys.resize(l_methodbody_count);
+	uint l_methodbody_count = U30(l_data); m_methodbodys.resize(l_methodbody_count);
 	for(uint i = 0; i < l_methodbody_count; ++i) m_methodbodys[i] = METHODBODY(l_data);
 	//
 	int a=0;
