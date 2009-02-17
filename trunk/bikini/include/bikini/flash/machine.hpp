@@ -114,6 +114,11 @@ private:
 			Function	= 5,
 			Const		= 6,
 		};};
+		struct ita { enum attributes {
+			Final		= 0x1,
+			Override	= 0x2,
+			Metadata	= 0x4,
+		};};
 		uint name, kind;
 		uint slot_id, type_name, vindex, vkind, classi, function, disp_id, method;
 		uint_array metadata;
