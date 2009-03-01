@@ -50,10 +50,10 @@ inline pointer variant_<_L, _D>::data() const {
 }
 template<typename _L, bool _D>
 inline void variant_<_L, _D>::construct(u32 _type, pointer _data) {
-	assert(_type < _L::count);
+	assert(_type < _L::count || _type == bad_ID);
 	destruct();
 	m_type = _type;
-	_variant_helper_<_L, _D>::construct(m_data, _type, _data);
+	if(_type != bad_ID) _variant_helper_<_L, _D>::construct(m_data, _type, _data);
 }
 template<typename _L, bool _D>
 inline void variant_<_L, _D>::destruct() {

@@ -126,6 +126,7 @@ static inline machine::method METHOD(const byte* &_d) {
 		l_method.param_names.resize(l_param_count);
 		for(uint i = 0; i < l_param_count; ++i) l_method.param_names[i] = U30(_d);
 	}
+	l_method.body = bad_ID;
 	return l_method;
 }
 static inline machine::metadata METADATA(const byte* &_d) {
@@ -161,7 +162,7 @@ static inline machine::trait TRAIT(const byte* &_d) {
 		case machine::trait::itt::Method :
 		case machine::trait::itt::Getter :
 		case machine::trait::itt::Setter :
-			l_trait.disp_id = U30(_d);
+			l_trait.disp_id = l_trait.slot_id = U30(_d);
 			l_trait.method = U30(_d);
 			break;
 	}
@@ -224,73 +225,89 @@ static inline machine::methodbody METHODBODY(const byte* &_d) {
 
 // machine
 
+machine::machine() {
+	// @@@
+	new_object();
+	set_object_prop(0, L"", 0, 10);
+	object_ref l_object;
+	l_object.ID = new_object();
+	set_object_prop(0, L"Object", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"EventDispatcher", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"DisplayObject", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"InteractiveObject", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"DisplayObjectContainer", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"Sprite", l_object);
+	l_object.ID = new_object();
+	set_object_prop(0, L"MovieClip", l_object);
+}
 machine::~machine() {
 	while(!m_segments.empty()) {
 		delete m_segments.back();
 		m_segments.pop_back();
 	}
 }
-
 bool machine::do_ABC(pointer _data, uint _size, bool _run/* = true*/) {
 	segment &l_segment = * new segment(*this, _data, _size);
 	m_segments.push_back(&l_segment);
 	if(_run) {
-		assert(0);
+		l_segment.run_script();
+		//assert(0);
 	}
 	return true;
 }
-//void machine::map_ints(const sint* _ints, uint* _map, uint _count) {
-//	for(uint i = 0; i < _count; ++i) {
-//		sint l_int = _ints[i];
-//		uint &l_index = _map[i]; l_index = bad_ID;
-//		for(uint i = 0, s = m_ints.size(); i < s; ++i) {
-//			if(l_int == m_ints[i]) { l_index = i; break; }
-//		}
-//		if(l_index == bad_ID) {
-//			l_index = m_ints.size();
-//			m_ints.push_back(l_int);
-//		}
-//	}
-//}
-//void machine::map_uints(const uint* _uints, uint* _map, uint _count) {
-//	for(uint i = 0; i < _count; ++i) {
-//		uint l_uint = _uints[i];
-//		uint &l_index = _map[i]; l_index = bad_ID;
-//		for(uint i = 0, s = m_uints.size(); i < s; ++i) {
-//			if(l_uint == m_uints[i]) { l_index = i; break; }
-//		}
-//		if(l_index == bad_ID) {
-//			l_index = m_uints.size();
-//			m_uints.push_back(l_uint);
-//		}
-//	}
-//}
-//void machine::map_doubles(const rbig* _doubles, uint* _map, uint _count) {
-//	for(uint i = 0; i < _count; ++i) {
-//		rbig l_double = _doubles[i];
-//		uint &l_index = _map[i]; l_index = bad_ID;
-//		for(uint i = 0, s = m_doubles.size(); i < s; ++i) {
-//			if(l_double == m_doubles[i]) { l_index = i; break; }
-//		}
-//		if(l_index == bad_ID) {
-//			l_index = m_doubles.size();
-//			m_doubles.push_back(l_double);
-//		}
-//	}
-//}
-//void machine::map_strings(const wstring* _strings, uint* _map, uint _count) {
-//	for(uint i = 0; i < _count; ++i) {
-//		const wstring &l_string = _strings[i];
-//		uint &l_index = _map[i]; l_index = bad_ID;
-//		for(uint i = 0, s = m_strings.size(); i < s; ++i) {
-//			if(l_string == m_strings[i]) { l_index = i; break; }
-//		}
-//		if(l_index == bad_ID) {
-//			l_index = m_strings.size();
-//			m_strings.push_back(l_string);
-//		}
-//	}
-//}
+uint machine::new_object() {
+	m_objects.push_back(object());
+	m_objects.back().set_ID(m_objects.size() - 1);
+	return m_objects.back().ID();
+}
+void machine::set_object_prop(uint _ID, const wstring &_name, const value &_value, uint _slot) {
+	m_objects[_ID].set(_name, _value, _slot);
+}
+const machine::value& machine::get_object_prop(uint _ID, uint _slot) {
+	return m_objects[_ID].get(_slot);
+}
+const machine::value& machine::get_object_prop(uint _ID, const wstring &_name) {
+	return m_objects[_ID].get(_name);
+}
+
+// machine::object
+
+void machine::object::set(const wstring &_name, const value &_value, uint _slot) {
+	if(_slot != bad_ID) {
+		if(_slot >= m_props.size()) m_props.resize(_slot + 1);
+		prop &l_p = m_props[_slot];
+		l_p.n = _name; l_p.v = _value;
+		return;
+	}
+	for(uint i = 0, s = m_props.size(); i < s; ++i) {
+		prop &l_p = m_props[i];
+		if(l_p.n == _name) {
+			l_p.v = _value;
+			return;
+		}
+	}
+	prop l_p; l_p.n = _name; l_p.v = _value;
+	m_props.push_back(l_p);
+}
+const machine::value& machine::object::get(uint _slot) {
+	if(_slot < m_props.size()) {
+		return m_props[_slot].v;
+	}
+	static value sl_bad_value;
+	return sl_bad_value;
+}
+const machine::value& machine::object::get(const wstring &_name) {
+	for(uint i = 0, s = m_props.size(); i < s; ++i) {
+		if(m_props[i].n == _name) return m_props[i].v;
+	}
+	static value sl_bad_value;
+	return sl_bad_value;
+}
 
 // machine::segment
 
@@ -339,13 +356,39 @@ machine::segment::segment(machine &_machine, pointer _data, uint _size) : m_mach
 	for(uint i = 0; i < l_script_count; ++i) m_scripts[i] = SCRIPT(l_data);
 	// methods bodies
 	uint l_methodbody_count = U30(l_data); m_methodbodys.resize(l_methodbody_count);
-	for(uint i = 0; i < l_methodbody_count; ++i) m_methodbodys[i] = METHODBODY(l_data);
+	for(uint i = 0; i < l_methodbody_count; ++i) {
+		methodbody &l_methodbody = m_methodbodys[i]; l_methodbody = METHODBODY(l_data);
+		m_methods[l_methodbody.method].body = i;
+	}
 	//
 	int a=0;
 }
-void machine::segment::run(uint _method) {
-	if(_method >= m_methodbodys.size()) return;
-	const byte* l_code = &m_methodbodys[_method].code[0];
+void machine::segment::run_script(uint _index) const {
+	assert(!m_scripts.empty());
+	uint l_index = _index < m_scripts.size() ? _index : m_scripts.size() - 1;
+	const script &l_script = m_scripts[l_index];
+	for(uint i = 0, s = l_script.traits.size(); i < s; ++i) {
+		const trait &l_t = l_script.traits[i];
+		if(l_t.slot_id > 0) {
+			value l_v = m_machine.get_object_prop(0, l_t.slot_id);
+			if(l_v.type() == bad_ID) {
+				const multiname &l_mn = m_multinames[l_t.name];
+				const wstring &l_name = m_strings[l_mn.name];
+				const ns &l_ns = m_namespaces[l_mn.ns];
+				const wstring &l_namespace = m_strings[l_ns.string];
+				m_machine.set_object_prop(0, l_name, 0, l_t.slot_id);
+			}
+		}
+	}
+	const method &l_method = m_methods[l_script.init];
+	env l_env;
+	object_ref l_global; l_global.ID = 0;
+	l_env.locals.push_back(l_global);
+	run(l_method.body, l_env);
+}
+void machine::segment::run(uint _methodbody, env &_env) const {
+	const byte* l_code = &m_methodbodys[_methodbody].code[0];
+	value l_result;
 	bool l_run = true;
 	while(l_run) {
 		opcode::opcodes l_op = (opcode::opcodes)U8(l_code);
@@ -427,6 +470,7 @@ void machine::segment::run(uint _method) {
 			case opcode::divide : {
 			} continue;
 			case opcode::dup : {
+				_env.stack.push_back(_env.stack.back());
 			} continue;
 			case opcode::dxns : {
 			} continue;
@@ -439,34 +483,64 @@ void machine::segment::run(uint _method) {
 			case opcode::esc_xelem : {
 			} continue;
 			case opcode::findproperty : {
+				uint l_index = U30(l_code);
+				const multiname &l_mn = m_multinames[l_index];
+				const wstring &l_name = m_strings[l_mn.name];
+				const ns &l_ns = m_namespaces[l_mn.ns];
+				const wstring &l_namespace = m_strings[l_ns.string];
+				value l_v;
 			} continue;
 			case opcode::findpropstrict : {
 			} continue;
 			case opcode::getdescendants : {
 			} continue;
 			case opcode::getglobalscope : {
+				_env.stack.push_back(_env.scope[0]);
 			} continue;
 			case opcode::getglobalslot : {
 			} continue;
 			case opcode::getlex : {
-				uint l_index = U8(l_code);
+				uint l_index = U30(l_code);
+				const multiname &l_mn = m_multinames[l_index];
+				const wstring &l_name = m_strings[l_mn.name];
+				const ns &l_ns = m_namespaces[l_mn.ns];
+				const wstring &l_namespace = m_strings[l_ns.string];
+				value l_v;
+				for(uint i = _env.scope.size(); i-- > 0;) {
+					assert(_env.scope[i].type() == types::type_<object_ref>::index);
+					l_v = m_machine.get_object_prop(_env.scope[i].get<object_ref>().ID, l_name);
+					if(l_v.type() != bad_ID) break;
+				}
+				_env.stack.push_back(l_v);
+				int a=0;
 			} continue;
 			case opcode::getlocal : {
 			} continue;
 			case opcode::getlocal_0 : {
+				_env.stack.push_back(_env.locals[0]);
 			} continue;
 			case opcode::getlocal_1 : {
+				_env.stack.push_back(_env.locals[1]);
 			} continue;
 			case opcode::getlocal_2 : {
+				_env.stack.push_back(_env.locals[2]);
 			} continue;
 			case opcode::getlocal_3 : {
+				_env.stack.push_back(_env.locals[3]);
 			} continue;
 			case opcode::getproperty : {
 			} continue;
 			case opcode::getscopeobject : {
 				uint l_index = U8(l_code);
+				_env.stack.push_back(_env.scope[l_index]);
 			} continue;
 			case opcode::getslot : {
+				uint l_index = U8(l_code);
+				value l_o = _env.stack.back(); _env.stack.pop_back();
+				assert(l_o.type() == types::type_<object_ref>::index);
+				value l_v = m_machine.get_object_prop(l_o.get<object_ref>().ID, l_index);
+				_env.stack.push_back(l_v);
+				int a=0;
 			} continue;
 			case opcode::getsuper : {
 			} continue;
@@ -517,6 +591,16 @@ void machine::segment::run(uint _method) {
 			case opcode::increment_i : {
 			} continue;
 			case opcode::initproperty : {
+				uint l_index = U30(l_code);
+				const multiname &l_mn = m_multinames[l_index];
+				const wstring &l_name = m_strings[l_mn.name];
+				const ns &l_ns = m_namespaces[l_mn.ns];
+				const wstring &l_namespace = m_strings[l_ns.string];
+				value l_v = _env.stack.back(); _env.stack.pop_back();
+				value l_o = _env.stack.back(); _env.stack.pop_back();
+				assert(l_o.type() == types::type_<object_ref>::index);
+				m_machine.set_object_prop(l_o.get<object_ref>().ID, l_name, l_v);
+				int a=0;
 			} continue;
 			case opcode::instanceof : {
 			} continue;
@@ -527,6 +611,8 @@ void machine::segment::run(uint _method) {
 			case opcode::jump : {
 			} continue;
 			case opcode::kill : {
+				uint l_index = U30(l_code);
+				_env.locals[l_index] = value();
 			} continue;
 			case opcode::label : {
 			} continue;
@@ -555,6 +641,31 @@ void machine::segment::run(uint _method) {
 			case opcode::newcatch : {
 			} continue;
 			case opcode::newclass : {
+				uint l_index = U30(l_code);
+				const classinfo& l_ci = m_classinfos[l_index];
+				value l_base = _env.stack.back(); _env.stack.pop_back();
+				object_ref l_class; l_class.ID = m_machine.new_object();
+				for(uint i = 0, s = l_ci.traits.size(); i < s; ++i) {
+					const trait &l_t = l_ci.traits[i];
+					if(l_t.slot_id > 0) {
+						value l_v = m_machine.get_object_prop(l_class.ID, l_t.slot_id);
+						if(l_v.type() == bad_ID) {
+							const multiname &l_mn = m_multinames[l_t.name];
+							const wstring &l_name = m_strings[l_mn.name];
+							const ns &l_ns = m_namespaces[l_mn.ns];
+							const wstring &l_namespace = m_strings[l_ns.string];
+							m_machine.set_object_prop(l_class.ID, l_name, 0, l_t.slot_id);
+						}
+					}
+				}
+				_env.stack.push_back(l_class);
+				//
+				const method &l_method = m_methods[l_ci.cinit];
+				env l_env;
+				l_env.locals.push_back(l_class);
+				run(l_method.body, l_env);
+				//
+				int a=0;
 			} continue;
 			case opcode::newfunction : {
 			} continue;
@@ -571,8 +682,11 @@ void machine::segment::run(uint _method) {
 			case opcode::pop : {
 			} continue;
 			case opcode::popscope : {
+				_env.scope.pop_back();
 			} continue;
 			case opcode::pushbyte : {
+				uint l_byte = U8(l_code);
+				_env.stack.push_back(l_byte);
 			} continue;
 			case opcode::pushdouble : {
 			} continue;
@@ -587,6 +701,8 @@ void machine::segment::run(uint _method) {
 			case opcode::pushnull : {
 			} continue;
 			case opcode::pushscope : {
+				_env.scope.push_back(_env.stack.back());
+				_env.stack.pop_back();
 			} continue;
 			case opcode::pushshort : {
 			} continue;
@@ -601,6 +717,7 @@ void machine::segment::run(uint _method) {
 			case opcode::pushwith : {
 			} continue;
 			case opcode::returnvalue : {
+				l_result = _env.stack.back(); _env.stack.pop_back();
 				l_run = false;
 			} continue;
 			case opcode::returnvoid : {
@@ -611,16 +728,34 @@ void machine::segment::run(uint _method) {
 			case opcode::setlocal : {
 			} continue;
 			case opcode::setlocal_0 : {
+				if(_env.locals.size() <= 0) _env.locals.resize(0 + 1);
+				_env.locals[0] = _env.stack.back(); _env.stack.pop_back();
 			} continue;
 			case opcode::setlocal_1 : {
+				if(_env.locals.size() <= 1) _env.locals.resize(1 + 1);
+				_env.locals[1] = _env.stack.back(); _env.stack.pop_back();
 			} continue;
 			case opcode::setlocal_2 : {
+				if(_env.locals.size() <= 2) _env.locals.resize(2 + 1);
+				_env.locals[2] = _env.stack.back(); _env.stack.pop_back();
 			} continue;
 			case opcode::setlocal_3 : {
+				if(_env.locals.size() <= 3) _env.locals.resize(3 + 1);
+				_env.locals[3] = _env.stack.back(); _env.stack.pop_back();
 			} continue;
 			case opcode::setglobalslot : {
 			} continue;
 			case opcode::setproperty : {
+				uint l_index = U30(l_code);
+				const multiname &l_mn = m_multinames[l_index];
+				const wstring &l_name = m_strings[l_mn.name];
+				const ns &l_ns = m_namespaces[l_mn.ns];
+				const wstring &l_namespace = m_strings[l_ns.string];
+				value l_v = _env.stack.back(); _env.stack.pop_back();
+				value l_o = _env.stack.back(); _env.stack.pop_back();
+				assert(l_o.type() == types::type_<object_ref>::index);
+				m_machine.set_object_prop(l_o.get<object_ref>().ID, l_name, l_v);
+				int a=0;
 			} continue;
 			case opcode::setslot : {
 			} continue;

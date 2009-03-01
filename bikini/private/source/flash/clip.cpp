@@ -207,6 +207,7 @@ clip::info::info(movie::info &_movie, swfstream &_s) : _placed::info(ot::clip) {
 				while(l_count--) {
 					uint l_ID = _s.UI16();
 					wstring l_name = _s.STRING();
+					_movie.set_class(l_ID, l_name);
 					int a=0;
 				}
 			} break;
