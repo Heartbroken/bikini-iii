@@ -9,6 +9,7 @@
 #pragma once
 
 struct machine {
+	machine();
 	~machine();
 	bool do_ABC(pointer _data, uint _size, bool _run = true);
 private:
@@ -57,7 +58,7 @@ private:
 	struct method {
 		uint return_type;
 		uint_array param_types;
-		uint name;
+		uint name, body;
 		struct mf { enum flags {
 			NEED_ARGUMENTS		= 0x01,
 			NEED_ACTIVATION		= 0x02,
@@ -165,174 +166,53 @@ private:
 	};
 	friend methodbody METHODBODY(const byte*&);
 	typedef array_<methodbody> methodbodys;
-	struct opcode { enum opcodes {
-		add				= 0xA0,
-		add_i			= 0xC5,
-		astype			= 0x86,
-		astypelate		= 0x87,
-		bitand			= 0xA8,
-		bitnot			= 0x97,
-		bitor			= 0xA9,
-		bitxor			= 0xAA,
-		call			= 0x41,
-		callmethod		= 0x43,
-		callproperty	= 0x46,
-		callproplex		= 0x4C,
-		callpropvoid	= 0x4F,
-		callstatic		= 0x44,
-		callsuper		= 0x45,
-		callsupervoid	= 0x4E,
-		checkfilter		= 0x78,
-		coerce			= 0x80,
-		coerce_a		= 0x82,
-		coerce_s		= 0x85,
-		construct		= 0x42,
-		constructprop	= 0x4A,
-		constructsuper	= 0x49,
-		convert_b		= 0x76,
-		convert_i		= 0x73,
-		convert_d		= 0x75,
-		convert_o		= 0x77,
-		convert_u		= 0x74,
-		convert_s		= 0x70,
-		debug			= 0xEF,
-		debugfile		= 0xF1,
-		debugline		= 0xF0,
-		declocal		= 0x94,
-		declocal_i		= 0xC3,
-		decrement		= 0x93,
-		decrement_i		= 0xC1,
-		deleteproperty	= 0x6A,
-		divide			= 0xA3,
-		dup				= 0x2A,
-		dxns			= 0x06,
-		dxnslate		= 0x07,
-		equals			= 0xAB,
-		esc_xattr		= 0x72,
-		esc_xelem		= 0x71,
-		findproperty	= 0x5E,
-		findpropstrict	= 0x5D,
-		getdescendants	= 0x59,
-		getglobalscope	= 0x64,
-		getglobalslot	= 0x6E,
-		getlex			= 0x60,
-		getlocal		= 0x62,
-		getlocal_0		= 0xD0,
-		getlocal_1		= 0xD1,
-		getlocal_2		= 0xD2,
-		getlocal_3		= 0xD3,
-		getproperty		= 0x66,
-		getscopeobject	= 0x65,
-		getslot			= 0x6C,
-		getsuper		= 0x04,
-		greaterequals	= 0xB0, // ??? // ERROR: in specs this opcode is 0xAF, the same as greaterthan
-		greaterthan		= 0xAF,
-		hasnext			= 0x1F,
-		hasnext2		= 0x32,
-		ifeq			= 0x13,
-		iffalse			= 0x12,
-		ifge			= 0x18,
-		ifgt			= 0x17,
-		ifle			= 0x16,
-		iflt			= 0x15,
-		ifnge			= 0x0F,
-		ifngt			= 0x0E,
-		ifnle			= 0x0D,
-		ifnlt			= 0x0C,
-		ifne			= 0x14,
-		ifstricteq		= 0x19,
-		ifstrictne		= 0x1A,
-		iftrue			= 0x11,
-		in				= 0xB4,
-		inclocal		= 0x92,
-		inclocal_i		= 0xC2,
-		increment		= 0x91,
-		increment_i		= 0xC0,
-		initproperty	= 0x68,
-		instanceof		= 0xB1,
-		istype			= 0xB2,
-		istypelate		= 0xB3,
-		jump			= 0x10,
-		kill			= 0x08,
-		label			= 0x09,
-		lessequals		= 0xAE,
-		lessthan		= 0xAD,
-		lookupswitch	= 0x1B,
-		lshift			= 0xA5,
-		modulo			= 0xA4,
-		multiply		= 0xA2,
-		multiply_i		= 0xC7,
-		negate			= 0x90,
-		negate_i		= 0xC4,
-		newactivation	= 0x57,
-		newarray		= 0x56,
-		newcatch		= 0x5A,
-		newclass		= 0x58,
-		newfunction		= 0x40,
-		newobject		= 0x55,
-		nextname		= 0x1E,
-		nextvalue		= 0x23,
-		nop				= 0x01,
-		not				= 0x96,
-		pop				= 0x29,
-		popscope		= 0x1D,
-		pushbyte		= 0x24,
-		pushdouble		= 0x2F,
-		pushfalse		= 0x27,
-		pushint			= 0x2D,
-		pushnamespace	= 0x31,
-		pushnan			= 0x28,
-		pushnull		= 0x20,
-		pushscope		= 0x30,
-		pushshort		= 0x25,
-		pushstring		= 0x2C,
-		pushtrue		= 0x26,
-		pushuint		= 0x2E,
-		pushundefined	= 0x21,
-		pushwith		= 0x1C,
-		returnvalue		= 0x48,
-		returnvoid		= 0x47,
-		rshift			= 0xA6,
-		setlocal		= 0x63,
-		setlocal_0		= 0xD4,
-		setlocal_1		= 0xD5,
-		setlocal_2		= 0xD6,
-		setlocal_3		= 0xD7,
-		setglobalslot	= 0x6F,
-		setproperty		= 0x61,
-		setslot			= 0x6D,
-		setsuper		= 0x05,
-		strictequals	= 0xAC,
-		subtract		= 0xA1,
-		subtract_i		= 0xC6,
-		swap			= 0x2B,
-		throw_			= 0x03,
-		typeof			= 0x95,
-		urshift			= 0xA7,
-	};};
+	//
+	struct sytring_ref { uint ID; };
+	struct object_ref { uint ID; };
+	typedef make_typelist_<bool, uint, sint, rbig, sytring_ref, object_ref>::type types;
+	typedef variant_<types, false> value;
+	typedef array_<value> values;
 	//
 	struct segment {
+		struct env { values locals, stack, scope; };
+		//inline sint get_int(uint _i) const { return m_ints[_i]; }
+		//inline uint get_uint(uint _i) const { return m_uints[_i]; }
+		//inline rbig get_double(uint _i) const { return m_doubles[_i]; }
+		//inline const wstring& get_string(uint _i) const { return m_strings[_i]; }
+		//inline const wstring& get_namespace(uint _i) const { return m_strings[m_namespaces[_i].string]; }
+
 		segment(machine &_machine, pointer _data, uint _size);
-		void run(uint _method);
+		void run_script(uint _index = bad_ID) const;
+		void run(uint _methodbody, env &_env) const;
 	private:
 		machine &m_machine;
 		sint_array m_ints; uint_array m_uints; rbig_array m_doubles; wstring_array m_strings;
-		//uint_array m_int_map, m_uint_map, m_double_map, m_string_map;
-		//uint_array m_namespace_map, m_ns_set_map, m_multiname_map;
 		namespaces m_namespaces; ns_sets m_ns_sets; multinames m_multinames;
 		methods m_methods; instances m_instances; classinfos m_classinfos;
 		scripts m_scripts; methodbodys m_methodbodys;
 	};
 	typedef array_<segment*> segments;
 	//
-	//void map_ints(const sint* _ints, uint* _map, uint _count);
-	//void map_uints(const uint* _uints, uint* _map, uint _count);
-	//void map_doubles(const rbig* _doubles, uint* _map, uint _count);
-	//void map_strings(const wstring* _strings, uint* _map, uint _count);
+	struct object {
+		struct prop { value v; uint f; wstring n; };
+		inline uint ID() const { return m_ID; }
+		inline void set_ID(uint _ID) { m_ID = _ID; }
+		void set(const wstring &_name, const value &_value, uint _slot = bad_ID);
+		const value& get(uint _slot);
+		const value& get(const wstring &_name);
+	private:
+		uint m_ID; array_<prop> m_props;
+	};
+	typedef array_<object> objects;
+	uint new_object();
+	void set_object_prop(uint _ID, const wstring &_name, const value &_value, uint _slot = bad_ID);
+	const value& get_object_prop(uint _ID, uint _slot);
+	const value& get_object_prop(uint _ID, const wstring &_name);
 	//
 	sint_array m_ints;
 	uint_array m_uints;
 	rbig_array m_doubles;
 	wstring_array m_strings;
 	segments m_segments;
+	objects m_objects;
 };

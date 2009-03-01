@@ -22,7 +22,7 @@ movie::movie(const info &_info, player &_player) :
 	for(uint i = 0, s = _info.define_count(); i < s; ++i) if(_info.define_type(i) == po::ot::clip) {
 		const clip::info &l_clip = _info.get_define<clip>(i);
 		const byte_array &l_abc = l_clip.get_ABC();
-		if(!l_abc.empty()) m_script.do_ABC(&l_abc[0], l_abc.size());
+		if(!l_abc.empty()) m_script.do_ABC(&l_abc[0], l_abc.size(), true);
 	}
 	if(_info.define_count() > 0 && _info.define_type(0) == po::ot::clip) {
 		m_clip_ID = _player.spawn(_info.get_define<clip>(0), ID());
@@ -80,6 +80,10 @@ void movie::info::define_button(swfstream &_s, tag::type _type) {
 		if(l_define_ID >= m_defines.size()) m_defines.resize(l_define_ID + 1, 0);
 		m_defines[l_define_ID] = new button::info(_s, _type);
 	}
+}
+void movie::info::set_class(uint _i, const wstring &_class) {
+	if(_i >= m_classes.size()) m_classes.resize(_i + 1);
+	m_classes[_i] = _class;
 }
 
 } /* namespace po -------------------------------------------------------------------------------*/

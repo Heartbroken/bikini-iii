@@ -21,9 +21,11 @@ struct movie : player::object {
 		void define_clip(swfstream &_s);
 		void define_shape(swfstream &_s, tag::type _type);
 		void define_button(swfstream &_s, tag::type _type);
+		void set_class(uint _i, const wstring &_class);
 	private:
 		sint2 m_frame_size; real m_frame_rate;
 		array_<player::object::info*> m_defines;
+		wstring_array m_classes;
 	};
 	inline const sint2& frame_size() const { return get_info<info>().frame_size(); }
 	inline real frame_rate() const { return get_info<info>().frame_rate(); }

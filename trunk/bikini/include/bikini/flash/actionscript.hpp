@@ -10,6 +10,7 @@
 
 namespace as { /* action script -----------------------------------------------------------------*/
 
+#include "opcodes.hpp"
 #include "machine.hpp"
 #include "avm2.hpp"
 

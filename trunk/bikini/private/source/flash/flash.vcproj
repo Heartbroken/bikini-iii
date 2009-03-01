@@ -265,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\flash\opcodes.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\flash\player.hpp"
 				>
 			</File>
