@@ -18,8 +18,8 @@ namespace ot { enum object_type {
 };}
 
 #include "movie.hpp"
-#include "clip.hpp"
-#include "shape.hpp"
-#include "button.hpp"
+//#include "clip.hpp"
+//#include "shape.hpp"
+//#include "button.hpp"
 
 } /* namespace po -------------------------------------------------------------------------------*/

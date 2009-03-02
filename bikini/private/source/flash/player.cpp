@@ -51,16 +51,16 @@ void player::destroy() {
 uint player::play(const wchar* _path, uint _level) {
 	assert(m_renderer_p != 0 && m_loader_p != 0);
 	if(m_renderer_p == 0 || m_loader_p == 0) return bad_ID;
-	po::movie::info &l_movie = static_cast<po::movie::info&>(m_load_movie(_path));
 	uint l_level = _level;
-	if(l_level > m_levels.size()) {
-		if(l_level == bad_ID) l_level = m_levels.size();
-		m_levels.resize(l_level + 1, bad_ID);
-	} else if(m_levels[l_level] != bad_ID) {
-		if(exists(m_levels[l_level])) kill(m_levels[l_level]);
-		m_levels[l_level] = bad_ID;
-	}
-	m_levels[l_level] = spawn(l_movie);
+	//po::movie::info &l_movie = static_cast<po::movie::info&>(m_load_movie(_path));
+	//if(l_level > m_levels.size()) {
+	//	if(l_level == bad_ID) l_level = m_levels.size();
+	//	m_levels.resize(l_level + 1, bad_ID);
+	//} else if(m_levels[l_level] != bad_ID) {
+	//	if(exists(m_levels[l_level])) kill(m_levels[l_level]);
+	//	m_levels[l_level] = bad_ID;
+	//}
+	//m_levels[l_level] = spawn(l_movie);
 	return l_level;
 }
 uint player::play(const achar* _path, uint _level) {
@@ -84,7 +84,7 @@ bool player::hide(uint _level) {
 bool player::render(uint _level) const {
 	for(uint i = 0, s = m_levels.size(); i < s; ++i) {
 		if((_level == bad_ID || _level == i) && exists(m_levels[i])) {
-			get<po::movie>(m_levels[i]).render();
+			//get<po::movie>(m_levels[i]).render();
 		}
 	}
 	return true;
@@ -93,7 +93,8 @@ player::object::info& player::m_load_movie(const wchar* _path) {
 	array_<wstring>::iterator l_it = std::find(m_movie_names.begin(), m_movie_names.end(), _path);
 	if(l_it != m_movie_names.end()) return *m_movies[l_it - m_movie_names.begin()];
 	m_movie_names.push_back(_path);
-	po::movie::info &l_movie = * new po::movie::info(swfstream(get_loader(), _path));
+	player::object::info &l_movie = * new player::object::info(0);
+	//po::movie::info &l_movie = * new po::movie::info(swfstream(get_loader(), _path));
 	m_movies.push_back(&l_movie);
 	return l_movie;
 }
