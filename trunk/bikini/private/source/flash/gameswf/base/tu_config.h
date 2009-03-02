@@ -91,7 +91,7 @@
 
 // define TU_CONFIG_LINK_STATIC to 1 to link gameswf statically 
 #ifndef TU_CONFIG_LINK_STATIC
-#	define TU_CONFIG_LINK_STATIC 0
+#	define TU_CONFIG_LINK_STATIC 1
 #endif // TU_CONFIG_LINK_STATIC
 
 #ifndef exported_module
