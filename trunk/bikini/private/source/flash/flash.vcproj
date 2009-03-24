@@ -47,7 +47,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\include;.\;gameswf\;jpeg\;..\..\..\include\bikini\base\zlib\;png\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;TU_CONFIG_LINK_TO_LIBPNG=1;TU_CONFIG_LINK_TO_FFMPEG=0;TU_CONFIG_LINK_TO_LIB3DS=0;TU_CONFIG_LINK_TO_MYSQL=0;TU_CONFIG_LINK_TO_FREETYPE=0;TU_CONFIG_LINK_TO_THREAD=0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;TU_CONFIG_LINK_TO_LIBPNG=1;TU_CONFIG_LINK_TO_FFMPEG=0;TU_CONFIG_LINK_TO_LIB3DS=0;TU_CONFIG_LINK_TO_MYSQL=0;TU_CONFIG_LINK_TO_FREETYPE=0;TU_CONFIG_LINK_TO_THREAD=0;TU_CONFIG_LINK_STATIC=1"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -117,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;TU_CONFIG_LINK_TO_LIBPNG=1;TU_CONFIG_LINK_TO_FFMPEG=0;TU_CONFIG_LINK_TO_LIB3DS=0;TU_CONFIG_LINK_TO_MYSQL=0;TU_CONFIG_LINK_TO_FREETYPE=0;TU_CONFIG_LINK_TO_THREAD=0;TU_CONFIG_LINK_STATIC=1"
 				RuntimeLibrary="0"
 				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
