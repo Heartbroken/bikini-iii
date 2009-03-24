@@ -117,7 +117,7 @@ void Ctest_MFCView::update() {
 	bk::window l_window(theApp.m_video);
 	l_window.create(m_hWnd);
 	bk::gui l_gui;
-	l_gui.create();
+	l_gui.create("");
 	bk::rbig l_time = bk::sys_time();
 	while(m_run) {
 		l_event.wait();
