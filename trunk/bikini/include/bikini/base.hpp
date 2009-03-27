@@ -60,5 +60,6 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/manager.hpp"
 #include "base/fsm.hpp"
 #include "base/loader.hpp"
+#include "base/watch.hpp"
 
 } /* namespace bk -------------------------------------------------------------------------------*/
