@@ -49,7 +49,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		.add_base_<A>()
 	;
 
-	F f;
+	F f; f.b = 1; f.set_c(2);
 	int i = 2;
 
 	bk::watch::varaible l_vi = l_watch.add_varaible(&i, "i");
@@ -57,7 +57,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	bk::watch::varaible l_vg = l_watch.add_varaible(&get_g, "g");
 
 	int i0 = l_vi.get_<int>();
-	F *f0 = l_vf.get_<F*>();
+	F f0 = l_vf.get_<F>();
 	bk::sint2 g0 = l_vg.get_<bk::sint2>();
 
 	return 0;
