@@ -103,7 +103,6 @@ struct watch
 			{
 				delete get;
 			}
-
 			template<typename _T> struct _const_helper_
 			{
 				static uint index(const watch &_watch) { return _watch.get_index_of_<_T>(); }
@@ -149,77 +148,10 @@ struct watch
 				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
 			};
 		};
-
-		type_ID ID;
-		astring name;
-		array_<uint> bases;
-		array_<member*> members;
-
-		type(watch &_watch) : m_watch(_watch)
+		struct base
 		{
-		}
-		~type()
-		{
-			while (!members.empty())
-			{
-				delete members.back();
-				members.pop_back();
-			}
-		}
-		template<typename _Type> void add_base_()
-		{
-			uint l_type = member::type_<_Type>::index(m_watch);
-			if (l_type == bad_ID)
-			{
-				std::cerr << "ERROR: Base type of type " << name << " is not registered\n";
-			}
-			else
-			{
-				bases.push_back(l_type);
-			}
-		}
-		template<typename _Type> member& add_member_(const achar *_name)
-		{
-			uint l_type = member::type_<_Type>::index(m_watch);
-
-			if (l_type == bad_ID)
-			{
-				std::cerr << "ERROR: Member '" << _name << "' type is not registered\n";
-			}
-
-			for (uint i = 0, s = members.size(); i < s; ++i)
-			{
-				member &l_member = *members[i];
-				if (l_member.name == _name)
-				{
-					if (l_member.type != l_type)
-					{
-						std::cerr << "ERROR: Member '" << _name << "' already defined with defferent type\n";
-						assert(0);
-					}
-
-					return l_member;
-				}
-			}
-			members.push_back(new member);
-
-			member &l_member = *members.back();
-			l_member.type = l_type;
-			l_member.name = _name;
-
-			return l_member;
-		}
-		uint member_count() const
-		{
-			uint l_count = members.size();
-			return l_count;
-		}
-		member& get_member(uint _i) const
-		{
-			return *members[_i];
-		}
-
-		//
+			uint type;
+		};
 		template<typename _Type, bool _POD = traits_<_Type>::is_fundamental> struct _helper_
 		{
 			_helper_(type &_t) {}
@@ -251,6 +183,114 @@ struct watch
 			type &m_type;
 		};
 
+
+		type_ID ID;
+		astring name;
+
+		type(watch &_watch) : m_watch(_watch)
+		{
+		}
+		~type()
+		{
+			while (!m_members.empty())
+			{
+				delete m_members.back();
+				m_members.pop_back();
+			}
+			while (!m_bases.empty())
+			{
+				delete m_bases.back();
+				m_bases.pop_back();
+			}
+		}
+		template<typename _Type> void add_base_()
+		{
+			uint l_type = member::type_<_Type>::index(m_watch);
+			if (l_type == bad_ID)
+			{
+				std::cerr << "ERROR: (Watch) Base type of type " << name << " is not registered\n"; return;
+			}
+			m_bases.push_back(new base);
+			m_bases.back()->type = l_type;
+		}
+		inline uint base_count() const
+		{
+			return m_bases.size();
+		}
+		inline base& get_base(uint _i) const
+		{
+			return *m_bases[_i];
+		}
+		template<typename _Type> member& add_member_(const achar *_name)
+		{
+			uint l_type = member::type_<_Type>::index(m_watch);
+
+			if (l_type == bad_ID)
+			{
+				std::cerr << "ERROR: (Watch) Member '" << _name << "' type is not registered\n";
+			}
+
+			for (uint i = 0, s = m_members.size(); i < s; ++i)
+			{
+				member &l_member = *m_members[i];
+				if (l_member.name == _name)
+				{
+					if (l_member.type != l_type)
+					{
+						std::cerr << "ERROR: (Watch) Member '" << _name << "' already defined with defferent type\n";
+						assert(0);
+					}
+
+					return l_member;
+				}
+			}
+			m_members.push_back(new member);
+
+			member &l_member = *m_members.back();
+			l_member.type = l_type;
+			l_member.name = _name;
+
+			return l_member;
+		}
+		inline uint member_count() const
+		{
+			uint l_count = m_members.size();
+
+			for (uint i = 0, s = base_count(); i < s; ++i)
+			{
+				base &l_base = get_base(i);
+				type &l_type = m_watch.get_type(l_base.type);
+				l_count += l_type.member_count();
+			}
+
+			return l_count;
+		}
+		inline member& get_member(uint _i) const
+		{
+			if (_i < m_members.size())
+			{
+				return *m_members[_i];
+			}
+
+			uint l_i = _i - m_members.size();
+
+			for (uint i = 0, s = base_count(); i < s; ++i)
+			{
+				base &l_base = get_base(i);
+				type &l_type = m_watch.get_type(l_base.type);
+
+				uint l_count = l_type.member_count();
+
+				if (l_i < l_count) return l_type.get_member(l_i);
+
+				l_i -= l_count;
+			}
+
+			std::cerr << "ERROR: (Watch) Bad member index\n";
+			assert(0);
+
+			return *(member*)0;
+		}
 		inline watch& get_watch() const
 		{
 			return m_watch;
@@ -258,6 +298,8 @@ struct watch
 
 	private:
 		watch &m_watch;
+		array_<base*> m_bases;
+		array_<member*> m_members;
 	};
 
 	struct varaible
@@ -286,15 +328,36 @@ struct watch
 		}
 		template<typename _T> struct _get_helper_
 		{
-			static _T get(const varaible &l_v) { _T l_value; l_value.~_T(); l_v.resolve_value(&l_value); return l_value; }
+			static inline _T get(const varaible &l_v, bool _byval)
+			{
+				if (_byval)
+				{
+					_T l_value; l_value.~_T(); l_v.resolve_value(&l_value); return l_value;
+				}
+				_T* l_value; l_v.resolve_value(&l_value); return *l_value;
+			}
 		};
 		template<typename _T> struct _get_helper_<_T*>
 		{
-			static _T* get(const varaible &l_v) { _T* l_value; l_v.resolve_value(&l_value); return l_value; }
+			static inline _T* get(const varaible &l_v, bool _byval)
+			{
+				if (_byval)
+				{
+					std::cerr << "ERROR: (Watch) An attempt to get pointer to temporary value\n"; assert(0); return (_T*)0;
+				}
+				_T* l_value; l_v.resolve_value(&l_value); return l_value;
+			}
 		};
 		template<typename _T> struct _get_helper_<_T&>
 		{
-			static _T& get(const varaible &l_v) { _T* l_value; l_v.resolve_value(&l_value); return *l_value; }
+			static inline _T& get(const varaible &l_v, bool _byval)
+			{
+				if (_byval)
+				{
+					std::cerr << "ERROR: (Watch) An attempt to get reference to temporary value\n"; assert(0); return *(_T*)0;
+				}
+				_T* l_value; l_v.resolve_value(&l_value); return *l_value;
+			}
 		};
 		template<typename _Type> _Type get_() const
 		{
@@ -303,32 +366,14 @@ struct watch
 			type::member &l_member = resolve_member();
 			type &l_type = m_watch.get_type(l_member.type);
 
-			if (l_member.get->by_value)
+			if (l_type.ID == get_ID_of_<_Type>() || l_type.ID == get_ID_of_<traits_<_Type>::pointed>() || l_type.ID == get_ID_of_<traits_<_Type>::referred>())
 			{
-				if (l_type.ID == get_ID_of_<_Type>())
-				{
-					return _get_helper_<_Type>::get(*this);
-				}
-			}
-			else
-			{
-				if (l_type.ID == get_ID_of_<_Type>())
-				{
-					return _get_helper_<_Type>::get(*this);
-				}
-				else if (l_type.ID == get_ID_of_<traits_<_Type>::pointed>())
-				{
-					return _get_helper_<_Type>::get(*this);
-				}
-				else if (l_type.ID == get_ID_of_<traits_<_Type>::referred>())
-				{
-					return _get_helper_<_Type>::get(*this);
-				}
+				return _get_helper_<_Type>::get(*this, l_member.get->by_value);
 			}
 
-			assert(0);
+			std::cerr << "ERROR: (Watch) An attempt get value of wrong type\n";
 
-			return traits_<_Type>::referred();
+			return *(traits_<_Type>::referred*)0;
 		}
 
 	private:
