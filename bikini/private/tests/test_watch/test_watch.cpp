@@ -60,6 +60,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	F f0 = l_vf.get_<F>();
 	bk::sint2 g0 = l_vg.get_<bk::sint2>();
 
+	bk::watch::varaible l_vf_c = l_vf.get_member(1);
+
+	int fc0 = l_vf_c.get_<int>();
+
 	return 0;
 }
 

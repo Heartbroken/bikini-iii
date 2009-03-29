@@ -252,6 +252,10 @@ struct watch
 
 			return l_member;
 		}
+		inline uint own_member_count() const
+		{
+			return m_members.size();
+		}
 		inline uint member_count() const
 		{
 			uint l_count = m_members.size();
@@ -325,6 +329,13 @@ struct watch
 			type &l_type = m_watch.get_type(l_member.type);
 
 			return l_type.member_count();
+		}
+		inline varaible get_member(uint _i) const
+		{
+			varaible l_v = *this;
+			l_v.path.push_back(_i);
+
+			return l_v;
 		}
 		template<typename _T> struct _get_helper_
 		{
@@ -403,11 +414,21 @@ struct watch
 				handle l_value = i + 1 < s ? calloc(l_member.get->value_size, 1) : _value;
 				(*l_member.get)(l_value, l_object);
 
-				l_type = l_member.type;
-
 				if (i + 1 == s) return;
 
-				l_object = l_value;
+
+				if (l_member.get->by_value)
+				{
+					//m_watch.get_type(l_type).destroy(l_object);
+					l_object = l_value;
+				}
+				else
+				{
+					l_object = *(void**)l_value;
+				}
+
+				l_type = l_member.type;
+
 			}
 		}
 	};
@@ -436,7 +457,7 @@ struct watch
 			{
 				if (l_type.name != _name)
 				{
-					std::cerr << "WARNING: Type " << l_type.name << " redefines type " << _name << "\n";
+					std::cerr << "WARNING: (Watch) Type '" << _name << "' redefines type '" << l_type.name << "'\n";
 					l_type.name = _name;
 				}
 				return type::_helper_<_Type>(l_type);
@@ -468,7 +489,7 @@ struct watch
 		type::_helper_<_Type>(l_root).add_member(_v, _name);
 
 		varaible l_v(*this);
-		l_v.path.push_back(l_root.members.size() - 1);
+		l_v.path.push_back(l_root.own_member_count() - 1);
 
 		return l_v;
 	}
