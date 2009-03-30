@@ -34,12 +34,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	l_watch.add_type_<bk::sint2>("sint2")
 		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::x, "x")
+		.add_member_<bk::sint&(bk::sint2::*)()>(&bk::sint2::x, "x")
 		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::y, "y")
 	;
 
 	l_watch.add_type_<A>("A")
 		.add_member(&A::b, "b")
 		.add_member(&A::get_c, "c")
+		.add_member(&A::set_c, "c")
 		.add_member(&A::d, "d")
 		.add_member(&A::get_e, "e")
 	;
