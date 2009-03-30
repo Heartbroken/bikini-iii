@@ -256,7 +256,7 @@ struct watch
 		{
 			return m_members.size();
 		}
-		inline uint member_count() const
+		uint member_count() const
 		{
 			uint l_count = m_members.size();
 
@@ -269,7 +269,7 @@ struct watch
 
 			return l_count;
 		}
-		inline member& get_member(uint _i) const
+		member& get_member(uint _i) const
 		{
 			if (_i < m_members.size())
 			{
@@ -295,6 +295,16 @@ struct watch
 
 			return *(member*)0;
 		}
+		uint find_member(const achar *_name) const
+		{
+			for (uint i = 0, s = member_count(); i < s; ++i)
+			{
+				member &l_member = get_member(i);
+				if (l_member.name == _name) return i;
+			}
+
+			return bad_ID;
+		}
 		inline watch& get_watch() const
 		{
 			return m_watch;
@@ -313,6 +323,13 @@ struct watch
 		inline varaible(watch &_watch) : m_watch(_watch)
 		{
 		}
+		inline varaible(const varaible &_v) : m_watch(_v.get_watch()), path(_v.path)
+		{
+		}
+		inline varaible& operator = (const varaible &_v)
+		{
+			this->~varaible(); new(this) varaible(_v); return *this;
+		}
 		inline watch& get_watch() const
 		{
 			return m_watch;
@@ -330,12 +347,24 @@ struct watch
 
 			return l_type.member_count();
 		}
-		inline varaible get_member(uint _i) const
+		inline varaible get_member(const achar *_name) const
 		{
+			assert(valid());
+
+			type::member &l_member = resolve_member();
+			type &l_type = m_watch.get_type(l_member.type);
+			uint l_i = l_type.find_member(_name);
+
+			if (l_i == bad_ID) return varaible(m_watch);
+
 			varaible l_v = *this;
-			l_v.path.push_back(_i);
+			l_v.path.push_back(l_i);
 
 			return l_v;
+		}
+		inline varaible operator [] (const achar *_name) const
+		{
+			return get_member(_name);
 		}
 		template<typename _T> struct _get_helper_
 		{
@@ -486,10 +515,37 @@ struct watch
 
 		type &l_root = *m_types[0];
 
+		assert(l_root.base_count() == 0);
+
 		type::_helper_<_Type>(l_root).add_member(_v, _name);
 
 		varaible l_v(*this);
-		l_v.path.push_back(l_root.own_member_count() - 1);
+		l_v.path.push_back(l_root.member_count() - 1);
+
+		return l_v;
+	}
+	varaible find_varaible(const achar *_path)
+	{
+		assert(!m_types.empty());
+
+		astring l_path = _path;
+		astring l_name = l_path.substr(0, l_path.find("::"));
+		l_path.erase(0, l_name.length() + 2);
+		type &l_root = *m_types[0];
+		uint l_i = l_root.find_member(l_name.c_str());
+
+		if (l_i == bad_ID) return varaible(*this);
+
+		varaible l_v(*this);
+		l_v.path.push_back(l_i);
+
+		while (l_path != "")
+		{
+			l_name = l_path.substr(0, l_path.find("::"));
+			l_path.erase(0, l_name.length() + 2);
+
+			l_v = l_v[l_name.c_str()];
+		}
 
 		return l_v;
 	}
