@@ -34,7 +34,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	l_watch.add_type_<bk::sint2>("sint2")
 		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::x, "x")
-		.add_member_<bk::sint&(bk::sint2::*)()>(&bk::sint2::x, "x")
+		//.add_member_<bk::sint&(bk::sint2::*)()>(&bk::sint2::x, "x")
 		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::y, "y")
 	;
 
