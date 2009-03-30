@@ -5,17 +5,17 @@
 
 struct A
 {
-	int b;
-	void set_c(int _c) { m_c = _c; }
-	int get_c() const { return m_c; }
-	static int d;
-	static int get_e() { return m_e; }
+	bk::sint2 b;
+	void set_c(bk::sint2 _c) { m_c = _c; }
+	bk::sint2 get_c() const { return m_c; }
+	static bk::sint d;
+	static bk::sint get_e() { return m_e; }
 private:
-	int m_c;
-	static int m_e;
+	bk::sint2 m_c;
+	static bk::sint m_e;
 };
-int A::d = 0;
-int A::m_e = 0;
+bk::sint A::d = 0;
+bk::sint A::m_e = 0;
 
 struct F : A
 {
@@ -30,7 +30,6 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	bk::watch l_watch;
 
-	l_watch.add_type_<int>("int");
 	l_watch.add_type_<bk::sint>("sint");
 
 	l_watch.add_type_<bk::sint2>("sint2")
@@ -49,24 +48,24 @@ int _tmain(int argc, _TCHAR* argv[])
 		.add_base_<A>()
 	;
 
-	F f; f.b = 1; f.set_c(2);
-	int i = 2;
+	F f; f.b = bk::sint2(5, 6); f.set_c(bk::sint2(7, 8));
+	bk::sint i = 2;
 
 	bk::watch::varaible l_vi = l_watch.add_varaible(&i, "i");
 	bk::watch::varaible l_vf = l_watch.add_varaible(&f, "f");
 	bk::watch::varaible l_vg = l_watch.add_varaible(&get_g, "g");
 
-	int i0 = l_vi.get_<int>();
+	bk::sint i0 = l_vi.get_<bk::sint>();
 	F f0 = l_vf.get_<F>();
 	bk::sint2 g0 = l_vg.get_<bk::sint2>();
 
 	bk::watch::varaible l_vf_c = l_vf["c"];
 
-	int fc0 = l_vf_c.get_<int>();
+	bk::sint2 fc0 = l_vf_c.get_<bk::sint2>();
 
-	bk::watch::varaible l_vf_b = l_watch.find_varaible("f::b");
+	bk::watch::varaible l_vf_c_x = l_watch.find_varaible("f::c::x");
 
-	int fb0 = l_vf_b.get_<int>();
+	bk::sint fb0 = l_vf_c_x.get_<bk::sint>();
 
 	return 0;
 }

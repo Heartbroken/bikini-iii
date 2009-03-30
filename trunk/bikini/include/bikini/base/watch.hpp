@@ -33,8 +33,8 @@ struct watch
 	};
 	template<typename _T, typename _O> struct getter_<_T _O::*> : getter
 	{
-		inline getter_(_T _O:: *_p) : m_p(_p) { by_value = true; value_size = sizeof(_T); }
-		void operator () (handle _value, pointer _object = 0) const { new(_value) _T(((_O*)_object)->*m_p); }
+		inline getter_(_T _O:: *_p) : m_p(_p) { by_value = false; value_size = sizeof(_T*); }
+		void operator () (handle _value, pointer _object = 0) const { *(_T**)_value = &(((_O*)_object)->*m_p); }
 	private:
 		_T _O::* m_p;
 	};
@@ -151,6 +151,8 @@ struct watch
 		struct base
 		{
 			uint type;
+			handle (*base_cast)(handle);
+			template<typename _T, typename _B> static handle cast_(handle _p) { return static_cast<_B*>((_T*)_p); }
 		};
 		template<typename _Type, bool _POD = traits_<_Type>::is_fundamental> struct _helper_
 		{
@@ -163,7 +165,8 @@ struct watch
 			}
 			template<typename _T> const _helper_& add_base_() const
 			{
-				m_type.add_base_<_T>();
+				base &l_base = m_type.add_base_<_T>();
+				l_base.base_cast = base::cast_<_Type, _T>;
 
 				return *this;
 			}
@@ -187,7 +190,7 @@ struct watch
 		type_ID ID;
 		astring name;
 
-		type(watch &_watch) : m_watch(_watch)
+		type(watch &_watch) : m_watch(_watch), m_destroy_fn(0)
 		{
 		}
 		~type()
@@ -203,15 +206,18 @@ struct watch
 				m_bases.pop_back();
 			}
 		}
-		template<typename _Type> void add_base_()
+		template<typename _Type> base& add_base_()
 		{
 			uint l_type = member::type_<_Type>::index(m_watch);
 			if (l_type == bad_ID)
 			{
-				std::cerr << "ERROR: (Watch) Base type of type " << name << " is not registered\n"; return;
+				std::cerr << "ERROR: (Watch) Base type of type " << name << " is not registered\n";
+				assert(0);
 			}
 			m_bases.push_back(new base);
 			m_bases.back()->type = l_type;
+
+			return *m_bases.back();
 		}
 		inline uint base_count() const
 		{
@@ -237,7 +243,7 @@ struct watch
 				{
 					if (l_member.type != l_type)
 					{
-						std::cerr << "ERROR: (Watch) Member '" << _name << "' already defined with defferent type\n";
+						std::cerr << "ERROR: (Watch) Member '" << _name << "' already defined with different type\n";
 						assert(0);
 					}
 
@@ -295,6 +301,32 @@ struct watch
 
 			return *(member*)0;
 		}
+		handle member_base_cast(uint _i, handle _p) const
+		{
+			if (_i < m_members.size())
+			{
+				return _p;
+			}
+
+			uint l_i = _i - m_members.size();
+
+			for (uint i = 0, s = base_count(); i < s; ++i)
+			{
+				base &l_base = get_base(i);
+				type &l_type = m_watch.get_type(l_base.type);
+
+				uint l_count = l_type.member_count();
+
+				if (l_i < l_count) return l_type.member_base_cast(l_i, l_base.base_cast(_p));
+
+				l_i -= l_count;
+			}
+
+			std::cerr << "ERROR: (Watch) Bad member index\n";
+			assert(0);
+
+			return _p;
+		}
 		uint find_member(const achar *_name) const
 		{
 			for (uint i = 0, s = member_count(); i < s; ++i)
@@ -309,11 +341,21 @@ struct watch
 		{
 			return m_watch;
 		}
+		template<typename _Type> inline void set_destroy_()
+		{
+			m_destroy_fn = destroy_<_Type>;
+		}
+		inline void destroy_value(handle _p) const
+		{
+			if (m_destroy_fn != 0) m_destroy_fn(_p);
+		}
 
 	private:
 		watch &m_watch;
 		array_<base*> m_bases;
 		array_<member*> m_members;
+		void (*m_destroy_fn)(handle);
+		template<typename _Type> static inline void destroy_(handle _p) { ((_Type*)_p)->~_Type(); }
 	};
 
 	struct varaible
@@ -372,9 +414,9 @@ struct watch
 			{
 				if (_byval)
 				{
-					_T l_value; l_value.~_T(); l_v.resolve_value(&l_value); return l_value;
+					_T l_value; l_value.~_T(); l_v.resolve_get(&l_value); return l_value;
 				}
-				_T* l_value; l_v.resolve_value(&l_value); return *l_value;
+				_T* l_value; l_v.resolve_get(&l_value); return *l_value;
 			}
 		};
 		template<typename _T> struct _get_helper_<_T*>
@@ -385,7 +427,7 @@ struct watch
 				{
 					std::cerr << "ERROR: (Watch) An attempt to get pointer to temporary value\n"; assert(0); return (_T*)0;
 				}
-				_T* l_value; l_v.resolve_value(&l_value); return l_value;
+				_T* l_value; l_v.resolve_get(&l_value); return l_value;
 			}
 		};
 		template<typename _T> struct _get_helper_<_T&>
@@ -396,7 +438,7 @@ struct watch
 				{
 					std::cerr << "ERROR: (Watch) An attempt to get reference to temporary value\n"; assert(0); return *(_T*)0;
 				}
-				_T* l_value; l_v.resolve_value(&l_value); return *l_value;
+				_T* l_value; l_v.resolve_get(&l_value); return *l_value;
 			}
 		};
 		template<typename _Type> _Type get_() const
@@ -433,31 +475,28 @@ struct watch
 
 			return *(type::member*)0;
 		}
-		void resolve_value(handle _value) const
+		void resolve_get(handle _value) const
 		{
 			uint l_type = 0;
 			handle l_object = 0;
+			bool l_destroy_object = false;
 			for (uint i = 0, s = path.size(); i < s; ++i)
 			{
-				type::member &l_member = m_watch.get_type(l_type).get_member(path[i]);
+				uint l_step = path[i];
+				type &l_object_type = m_watch.get_type(l_type);
+				type::member &l_member = l_object_type.get_member(l_step);
+
 				handle l_value = i + 1 < s ? calloc(l_member.get->value_size, 1) : _value;
-				(*l_member.get)(l_value, l_object);
+				(*l_member.get)(l_value, l_object_type.member_base_cast(l_step, l_object));
+
+				if (l_destroy_object) l_object_type.destroy_value(l_object);
 
 				if (i + 1 == s) return;
 
-
-				if (l_member.get->by_value)
-				{
-					//m_watch.get_type(l_type).destroy(l_object);
-					l_object = l_value;
-				}
-				else
-				{
-					l_object = *(void**)l_value;
-				}
+				if (l_member.get->by_value) { l_object = l_value; l_destroy_object = true; }
+				else { l_object = *(void**)l_value; l_destroy_object = false; }
 
 				l_type = l_member.type;
-
 			}
 		}
 	};
@@ -498,6 +537,7 @@ struct watch
 		type &l_type = *m_types.back();
 		l_type.name = _name;
 		l_type.ID = get_ID_of_<_Type>();
+		l_type.set_destroy_<_Type>();
 
 		return type::_helper_<_Type>(l_type);
 	}
