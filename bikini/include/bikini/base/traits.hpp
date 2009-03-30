@@ -19,7 +19,7 @@ typedef make_typelist_<bool, u8, u16, u32, u64, uint, ubig, s8, s16, s32, s64, s
  */
 template<typename _Type> struct traits_ {
 private:
-	template<typename _T> struct pointer_traits_ { static const bool yes = false; typedef notype type; };
+	template<typename _T> struct pointer_traits_ { static const bool yes = false; typedef _T type; };
 	template<typename _T> struct pointer_traits_<_T*> { static const bool yes = true; typedef _T type; };
 
 	template<typename _T> struct reference_traits_ { static const bool yes = false; typedef _T type; };
@@ -40,6 +40,9 @@ private:
 	template<typename _T> struct function_traits_<_T (&)> { static const bool yes = true; };
 	template<typename _T> struct function_traits_<_T (*)> { static const bool yes = true; };
 
+	template<typename _T> struct array_traits_ { static const bool yes = false; typedef _T type; };
+	template<typename _T, uint _N> struct array_traits_<_T[_N]> { static const bool yes = true; typedef _T type; };
+
 public:
 	static const bool is_pointer = pointer_traits_<_Type>::yes;
 	typedef typename pointer_traits_<_Type>::type pointed;
@@ -48,6 +51,9 @@ public:
 	typedef typename reference_traits_<_Type>::type referred;
 
 	static const bool is_member_pointer = member_ptr_traits_<_Type>::yes;
+
+	static const bool is_array = array_traits_<_Type>::yes;
+	typedef typename array_traits_<_Type>::type element;
 
 	static const bool is_const = const_traits_<_Type>::yes;
 	typedef typename const_traits_<_Type>::type nonconst;
