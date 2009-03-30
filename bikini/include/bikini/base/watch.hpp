@@ -18,23 +18,29 @@ struct watch
 	{
 		bool valid, by_value; uint value_size;
 		inline getter() : valid(true), by_value(false), value_size(0) {}
-		virtual void operator()(handle _value, pointer _object = 0) const = 0;
+		virtual void operator( ) (handle _value, pointer _object) const = 0;
 	};
 	template<typename _Type> struct getter_ : getter
 	{
 		inline getter_(_Type _p) { valid = false; }
+		void operator () (handle _value, pointer _object) const {}
+	};
+	template<typename _T, typename _O> struct getter_<void(_O::*)(_T)> : getter
+	{
+		inline getter_(void(_O::*)(_T)) { valid = false; }
+		void operator () (handle _value, pointer _object) const {}
 	};
 	template<typename _T> struct getter_<_T*> : getter
 	{
 		inline getter_(_T *_p) : m_p(_p) { value_size = sizeof(_T*); }
-		void operator () (handle _value, pointer _object = 0) const { *(_T**)_value = m_p; }
+		void operator () (handle _value, pointer _object) const { *(_T**)_value = m_p; }
 	private:
 		_T *m_p;
 	};
 	template<typename _T, typename _O> struct getter_<_T _O::*> : getter
 	{
 		inline getter_(_T _O:: *_p) : m_p(_p) { by_value = false; value_size = sizeof(_T*); }
-		void operator () (handle _value, pointer _object = 0) const { *(_T**)_value = &(((_O*)_object)->*m_p); }
+		void operator () (handle _value, pointer _object) const { *(_T**)_value = &(((_O*)_object)->*m_p); }
 	private:
 		_T _O::* m_p;
 	};
@@ -43,18 +49,18 @@ struct watch
 		typedef _T (*fn)();
 		template<typename _R> struct _helper_ {
 			static const bool by_value = true; static const uint value_size = sizeof(_R);
-			static void call(handle _value, pointer _object, fn _fn) { new(_value) _R(_fn()); }
+			static inline void call(handle _value, pointer _object, fn _fn) { new(_value) _R(_fn()); }
 		};
 		template<typename _R> struct _helper_<_R&> {
 			static const bool by_value = false; static const uint value_size = sizeof(_R*);
-			static void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = &_fn(); }
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = &_fn(); }
 		};
 		template<typename _R> struct _helper_<_R*> {
 			static const bool by_value = false; static const uint value_size = sizeof(_R*);
-			static void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = _fn(); }
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = _fn(); }
 		};
 		inline getter_(fn _fn) : m_fn(_fn) { by_value = _helper_<_T>::by_value; value_size = _helper_<_T>::value_size; }
-		void operator () (handle _value, pointer _object = 0) const { _helper_<_T>::call(_value, _object, m_fn); }
+		void operator () (handle _value, pointer _object) const { _helper_<_T>::call(_value, _object, m_fn); }
 	private:
 		fn m_fn;
 	};
@@ -63,28 +69,102 @@ struct watch
 		typedef _T (_O::*fn)() const;
 		template<typename _R> struct _helper_ {
 			static const bool by_value = true; static const uint value_size = sizeof(_R);
-			static void call(handle _value, pointer _object, fn _fn) { new(_value) _R((((_O*)_object)->*_fn)()); }
+			static inline void call(handle _value, pointer _object, fn _fn) { new(_value) _R((((_O*)_object)->*_fn)()); }
 		};
 		template<typename _R> struct _helper_<_R&> {
 			static const bool by_value = false; static const uint value_size = sizeof(_R*);
-			static void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = &(((_O*)_object)->*_fn)(); }
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = &(((_O*)_object)->*_fn)(); }
 		};
 		template<typename _R> struct _helper_<_R*> {
 			static const bool by_value = false; static const uint value_size = sizeof(_R*);
-			static void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = (((_O*)_object)->*_fn)(); }
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = (((_O*)_object)->*_fn)(); }
 		};
 		inline getter_(fn _fn) : m_fn(_fn) { by_value = _helper_<_T>::by_value; value_size = _helper_<_T>::value_size; }
-		void operator () (handle _value, pointer _object = 0) const { _helper_<_T>::call(_value, _object, m_fn); }
+		void operator () (handle _value, pointer _object) const { _helper_<_T>::call(_value, _object, m_fn); }
 	private:
 		fn m_fn;
 	};
 	//template<typename _T, typename _O> struct getter_<_T (*)(_O&)> : getter
 	//{
 	//	inline getter_(_T (*_p)(_O&)) : m_p(_p) { by_value = true; value_size = sizeof(_T); }
-	//	void operator () (handle _value, pointer _object = 0) const { new(_value) _T(m_p(*(_O*)_object)); }
+	//	void operator () (handle _value, pointer _object) const { new(_value) _T(m_p(*(_O*)_object)); }
 	//private:
 	//	_T (*m_p)(_O&);
 	//};
+
+	// setter
+	struct setter
+	{
+		bool valid;
+		inline setter() : valid(true) {}
+		virtual void operator () (pointer _value, handle _object) const = 0;
+	};
+	template<typename _Type> struct setter_ : setter
+	{
+		inline setter_(_Type) { valid = false; }
+		void operator () (pointer _value, handle _object) const {}
+	};
+	template<typename _T> struct setter_<_T*> : setter
+	{
+		inline setter_(_T *_p) : m_p(_p) {}
+		void operator () (pointer _value, handle _object) const { *m_p = *(_T*)_value; }
+	private:
+		_T *m_p;
+	};
+	template<typename _T> struct setter_<_T(*)()> : setter
+	{
+		inline setter_(_T(*)()){ valid = false; }
+		void operator () (pointer _value, handle _object) const {}
+	};
+	template<typename _T, typename _O> struct setter_<_T _O::*> : setter
+	{
+		inline setter_(_T _O:: *_p) : m_p(_p) {}
+		void operator () (pointer _value, handle _object) const { ((_O*)_object)->*m_p = *(_T*)_value; }
+	private:
+		_T _O::* m_p;
+	};
+	template<typename _R, typename _T> struct setter_<_R (*)(_T)> : setter
+	{
+		typedef _R (*fn)(_T);
+		template<typename _V> struct _helper_ {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_V*)_value); }
+		};
+		template<typename _V> struct _helper_<_V*> {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn((_V*)_value); }
+		};
+		inline setter_(fn _fn) : m_fn(_fn) {}
+		void operator () (pointer _value, handle _object) const { _helper_<_T>::call(_value, _object, m_fn); }
+	private:
+		fn m_fn;
+	};
+	template<typename _R, typename _O, typename _T> struct setter_<_R (_O::*)(_T)> : setter
+	{
+		typedef _R (_O::*fn)(_T);
+		template<typename _V> struct _helper_ {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)(*(_V*)_value); }
+		};
+		template<typename _V> struct _helper_<_V*> {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)((_V*)_value); }
+		};
+		inline setter_(fn _fn) : m_fn(_fn) {}
+		void operator () (pointer _value, handle _object) const { _helper_<_T>::call(_value, _object, m_fn); }
+	private:
+		fn m_fn;
+	};
+	template<typename _O, typename _T> struct setter_<_T& (_O::*)()> : setter
+	{
+		typedef _T& (_O::*fn)();
+		template<typename _V> struct _helper_ {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)() = *(_V*)_value; }
+		};
+		template<typename _V> struct _helper_<_V*> {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)() = (_V*)_value; }
+		};
+		inline setter_(fn _fn) : m_fn(_fn) {}
+		void operator () (pointer _value, handle _object) const { _helper_<_T>::call(_value, _object, m_fn); }
+	private:
+		fn m_fn;
+	};
 
 	// type
 	struct type
@@ -95,13 +175,15 @@ struct watch
 			uint type;
 			astring name;
 			getter *get;
+			setter *set;
 
-			member() : get(0)
+			member() : get(0), set(0)
 			{
 			}
 			~member()
 			{
 				delete get;
+				delete set;
 			}
 			template<typename _T> struct _const_helper_
 			{
@@ -147,6 +229,14 @@ struct watch
 			{
 				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
 			};
+			template<typename _R, typename _T> struct type_<_R (*)(_T)>
+			{
+				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
+			};
+			template<typename _R, typename _S, typename _T> struct type_<_R (_S::*)(_T)>
+			{
+				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
+			};
 		};
 		struct base
 		{
@@ -177,7 +267,14 @@ struct watch
 			template<typename _T> const _helper_& add_member(_T _member, const achar *_name) const
 			{
 				type::member &l_member = m_type.add_member_<_T>(_name);
-				l_member.get = new getter_<_T>(_member);
+
+				getter *l_get = new getter_<_T>(_member);
+				if (l_get->valid) l_member.get = l_get;
+				else delete l_get;
+
+				setter *l_set = new setter_<_T>(_member);
+				if (l_set->valid) l_member.set = l_set;
+				else delete l_set;
 
 				return *this;
 			}
@@ -488,6 +585,39 @@ struct watch
 
 				handle l_value = i + 1 < s ? calloc(l_member.get->value_size, 1) : _value;
 				(*l_member.get)(l_value, l_object_type.member_base_cast(l_step, l_object));
+
+				if (l_destroy_object) l_object_type.destroy_value(l_object);
+
+				if (i + 1 == s) return;
+
+				if (l_member.get->by_value) { l_object = l_value; l_destroy_object = true; }
+				else { l_object = *(void**)l_value; l_destroy_object = false; }
+
+				l_type = l_member.type;
+			}
+		}
+		void resolve_set(pointer _value) const
+		{
+			uint l_type = 0;
+			handle l_object = 0;
+			bool l_destroy_object = false;
+			for (uint i = 0, s = path.size(); i < s; ++i)
+			{
+				uint l_step = path[i];
+				type &l_object_type = m_watch.get_type(l_type);
+				type::member &l_member = l_object_type.get_member(l_step);
+
+				handle l_value = 0;
+
+				if (i + 1 < s)
+				{
+					l_value = calloc(l_member.get->value_size, 1);
+					(*l_member.get)(l_value, l_object_type.member_base_cast(l_step, l_object));
+				}
+				else
+				{
+					(*l_member.set)(_value, l_object_type.member_base_cast(l_step, l_object));
+				}
 
 				if (l_destroy_object) l_object_type.destroy_value(l_object);
 
