@@ -22,12 +22,17 @@ struct watch
 	};
 	template<typename _Type> struct getter_ : getter
 	{
-		inline getter_(_Type _p) { valid = false; }
+		inline getter_(_Type) { valid = false; }
 		void operator () (handle _value, pointer _object) const {}
 	};
-	template<typename _T, typename _O> struct getter_<void(_O::*)(_T)> : getter
+	template<typename _T> struct getter_<void (*)(_T)> : getter
 	{
-		inline getter_(void(_O::*)(_T)) { valid = false; }
+		inline getter_(void (*)(_T)) { valid = false; }
+		void operator () (handle _value, pointer _object) const {}
+	};
+	template<typename _T, typename _O> struct getter_<void (_O::*)(_T)> : getter
+	{
+		inline getter_(void (_O::*)(_T)) { valid = false; }
 		void operator () (handle _value, pointer _object) const {}
 	};
 	template<typename _T> struct getter_<_T*> : getter
@@ -84,13 +89,32 @@ struct watch
 	private:
 		fn m_fn;
 	};
-	//template<typename _T, typename _O> struct getter_<_T (*)(_O&)> : getter
-	//{
-	//	inline getter_(_T (*_p)(_O&)) : m_p(_p) { by_value = true; value_size = sizeof(_T); }
-	//	void operator () (handle _value, pointer _object) const { new(_value) _T(m_p(*(_O*)_object)); }
-	//private:
-	//	_T (*m_p)(_O&);
-	//};
+	// If your accessor doesn't match any of getter templates or matches wrong one,
+	// make a wrapper function like
+	//
+	// MemberType Get_MyClass_Member1(const MyClass &_o) { return _o.Get_Member1(); }
+	//
+	// and register it.
+	template<typename _T, typename _O> struct getter_<_T (*)(const _O&)> : getter
+	{
+		typedef _T (*fn)(const _O&);
+		template<typename _R> struct _helper_ {
+			static const bool by_value = true; static const uint value_size = sizeof(_R);
+			static inline void call(handle _value, pointer _object, fn _fn) { new(_value) _R(_fn(*(_O*)_object)); }
+		};
+		template<typename _R> struct _helper_<_R&> {
+			static const bool by_value = false; static const uint value_size = sizeof(_R*);
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = &_fn(*(_O*)_object); }
+		};
+		template<typename _R> struct _helper_<_R*> {
+			static const bool by_value = false; static const uint value_size = sizeof(_R*);
+			static inline void call(handle _value, pointer _object, fn _fn) { *(_R**)_value = _fn(*(_O*)_object); }
+		};
+		inline getter_(fn _fn) : m_fn(_fn) { by_value = _helper_<_T>::by_value; value_size = _helper_<_T>::value_size; }
+		void operator () (handle _value, pointer _object) const { _helper_<_T>::call(_value, _object, m_fn); }
+	private:
+		fn m_fn;
+	};
 
 	// setter
 	struct setter
@@ -129,6 +153,9 @@ struct watch
 		template<typename _V> struct _helper_ {
 			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_V*)_value); }
 		};
+		template<typename _V> struct _helper_<_V&> {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_V*)_value); }
+		};
 		template<typename _V> struct _helper_<_V*> {
 			static inline void call(pointer _value, handle _object, fn _fn) { _fn((_V*)_value); }
 		};
@@ -141,6 +168,9 @@ struct watch
 	{
 		typedef _R (_O::*fn)(_T);
 		template<typename _V> struct _helper_ {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)(*(_V*)_value); }
+		};
+		template<typename _V> struct _helper_<_V&> {
 			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)(*(_V*)_value); }
 		};
 		template<typename _V> struct _helper_<_V*> {
@@ -157,8 +187,34 @@ struct watch
 		template<typename _V> struct _helper_ {
 			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)() = *(_V*)_value; }
 		};
+		template<typename _V> struct _helper_<_V&> {
+			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)() = *(_V*)_value; }
+		};
 		template<typename _V> struct _helper_<_V*> {
 			static inline void call(pointer _value, handle _object, fn _fn) { (((_O*)_object)->*_fn)() = (_V*)_value; }
+		};
+		inline setter_(fn _fn) : m_fn(_fn) {}
+		void operator () (pointer _value, handle _object) const { _helper_<_T>::call(_value, _object, m_fn); }
+	private:
+		fn m_fn;
+	};
+	// If your accessor doesn't match any of setter templates or matches wrong one,
+	// make a wrapper function like
+	//
+	// void Set_MyClass_Member1(MyClass &_o, const MemberType &_v) { _o.Set_Member1(_v); }
+	//
+	// and register it
+	template<typename _O, typename _T> struct setter_<void (*)(_O&, _T)> : setter
+	{
+		typedef void (*fn)(_O&, _T);
+		template<typename _V> struct _helper_ {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_O*)_object, *(_V*)_value); }
+		};
+		template<typename _V> struct _helper_<_V&> {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_O*)_object, *(_V*)_value); }
+		};
+		template<typename _V> struct _helper_<_V*> {
+			static inline void call(pointer _value, handle _object, fn _fn) { _fn(*(_O*)_object, (_V*)_value); }
 		};
 		inline setter_(fn _fn) : m_fn(_fn) {}
 		void operator () (pointer _value, handle _object) const { _helper_<_T>::call(_value, _object, m_fn); }
