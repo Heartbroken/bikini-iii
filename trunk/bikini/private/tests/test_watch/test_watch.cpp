@@ -32,10 +32,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	l_watch.add_type_<bk::sint>("sint");
 
+	struct _sint2_helper {
+		static inline bk::sint get_sint2_x(const bk::sint2 &_o) { return _o.x(); }
+		static inline void set_sint2_x(bk::sint2 &_o, const bk::sint &_v) { _o.x() = _v; }
+		static inline bk::sint get_sint2_y(const bk::sint2 &_o) { return _o.y(); }
+		static inline void set_sint2_y(bk::sint2 &_o, const bk::sint &_v) { _o.y() = _v; }
+	};
 	l_watch.add_type_<bk::sint2>("sint2")
-		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::x, "x")
-		//.add_member_<bk::sint&(bk::sint2::*)()>(&bk::sint2::x, "x")
-		.add_member_<const bk::sint&(bk::sint2::*)()const>(&bk::sint2::y, "y")
+		.add_member(&_sint2_helper::get_sint2_x, "x")
+		.add_member(&_sint2_helper::set_sint2_x, "x")
+		.add_member(&_sint2_helper::get_sint2_y, "y")
+		.add_member(&_sint2_helper::set_sint2_y, "y")
 	;
 
 	l_watch.add_type_<A>("A")
