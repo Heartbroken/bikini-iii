@@ -293,6 +293,14 @@ struct watch
 			{
 				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
 			};
+			template<typename _S, typename _T> struct type_<_T (*)(const _S&)>
+			{
+				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
+			};
+			template<typename _S, typename _T> struct type_<void (*)(_S&, _T)>
+			{
+				static uint index(const watch &_watch) { return _ref_helper_<_T>::index(_watch); }
+			};
 		};
 		struct base
 		{
