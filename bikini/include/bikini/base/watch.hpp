@@ -66,7 +66,6 @@ struct watch
 		array_<base*> m_bases;
 		array_<member*> m_members;
 		void (*m_destroy_fn)(handle);
-		template<typename _Type> static inline void destroy_(handle _p);
 	};
 
 	// varaible
