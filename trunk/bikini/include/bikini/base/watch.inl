@@ -379,7 +379,8 @@ inline watch::type::~type()
 }
 template<typename _Type> inline watch::type::base& watch::type::add_base_()
 {
-	uint l_type = member::type_<_Type>::index(m_watch);
+	uint l_type = _get_index_of_<_Type>(m_watch);
+	//uint l_type = member::type_<_Type>::index(m_watch);
 	if (l_type == bad_ID)
 	{
 		std::cerr << "ERROR: (Watch) Base type of type " << name << " is not registered\n";
@@ -437,17 +438,17 @@ inline const watch& watch::type::get_watch() const
 {
 	return m_watch;
 }
+template<typename _Type> inline void _watch_type_destroy_(handle _p)
+{
+	((_Type*)_p)->~_Type();
+}
 template<typename _Type> inline void watch::type::set_destroy_()
 {
-	m_destroy_fn = destroy_<_Type>;
+	m_destroy_fn = _watch_type_destroy_<_Type>;
 }
 inline void watch::type::destroy_value(handle _p) const
 {
 	if (m_destroy_fn != 0) m_destroy_fn(_p);
-}
-template<typename _Type> static inline void watch::type::destroy_(handle _p)
-{
-	((_Type*)_p)->~_Type();
 }
 
 //private:
