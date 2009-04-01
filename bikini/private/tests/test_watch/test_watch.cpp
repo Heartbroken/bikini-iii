@@ -60,9 +60,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	F f; f.b = bk::sint2(5, 6); f.set_c(bk::sint2(7, 8));
 	bk::sint i = 2;
 
-	bk::watch::varaible l_vi = l_watch.add_varaible(&i, "i");
-	bk::watch::varaible l_vf = l_watch.add_varaible(&f, "f");
-	bk::watch::varaible l_vg = l_watch.add_varaible(&get_g, "g");
+	bk::watch::varaible l_vi = l_watch.add_global(&i, "i");
+	bk::watch::varaible l_vf = l_watch.add_global(&f, "f");
+	bk::watch::varaible l_vg = l_watch.add_global(&get_g, "g");
 
 	bk::sint i0 = l_vi.get_<bk::sint>();
 	F f0 = l_vf.get_<F>();
