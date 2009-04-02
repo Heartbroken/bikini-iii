@@ -515,22 +515,37 @@ inline astring watch::varaible::print() const
 {
 	assert(valid());
 
-	const type::member &l_member = _varaible_resolve_member(*this);
-	const type &l_type = m_watch.get_type(l_member.type);
-
-	handle l_value;
 	astring l_result;
-	if (l_member.get->by_value)
+
+	if (member_count() > 0)
 	{
-		l_value = calloc(l_member.get->value_size, 1);
-		_varaible_resolve_get(*this, l_value);
-		l_result = l_type.print_value(l_value);
-		l_type.destroy_value(l_value);
+		l_result += "{";
+		for (uint i = 0, s = member_count(); i < s; ++i)
+		{
+			varaible l_member = get_member(i);
+			l_result += l_member.name(); l_result +=  "="; l_result += l_member.print();
+			if (i + 1 < s) l_result +=  " ";
+		}
+		l_result += "}";
 	}
 	else
 	{
-		_varaible_resolve_get(*this, &l_value);
-		l_result = l_type.print_value(l_value);
+		const type::member &l_member = _varaible_resolve_member(*this);
+		const type &l_type = m_watch.get_type(l_member.type);
+
+		handle l_value;
+		if (l_member.get->by_value)
+		{
+			l_value = calloc(l_member.get->value_size, 1);
+			_varaible_resolve_get(*this, l_value);
+			l_result = l_type.print_value(l_value);
+			l_type.destroy_value(l_value);
+		}
+		else
+		{
+			_varaible_resolve_get(*this, &l_value);
+			l_result = l_type.print_value(l_value);
+		}
 	}
 
 	return l_result;

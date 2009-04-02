@@ -51,11 +51,12 @@ int run_http_server(bk::watch &_watch)
 	//----------------------
 	// The sockaddr_in structure specifies the address family,
 	// IP address, and port for the socket that is being bound.
+	hostent* localHost = gethostbyname("");
+	char* localIP = inet_ntoa (*(struct in_addr *)*localHost->h_addr_list);
 	sockaddr_in service;
 	service.sin_family = AF_INET;
-//	service.sin_addr.s_addr = inet_addr("127.0.0.1");
-	service.sin_addr.s_addr = inet_addr("10.41.2.42");
-	service.sin_port = htons(27015);
+	service.sin_addr.s_addr = inet_addr(localIP);
+	service.sin_port = htons(1904);
 
 	if (bind( ListenSocket, 
 		(SOCKADDR*) &service, 
