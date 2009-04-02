@@ -361,7 +361,7 @@ struct watch::type::base
 	//type_ID ID;
 	//astring name;
 
-inline watch::type::type(const watch &_watch) : m_watch(_watch), m_destroy_fn(0)
+inline watch::type::type(const watch &_watch) : m_watch(_watch), m_destroy_fn(0), m_print_fn(0)
 {
 }
 inline watch::type::~type()
@@ -450,6 +450,25 @@ inline void watch::type::destroy_value(handle _p) const
 {
 	if (m_destroy_fn != 0) m_destroy_fn(_p);
 }
+template<typename _Type> inline astring _watch_type_print_(pointer _p)
+{
+	return astring();
+}
+template<> inline astring _watch_type_print_<int>(pointer _p)
+{
+	const uint buffer_max = 64; char buffer[buffer_max];
+	if (sprintf_s(buffer, buffer_max, "%d", *(int*)_p) != -1) return buffer;
+	return astring();
+}
+template<typename _Type> inline void watch::type::set_print_()
+{
+	m_print_fn = _watch_type_print_<_Type>;
+}
+inline astring watch::type::print_value(pointer _p) const
+{
+	if (m_print_fn != 0) return m_print_fn(_p);
+	return astring();
+}
 
 //private:
 //	watch &m_watch;
@@ -474,6 +493,47 @@ inline watch::varaible::varaible(const varaible &_v) : m_watch(_v.get_watch()), 
 inline watch::varaible& watch::varaible::operator = (const watch::varaible &_v)
 {
 	this->~varaible(); new(this) varaible(_v); return *this;
+}
+inline const char* watch::varaible::name() const
+{
+	assert(valid());
+
+	const type::member &l_member = _varaible_resolve_member(*this);
+
+	return l_member.name.c_str();
+}
+inline const char* watch::varaible::type_name() const
+{
+	assert(valid());
+
+	const type::member &l_member = _varaible_resolve_member(*this);
+	const type &l_type = m_watch.get_type(l_member.type);
+
+	return l_type.name.c_str();
+}
+inline astring watch::varaible::print() const
+{
+	assert(valid());
+
+	const type::member &l_member = _varaible_resolve_member(*this);
+	const type &l_type = m_watch.get_type(l_member.type);
+
+	handle l_value;
+	astring l_result;
+	if (l_member.get->by_value)
+	{
+		l_value = calloc(l_member.get->value_size, 1);
+		_varaible_resolve_get(*this, l_value);
+		l_result = l_type.print_value(l_value);
+		l_type.destroy_value(l_value);
+	}
+	else
+	{
+		_varaible_resolve_get(*this, &l_value);
+		l_result = l_type.print_value(l_value);
+	}
+
+	return l_result;
 }
 inline const watch& watch::varaible::get_watch() const
 {
@@ -600,6 +660,7 @@ template<typename _Type> watch::type::aide_<_Type> watch::add_type_(const achar 
 	l_type.name = _name;
 	l_type.ID = _get_ID_of_<_Type>();
 	l_type.set_destroy_<_Type>();
+	l_type.set_print_<_Type>();
 
 	return type::aide_<_Type>(l_type);
 }

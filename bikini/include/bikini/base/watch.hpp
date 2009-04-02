@@ -61,11 +61,16 @@ struct watch
 		template<typename _Type> inline void set_destroy_();
 		inline void destroy_value(handle _p) const;
 
+		// value printing helpers
+		template<typename _Type> inline void set_print_();
+		inline astring print_value(pointer _p) const;
+
 	private:
 		const watch &m_watch;
 		array_<base*> m_bases;
 		array_<member*> m_members;
 		void (*m_destroy_fn)(handle);
+		astring (*m_print_fn)(pointer);
 	};
 
 	// varaible
@@ -79,6 +84,13 @@ struct watch
 
 		// assignment
 		inline varaible& operator = (const varaible &_v);
+
+		// name
+		inline const char* name() const;
+		inline const char* type_name() const;
+
+		// print
+		inline astring print() const;
 
 		// watch object accessor
 		inline const watch& get_watch() const;
