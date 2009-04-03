@@ -209,6 +209,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
@@ -218,6 +222,34 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\img\empty.gif"
+				>
+			</File>
+			<File
+				RelativePath=".\img\nolines_plus.gif"
+				>
+			</File>
+			<File
+				RelativePath=".\test_watch.rc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="HTML Files"
+			>
+			<File
+				RelativePath=".\dtree.css"
+				>
+			</File>
+			<File
+				RelativePath=".\dtree.js"
+				>
+			</File>
+			<File
+				RelativePath=".\index.html"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

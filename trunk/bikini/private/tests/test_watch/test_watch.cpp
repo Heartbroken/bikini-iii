@@ -92,43 +92,69 @@ int run_http_server(bk::watch &_watch)
 		int recv_len = recv(AcceptSocket, recv_buf, buf_max, 0);
 		if(recv_len != SOCKET_ERROR) {
 			recv_buf[recv_len] = 0;
-			bk::astring send_buf;
-			if(strncmp(recv_buf, "GET ", 4) == 0) {
-				if(strncmp(recv_buf, "GET / ", 6) == 0) {
-					send_buf = "HTTP/1.1 200 OK\r\n\r\n<p><font size=5 face=\"Arial\">bikini-iii Watch</font></p>";
-					struct _l { static void format(const bk::watch::varaible &_v, bk::astring &_s) {
-						bk::astring l_str;
-						l_str += _v.type_name();
-						l_str += " ";
-						l_str += _v.name();
-						bk::astring l_v = _v.print();
-						if (l_v != "") l_str += " = " + l_v;
-						_s += "<dt>";
-						_s += l_str;
-						_s += "</dt>";
-						if (_v.member_count() > 0) {
-							_s += "<dd>";
-							_s += "<dl>";
-							for (bk::uint i = 0, s = _v.member_count(); i < s; ++i) _l::format(_v.get_member(i), _s);
-							_s += "</dl>";
-							_s += "</dd>";
-						}
-					}};
-					send_buf += "<dl>";
-					for (bk::uint i = 0, s = _watch.global_count(); i < s; ++i) {
-						_l::format(_watch.get_global(i), send_buf);
+			bk::astring request = recv_buf, response;
+			bk::array_<bk::s8> send_buf;
+			//if(strncmp(recv_buf, "GET ", 4) == 0) {
+			if(request.find("GET ") == 0) {
+				request.erase(0, 4);
+				bk::astring URL = request.substr(0, request.find(' ', 0));
+				bk::uint IDR = bk::bad_ID; LPCWSTR IDR_type = 0;
+				if (URL == "/" || URL == "/index.html") { IDR = IDR_HTML1; IDR_type = RT_HTML; }
+				else if (URL == "/dtree.css") { IDR = IDR_HTML2; IDR_type = RT_HTML; }
+				else if (URL == "/dtree.js") { IDR = IDR_HTML3; IDR_type = RT_HTML; }
+				else { IDR = IDR_GIF2; IDR_type = L"GIF"; }
+				if(IDR != bk::bad_ID) {
+					HRSRC l_res_info = FindResourceW(0, MAKEINTRESOURCE(IDR), IDR_type);
+					if (l_res_info != 0) {
+						DWORD l_res_size = SizeofResource(0, l_res_info);
+						HGLOBAL l_res = LoadResource(0, l_res_info);
+						if (IDR_type == RT_HTML) response = "HTTP/1.1 200 OK\r\n\r\n";
+						else response = "HTTP/1.1 200 OK\r\nContent-Type: image/gif;charset=UTF-8\r\n\r\n";
+						send_buf.assign(response.c_str(), response.c_str() + response.length());
+						send_buf.insert(send_buf.end(), (const char*)l_res, (const char*)l_res + l_res_size);
+//						response.append((const char*)l_res, l_res_size);
+						//struct _l {static void format(const bk::watch::varaible &_v, bk::astring &_s) {
+						//	_s += "<tr><td width=5 valign=\"top\"";
+						//	if (_v.member_count() > 0) _s += "<font size=-1 face=\"Arial\">+</font>";
+						//	_s += "</td><td>";
+						//	bk::astring l_str;
+						//	l_str += _v.name();
+						//	l_str += " - ";
+						//	l_str += _v.type_name();
+						//	bk::astring l_v = _v.print();
+						//	if (l_v != "") l_str += " " + l_v;
+						//	_s += "<div><font size=-1 face=\"Arial\">";
+						//	_s += l_str;
+						//	_s += "</font></div>";
+						//	if (_v.member_count() > 0) {
+						//		_s += "<table cellspacing=0 cellpadding=0 width=100%><tr><td width=5></td><td><table cellspacing=0 cellpadding=0 width=100%>";
+						//		for (bk::uint i = 0, s = _v.member_count(); i < s; ++i) _l::format(_v.get_member(i), _s);
+						//		_s += "</table></tr></table>";
+						//	}
+						//	_s += "</td></tr>";
+						//}};
+						//send_buf += "<table cellspacing=0 cellpadding=0 width=100%>";
+						//for (bk::uint i = 0, s = _watch.global_count(); i < s; ++i) {
+						//	_l::format(_watch.get_global(i), send_buf);
+						//}
+						//send_buf += "</table>";
+						printf("Response: 200 Ok.\n");
+					} else {
+						response = "HTTP/1.1 404 Not Found\r\n\r\n";
+						send_buf.assign(response.c_str(), response.c_str() + response.length());
+						printf("Response: 404 Not Found.\n");
 					}
-					send_buf += "</dl>";
-					printf("Response: 200 Ok.\n");
 				} else {
-					send_buf = "HTTP/1.1 404 Not Found\r\n\r\n";
+					response = "HTTP/1.1 404 Not Found\r\n\r\n";
+					send_buf.assign(response.c_str(), response.c_str() + response.length());
 					printf("Response: 404 Not Found.\n");
 				}
 			} else {
-				send_buf = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+				response = "HTTP/1.1 501 Not Implemented\r\n\r\n";
+				send_buf.assign(response.c_str(), response.c_str() + response.length());
 				printf("Response: 501 Not Implemented.\n");
 			}
-			send(AcceptSocket, send_buf.c_str(), (int)send_buf.length(), 0);
+			send(AcceptSocket, &send_buf[0], (int)send_buf.size(), 0);
 		}
 		closesocket(AcceptSocket);
 		//ListenSocket = AcceptSocket;
