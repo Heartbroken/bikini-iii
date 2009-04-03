@@ -519,14 +519,14 @@ inline astring watch::varaible::print() const
 
 	if (member_count() > 0)
 	{
-		l_result += "{";
+		l_result += "{ ";
 		for (uint i = 0, s = member_count(); i < s; ++i)
 		{
 			varaible l_member = get_member(i);
-			l_result += l_member.name(); l_result +=  "="; l_result += l_member.print();
+			l_result += l_member.name(); l_result +=  " = "; l_result += l_member.print();
 			if (i + 1 < s) l_result +=  " ";
 		}
-		l_result += "}";
+		l_result += " }";
 	}
 	else
 	{

@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#include "resource.h"
+
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32")
 
