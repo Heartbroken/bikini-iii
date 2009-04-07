@@ -446,8 +446,8 @@ struct _matrix_inverse_row_helper_<_I, 0, _S, _T> { static inline void get(const
 }};
 template<uint _I, uint _J, uint _S, typename _T>
 struct _matrix_inverse_helper_ { static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {
-		_matrix_inverse_helper_<_I - 1, _J, _S, _T>::get(_a, _c, _d);
-		_matrix_inverse_row_helper_<_I, _J, _S, _T>::get(_a, _c, _d);
+	_matrix_inverse_helper_<_I - 1, _J, _S, _T>::get(_a, _c, _d);
+	_matrix_inverse_row_helper_<_I, _J, _S, _T>::get(_a, _c, _d);
 }};
 template<uint _J, uint _S, typename _T>
 struct _matrix_inverse_helper_<0, _J, _S, _T> { static inline void get(const matrix_<_S, _S, _T> &_a, matrix_<_S, _S, _T> &_c, _T _d) {

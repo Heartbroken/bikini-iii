@@ -13,4 +13,7 @@
 // bikini-iii
 #include <bikini.hpp>
 
+// Direct X
+#include <D3dx9math.h>
+
 // TODO: reference additional headers your program requires here
