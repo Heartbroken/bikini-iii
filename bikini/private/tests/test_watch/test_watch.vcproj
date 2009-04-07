@@ -223,11 +223,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\img\empty.gif"
-				>
-			</File>
-			<File
-				RelativePath=".\img\nolines_plus.gif"
+				RelativePath=".\img\nolines_plus.gif.bin"
 				>
 			</File>
 			<File
