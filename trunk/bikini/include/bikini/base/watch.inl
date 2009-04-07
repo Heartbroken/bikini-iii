@@ -606,7 +606,7 @@ template<typename _T> struct _varaible_get_helper_
 		if (_byval)
 		{
 			u8 l_value[sizeof(_T)]; _varaible_resolve_get(l_v, l_value);
-			_T l_result(*(_T*)l_value); (*(_T*)l_value)->~_T();
+			_T l_result(*(_T*)l_value); ((_T*)l_value)->~_T();
 			return l_result;
 		}
 		_T* l_value; _varaible_resolve_get(l_v, &l_value); return *l_value;
