@@ -108,8 +108,7 @@ int run_http_server(bk::watch &_watch)
 					if (l_res_info != 0) {
 						DWORD l_res_size = SizeofResource(0, l_res_info);
 						HGLOBAL l_res = LoadResource(0, l_res_info);
-						if (IDR_type == RT_HTML) response = "HTTP/1.1 200 OK\r\n\r\n";
-						else response = "HTTP/1.1 200 OK\r\n\r\n";
+						response = "HTTP/1.1 200 OK\r\n\r\n";
 						send_buf.assign(response.c_str(), response.c_str() + response.length());
 						send_buf.insert(send_buf.end(), (const char*)l_res, (const char*)l_res + l_res_size);
 //						response.append((const char*)l_res, l_res_size);
