@@ -102,14 +102,14 @@ int run_http_server(bk::watch &_watch)
 				if (URL == "/" || URL == "/index.html") { IDR = IDR_HTML1; IDR_type = RT_HTML; }
 				else if (URL == "/dtree.css") { IDR = IDR_HTML2; IDR_type = RT_HTML; }
 				else if (URL == "/dtree.js") { IDR = IDR_HTML3; IDR_type = RT_HTML; }
-				else { IDR = IDR_GIF2; IDR_type = L"GIF"; }
+				else { IDR = IDR_GIF1; IDR_type = L"GIF"; }
 				if(IDR != bk::bad_ID) {
 					HRSRC l_res_info = FindResourceW(0, MAKEINTRESOURCE(IDR), IDR_type);
 					if (l_res_info != 0) {
 						DWORD l_res_size = SizeofResource(0, l_res_info);
 						HGLOBAL l_res = LoadResource(0, l_res_info);
 						if (IDR_type == RT_HTML) response = "HTTP/1.1 200 OK\r\n\r\n";
-						else response = "HTTP/1.1 200 OK\r\nContent-Type: image/gif;charset=UTF-8\r\n\r\n";
+						else response = "HTTP/1.1 200 OK\r\n\r\n";
 						send_buf.assign(response.c_str(), response.c_str() + response.length());
 						send_buf.insert(send_buf.end(), (const char*)l_res, (const char*)l_res + l_res_size);
 //						response.append((const char*)l_res, l_res_size);
