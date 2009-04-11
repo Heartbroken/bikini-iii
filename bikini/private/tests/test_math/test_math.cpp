@@ -23,22 +23,22 @@ struct A {};
 int _tmain(int argc, _TCHAR* argv[])
 {
 
-	bool q = __is_polymorphic(A);
-
 	const bk::uint l_count = 1000000;
 
 	bk::rbig l_start;
 	
-	bk::r4x4 l_m0 = bk::r4x4_1, l_m1;
-	l_m0 = bk::r4x4(
+	bk::r4x4 l_m0(
 		bk::r1x4(1.f, 3.f, 3.f, 4.f),
 		bk::r1x4(5.f, 6.f, 7.f, 8.f),
 		bk::r1x4(1.f, 2.f, 3.f, 5.f),
 		bk::r1x4(1.f, 2.f, 3.f, 4.f) 
-		);
-	//l_m0 = ~l_m0;
-
-	 _control87( _PC_24, _MCW_PC );
+	), l_m1;
+	//l_m0 = bk::r4x4(
+	//	bk::r1x4(1.f, 3.f, 3.f, 4.f),
+	//	bk::r1x4(5.f, 6.f, 7.f, 8.f),
+	//	bk::r1x4(1.f, 2.f, 3.f, 5.f),
+	//	bk::r1x4(1.f, 2.f, 3.f, 4.f) 
+	//	);
 
 	l_start = bk::sys_time();
 	for (bk::uint i = 0; i < l_count; ++i)
@@ -48,15 +48,19 @@ int _tmain(int argc, _TCHAR* argv[])
 		//break;
 	}
 
-	bk::rbig l_time0 = bk::sys_time() - l_start;
-	std::cout << "Time 0: " << l_time0 << "\n";
+	std::cout << "Time 0: " << bk::sys_time() - l_start << "\n";
 
-	D3DXMATRIX l_M0, l_M1;
-	D3DXMatrixIdentity(&l_M0);
-	l_M0._11 = 1.f; l_M0._12 = 3.f; l_M0._13 = 3.f; l_M0._14 = 4.f;
-	l_M0._21 = 5.f; l_M0._22 = 6.f; l_M0._23 = 7.f; l_M0._24 = 8.f;
-	l_M0._31 = 1.f; l_M0._32 = 2.f; l_M0._33 = 3.f; l_M0._34 = 5.f;
-	l_M0._41 = 1.f; l_M0._42 = 2.f; l_M0._43 = 3.f; l_M0._44 = 4.f;
+	D3DXMATRIX l_M0(
+		1.f, 3.f, 3.f, 4.f,
+		5.f, 6.f, 7.f, 8.f,
+		1.f, 2.f, 3.f, 5.f,
+		1.f, 2.f, 3.f, 4.f 
+	), l_M1;
+	//D3DXMatrixIdentity(&l_M0);
+	//l_M0._11 = 1.f; l_M0._12 = 3.f; l_M0._13 = 3.f; l_M0._14 = 4.f;
+	//l_M0._21 = 5.f; l_M0._22 = 6.f; l_M0._23 = 7.f; l_M0._24 = 8.f;
+	//l_M0._31 = 1.f; l_M0._32 = 2.f; l_M0._33 = 3.f; l_M0._34 = 5.f;
+	//l_M0._41 = 1.f; l_M0._42 = 2.f; l_M0._43 = 3.f; l_M0._44 = 4.f;
 
 	l_start = bk::sys_time();
 	for (bk::uint i = 0; i < l_count; ++i)
@@ -66,9 +70,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		//break;
 	}
 
-	bk::rbig l_time1 = bk::sys_time() - l_start;
-	std::cout << "Time 1: " << l_time1 << "\n";
+	std::cout << "Time 1: " << bk::sys_time() - l_start << "\n";
 
+	D3DXMATRIX l_M = l_M0;
 
 //	B l_b;
 //	A<B> l_a(l_b);
