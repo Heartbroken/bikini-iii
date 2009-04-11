@@ -19,7 +19,7 @@ bk::sint A::m_e = 0;
 
 struct F : A
 {
-	virtual ~F() {}
+	virtual int vF() {return 0;}
 };
 
 bk::sint2 get_g()
@@ -168,7 +168,8 @@ int run_http_server(bk::watch &_watch)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-//	void* ptr = &F::~F;
+	int (F::*Fm)() = &F::vF;
+//	void* ptr = *(void**)&F::vF;
 
 	bk::watch l_watch;
 
