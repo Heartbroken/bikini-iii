@@ -4,6 +4,10 @@
 #include "stdafx.h"
 
 #pragma comment(lib, "d3dx9")
+
+//#pragma fenv_access(on)
+//#pragma fp_contract(on)
+
 //template<typename _T> struct A {
 //	A(_T &_t) : m_t(_t) { m_t.c++; }
 //	~A() { m_t.c--; }
@@ -39,6 +43,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	bk::r1x4(1.f, 2.f, 3.f, 5.f),
 	//	bk::r1x4(1.f, 2.f, 3.f, 4.f) 
 	//	);
+
+	//_controlfp(_PC_24, _MCW_PC);
 
 	l_start = bk::sys_time();
 	for (bk::uint i = 0; i < l_count; ++i)
