@@ -8,6 +8,9 @@
 //#pragma fenv_access(on)
 //#pragma fp_contract(on)
 
+#pragma float_control(precise, on)
+#pragma fenv_access(off)
+
 //template<typename _T> struct A {
 //	A(_T &_t) : m_t(_t) { m_t.c++; }
 //	~A() { m_t.c--; }
@@ -44,6 +47,21 @@ int _tmain(int argc, _TCHAR* argv[])
 	//	bk::r1x4(1.f, 2.f, 3.f, 4.f) 
 	//	);
 
+	bk::u16 l_oldcw, l_cw;
+
+	__asm
+	{
+		fstcw	l_oldcw				;
+		fwait						;
+		mov		ax, l_oldcw			;
+		or		ax, (2<<8)			;
+//		and		ax, (0xffff^(3<<8))	;
+		mov		l_cw, ax			;
+		fldcw	l_cw				;
+		fwait						;
+	};
+
+	//__control87_2(_PC_24, MCW_PC, 0, 0);
 	//_controlfp(_PC_24, _MCW_PC);
 
 	l_start = bk::sys_time();
