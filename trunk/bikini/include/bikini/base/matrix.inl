@@ -499,6 +499,13 @@ inline const _T length2(const matrix_<1, _S, _T> &_a) {
 	return dot(_a, _a);
 }
 
+/// vector normalization
+template<uint _S, typename _T>
+inline const matrix_<1, _S, _T> normalized(const matrix_<1, _S, _T> &_a) {
+	_T l_len = length(_a);
+	return l_len > eps ? _a * (_T(1) / l_len) : _a;
+}
+
 // vectors cross product
 template<typename _T>
 inline const matrix_<1, 2, _T> cross(const matrix_<1, 2, _T> &_a) {

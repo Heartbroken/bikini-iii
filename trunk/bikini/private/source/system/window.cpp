@@ -8,6 +8,9 @@
 
 #include "header.hpp"
 
+#define GET_X_LPARAM(lp)	((int)(short)LOWORD(lp))
+#define GET_Y_LPARAM(lp)	((int)(short)HIWORD(lp))
+
 namespace bk { /*--------------------------------------------------------------------------------*/
 
 #if defined(XBOX)
@@ -35,7 +38,7 @@ window::window(video &_video) :
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_CULLMODE, D3DCULL_NONE));
-	m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
+	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_WIREFRAME));
 	//m_rstates.info.states.push_back(vr::rstates::state(D3DRS_FILLMODE, D3DFILL_POINT));
 
 	m_vshader.info.function = window_vs;
@@ -163,6 +166,36 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			GetClientRect(m_handle, &l_crect);
 			l_minmax.ptMaxTrackSize.x = l_drect.right + ((l_wrect.right - l_wrect.left) - l_crect.right);
 			l_minmax.ptMaxTrackSize.y = l_drect.bottom + ((l_wrect.bottom - l_wrect.top) - l_crect.bottom);
+		} break;
+		case WM_LBUTTONDOWN : {
+			sint2 l_position;
+			l_position.x() = GET_X_LPARAM(_lparam);
+			l_position.y() = GET_Y_LPARAM(_lparam);
+			on_mouse_down(l_position, 0);
+		} break;
+		case WM_LBUTTONUP : {
+			sint2 l_position;
+			l_position.x() = GET_X_LPARAM(_lparam);
+			l_position.y() = GET_Y_LPARAM(_lparam);
+			on_mouse_up(l_position, 0);
+		} break;
+		case WM_RBUTTONDOWN : {
+			sint2 l_position;
+			l_position.x() = GET_X_LPARAM(_lparam);
+			l_position.y() = GET_Y_LPARAM(_lparam);
+			on_mouse_down(l_position, 1);
+		} break;
+		case WM_RBUTTONUP : {
+			sint2 l_position;
+			l_position.x() = GET_X_LPARAM(_lparam);
+			l_position.y() = GET_Y_LPARAM(_lparam);
+			on_mouse_up(l_position, 1);
+		} break;
+		case WM_MOUSEMOVE : {
+			sint2 l_position;
+			l_position.x() = GET_X_LPARAM(_lparam);
+			l_position.y() = GET_Y_LPARAM(_lparam);
+			on_mouse_move(l_position);
 		} break;
 	}
 	if(m_oldproc != 0) return m_oldproc(m_handle, _message, _wparam, _lparam);
