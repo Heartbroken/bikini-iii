@@ -39,6 +39,11 @@ struct window {
 	bool end() const;
 	bool present() const;
 	void destroy();
+	//
+	virtual void on_mouse_down(const sint2 &_position, uint _button) {}
+	virtual void on_mouse_up(const sint2 &_position, uint _button) {}
+	virtual void on_mouse_move(const sint2 &_position) {}
+	//
 protected:
 private:
 #	if defined(WIN32)

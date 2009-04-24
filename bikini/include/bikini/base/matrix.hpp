@@ -243,6 +243,10 @@ inline const _Type length(const matrix_<1, _Size, _Type> &_a);
 template<uint _Size, typename _Type>
 inline const _Type length2(const matrix_<1, _Size, _Type> &_a);
 
+/// vector normalization
+template<uint _Size, typename _Type>
+inline const matrix_<1, _Size, _Type> normalized(const matrix_<1, _Size, _Type> &_a);
+
 /// vectors cross product
 template<typename _Type>
 inline const matrix_<1, 2, _Type> cross(const matrix_<1, 2, _Type> &_a);
