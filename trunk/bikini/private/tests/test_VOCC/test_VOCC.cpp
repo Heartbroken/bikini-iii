@@ -91,13 +91,14 @@ struct task0 : bk::application::task
 	}
 	void draw_voccluder(bk::window &_window, const voccluder &_o) const
 	{
-		_window.draw_line((bk::sint)_o.left.x(), (bk::sint)_o.left.y(), (bk::sint)_o.right.x(), (bk::sint)_o.right.y(), bk::red, 4);
+		bk::color l_color(1.0, 0.0, 0.0, _o.score * 0.9 + 0.1);
+		_window.draw_line((bk::sint)_o.left.x(), (bk::sint)_o.left.y(), (bk::sint)_o.right.x(), (bk::sint)_o.right.y(), l_color, 4);
 		bk::real2 l_cam(400.0, 585.0);
 		bk::real2 l_left(_o.left.x(), _o.left.y()), l_right(_o.right.x(), _o.right.y()), l_p2;
 		l_p2 = l_left + bk::normalized(l_left - l_cam) * 1000.0;
-		_window.draw_line((bk::sint)l_left.x(), (bk::sint)l_left.y(), (bk::sint)l_p2.x(), (bk::sint)l_p2.y(), bk::color(1.0, 0, 0, .5));
+		_window.draw_line((bk::sint)l_left.x(), (bk::sint)l_left.y(), (bk::sint)l_p2.x(), (bk::sint)l_p2.y(), l_color);
 		l_p2 = l_right + bk::normalized(l_right - l_cam) * 1000.0;
-		_window.draw_line((bk::sint)l_right.x(), (bk::sint)l_right.y(), (bk::sint)l_p2.x(), (bk::sint)l_p2.y(), bk::color(1.0, 0, 0, .5));
+		_window.draw_line((bk::sint)l_right.x(), (bk::sint)l_right.y(), (bk::sint)l_p2.x(), (bk::sint)l_p2.y(), l_color);
 	}
 	void draw_sizers(bk::window &_window, const occluder &_o) const
 	{
@@ -243,6 +244,123 @@ struct task0 : bk::application::task
 		bk::real l_z = _o.left.z() + (_o.right.z() - _o.left.z()) * l_k;
 		return _p.z() > l_z - bk::eps;
 	}
+	bool create_voccluder(const occluder &_o, voccluder &_v)
+	{
+		bool l_skip = true;
+		_v.left.x() = bk::infinity; _v.right.x() = -bk::infinity;
+		for (bk::uint i = 0, s = _o.proj.size(); i < s; ++i)
+		{
+			const bk::real4 &l_p = _o.proj[i];
+			if (l_p.z() < 0 || l_p.z() > 1.0) continue;
+			if (l_p.x() < _v.left.x()) _v.left = l_p;
+			if (l_p.x() > _v.right.x()) _v.right = l_p;
+			l_skip = false;
+		}
+		if (!l_skip && _v.left.x() < -1.0)
+		{
+			if (_v.right.x() < -1.0) l_skip = true;
+			else _v.left = interpolate(_v.right, _v.left, (_v.right.x() + 1.0) / (_v.right.x() - _v.left.x()));
+		}
+		if (!l_skip && _v.right.x() > 1.0)
+		{
+			if (_v.left.x() > 1.0) l_skip = true;
+			else _v.right = interpolate(_v.left, _v.right, (1.0 - _v.left.x()) / (_v.right.x() - _v.left.x()));
+		}
+		_v.score = (_v.right.x() - _v.left.x()) * 0.5 * (_v.left.y() + _v.right.y()) * (1.0 - 0.5 * (_v.left.z() + _v.right.z()));
+		return !l_skip;
+	}
+	bool merge_voccluders(voccluder &_o0, voccluder &_o1, voccluder &_v)
+	{
+		if (_o0.score == 0 || _o1.score == 0) return false;
+		bool l_skip = true;
+		if (_o0.left.x() < _o1.left.x() - bk::eps)
+		{
+			if (_o0.right.x() < _o1.right.x() - bk::eps)
+			{
+				_v.left = _o0.left; _v.right = _o1.right;
+				l_skip = false;
+			}
+			else if (_o0.right.x() > _o1.right.x() + bk::eps)
+			{
+				bk::real4 l_left = interpolate(_o0.right, _o0.left, (_o0.right.x() - _o1.left.x()) / (_o0.right.x() - _o0.left.x()));
+				bk::real4 l_right = interpolate(_o0.right, _o0.left, (_o0.right.x() - _o1.right.x()) / (_o0.right.x() - _o0.left.x()));
+				if (l_left.z() < _o1.left.z() + bk::eps && l_right.z() < _o1.right.z() + bk::eps) _o1.score = 0;
+			}
+			else
+			{
+				bk::real4 l_left = interpolate(_o0.right, _o0.left, (_o0.right.x() - _o1.left.x()) / (_o0.right.x() - _o0.left.x()));
+				if (l_left.z() < _o1.left.z() + bk::eps && _o0.right.z() < _o1.right.z() + bk::eps) _o1.score = 0;
+			}
+		}
+		else if (_o0.left.x() > _o1.left.x() + bk::eps)
+		{
+			if (_o0.right.x() > _o1.right.x() + bk::eps)
+			{
+				_v.left = _o1.left; _v.right = _o0.right;
+				l_skip = false;
+			}
+			else if (_o0.right.x() < _o1.right.x() - bk::eps)
+			{
+				bk::real4 l_left = interpolate(_o1.right, _o1.left, (_o1.right.x() - _o0.left.x()) / (_o1.right.x() - _o1.left.x()));
+				bk::real4 l_right = interpolate(_o1.right, _o1.left, (_o1.right.x() - _o0.right.x()) / (_o1.right.x() - _o1.left.x()));
+				if (l_left.z() < _o0.left.z() + bk::eps && l_right.z() < _o0.right.z() + bk::eps) _o0.score = 0;
+			}
+			else
+			{
+				bk::real4 l_left = interpolate(_o1.right, _o1.left, (_o1.right.x() - _o0.left.x()) / (_o1.right.x() - _o1.left.x()));
+				if (l_left.z() < _o0.left.z() + bk::eps && _o1.right.z() < _o0.right.z() + bk::eps) _o0.score = 0;
+			}
+		}
+		else
+		{
+			if (_o0.right.x() < _o1.right.x() - bk::eps)
+			{
+				bk::real4 l_right = interpolate(_o1.right, _o1.left, (_o1.right.x() - _o0.right.x()) / (_o1.right.x() - _o1.left.x()));
+				if (_o1.left.z() < _o0.left.z() + bk::eps && l_right.z() < _o0.right.z() + bk::eps) _o0.score = 0;
+			}
+			else if (_o0.right.x() > _o1.right.x() + bk::eps)
+			{
+				bk::real4 l_right = interpolate(_o0.right, _o0.left, (_o0.right.x() - _o1.right.x()) / (_o0.right.x() - _o0.left.x()));
+				if (_o0.left.z() < _o1.left.z() + bk::eps && l_right.z() < _o1.right.z() + bk::eps) _o1.score = 0;
+			}
+			else
+			{
+				if (_o0.left.z() < _o1.left.z() + bk::eps && _o0.right.z() < _o1.right.z() + bk::eps) _o1.score = 0;
+				else if (_o1.left.z() < _o0.left.z() + bk::eps && _o1.right.z() < _o0.right.z() + bk::eps) _o0.score = 0;
+			}
+		}
+		if (!l_skip)
+		{
+			bk::real l_max_z = _o0.left.z(), l_max_w = _o0.left.w();
+			if (l_max_z < _o0.right.z()) { l_max_z = _o0.right.z(); l_max_w = _o0.right.w(); }
+			if (l_max_z < _o1.left.z()) { l_max_z = _o1.left.z(); l_max_w = _o1.left.w(); }
+			if (l_max_z < _o1.right.z()) { l_max_z = _o1.right.z(); l_max_w = _o1.right.w(); }
+			_v.left.z() = _v.right.z() = l_max_z;
+			_v.left.w() = _v.right.w() = l_max_w;
+			_v.score = (_v.right.x() - _v.left.x()) * 0.5 * (_v.left.y() + _v.right.y()) * (1.0 - 0.5 * (_v.left.z() + _v.right.z()));
+		}
+		return !l_skip;
+	}
+	void add_voccluder(const voccluder &_o)
+	{
+		for (bk::uint i = 0, s = m_voccluders.size(); i < s; ++i)
+		{
+			const voccluder &l_o = m_voccluders[i];
+			if (l_o.score <= 0) continue;
+			if (_o.right.x() < l_o.left.x() - bk::eps || l_o.right.x() < _o.left.x() - bk::eps) continue;
+			//if ((_o.left.x() < l_o.left.x() - bk::eps && _o.right.x() < l_o.right.x() - bk::eps) ||
+			//	(l_o.left.x() < _o.left.x() - bk::eps && l_o.right.x() < _o.right.x() - bk::eps))
+			//{
+			//	bk::uint l_i0 = s, l_i1 = i;
+			//	bk::uint l_pair = (s << 16) | i;
+			//	m_mergequeue.push_back(l_pair);
+			//}
+			bk::uint l_i0 = s, l_i1 = i;
+			bk::uint l_pair = (s << 16) | i;
+			m_mergequeue.push_back(l_pair);
+		}
+		m_voccluders.push_back(_o);
+	}
 	void add_voccluder(const occluder &_o)
 	{
 		voccluders l_new;
@@ -257,19 +375,19 @@ struct task0 : bk::application::task
 			if (l_p.x() > l_right.x()) l_right = l_p;
 			l_skip = false;
 		}
-		if (!l_skip)
-		{
-			if (l_left.z() > l_right.z())
-			{
-				l_right.z() = l_left.z();
-				l_right.w() = l_left.w();
-			}
-			if (l_right.z() > l_left.z())
-			{
-				l_left.z() = l_right.z();
-				l_left.w() = l_right.w();
-			}
-		}
+		//if (!l_skip)
+		//{
+		//	if (l_left.z() > l_right.z())
+		//	{
+		//		l_right.z() = l_left.z();
+		//		l_right.w() = l_left.w();
+		//	}
+		//	if (l_right.z() > l_left.z())
+		//	{
+		//		l_left.z() = l_right.z();
+		//		l_left.w() = l_right.w();
+		//	}
+		//}
 		if (!l_skip && l_left.x() < -1.0)
 		{
 			if (l_right.x() < -1.0) l_skip = true;
@@ -280,7 +398,6 @@ struct task0 : bk::application::task
 			if (l_left.x() > 1.0) l_skip = true;
 			else l_right = interpolate(l_left, l_right, (1.0 - l_left.x()) / (l_right.x() - l_left.x()));
 		}
-		bool l_add_virtual = false;
 		for (bk::uint i = 0, s = m_voccluders.size(); i < s; ++i)
 		{
 			const voccluder &l_o = m_voccluders[i];
@@ -301,20 +418,36 @@ struct task0 : bk::application::task
 						l_left = l_p;
 					}
 				}
-				bk::real4 l_new_middle = interpolate(l_right, l_left, (l_o.right.x() - l_right.x()) / (l_left.x() - l_right.x()));
-				l_left = l_o.left;
-				if (l_left.z() > l_new_middle.z())
+				if (l_left.z() > l_right.z())
 				{
-					l_new_middle.z() = l_left.z();
-					l_new_middle.w() = l_left.w();
+					bk::real4 l_middle = interpolate(l_right, l_left, (l_o.right.x() - l_right.x()) / (l_left.x() - l_right.x()));
+					l_left = l_o.left;
+					l_left.z() = l_right.z() = l_middle.z();
+					l_left.w() = l_right.w() = l_middle.w();
 				}
-				if (l_right.z() > l_new_middle.z())
+				else
 				{
-					l_new_middle.z() = l_right.z();
-					l_new_middle.w() = l_right.w();
+					l_left = interpolate(l_right, l_left, (l_o.left.x() - l_right.x()) / (l_left.x() - l_right.x()));
+					if (l_left.z() < l_o.left.z())
+					{
+						l_left.z() = l_o.left.z();
+						l_left.w() = l_o.left.w();
+					}
 				}
-				l_left.z() = l_right.z() = l_new_middle.z();
-				l_left.w() = l_right.w() = l_new_middle.w();
+				//bk::real4 l_new_middle = interpolate(l_right, l_left, (l_o.right.x() - l_right.x()) / (l_left.x() - l_right.x()));
+				//l_left = l_o.left;
+				//if (l_left.z() > l_new_middle.z())
+				//{
+				//	l_new_middle.z() = l_left.z();
+				//	l_new_middle.w() = l_left.w();
+				//}
+				//if (l_right.z() > l_new_middle.z())
+				//{
+				//	l_new_middle.z() = l_right.z();
+				//	l_new_middle.w() = l_right.w();
+				//}
+				//l_left.z() = l_right.z() = l_new_middle.z();
+				//l_left.w() = l_right.w() = l_new_middle.w();
 			}
 			else if(l_right_occluded)
 			{
@@ -327,20 +460,36 @@ struct task0 : bk::application::task
 						l_right = l_p;
 					}
 				}
-				bk::real4 l_new_middle = interpolate(l_left, l_right, (l_o.left.x() - l_left.x()) / (l_right.x() - l_left.x()));
-				l_right = l_o.right;
-				if (l_left.z() > l_new_middle.z())
+				if (l_right.z() > l_left.z())
 				{
-					l_new_middle.z() = l_left.z();
-					l_new_middle.w() = l_left.w();
+					bk::real4 l_middle = interpolate(l_left, l_right, (l_o.left.x() - l_left.x()) / (l_right.x() - l_left.x()));
+					l_right = l_o.right;
+					l_left.z() = l_right.z() = l_middle.z();
+					l_left.w() = l_right.w() = l_middle.w();
 				}
-				if (l_right.z() > l_new_middle.z())
+				else
 				{
-					l_new_middle.z() = l_right.z();
-					l_new_middle.w() = l_right.w();
+					l_right = interpolate(l_left, l_right, (l_o.right.x() - l_left.x()) / (l_right.x() - l_left.x()));
+					if (l_right.z() < l_o.right.z())
+					{
+						l_right.z() = l_o.right.z();
+						l_right.w() = l_o.right.w();
+					}
 				}
-				l_left.z() = l_right.z() = l_new_middle.z();
-				l_left.w() = l_right.w() = l_new_middle.w();
+				//bk::real4 l_new_middle = interpolate(l_left, l_right, (l_o.left.x() - l_left.x()) / (l_right.x() - l_left.x()));
+				//l_right = l_o.right;
+				//if (l_left.z() > l_new_middle.z())
+				//{
+				//	l_new_middle.z() = l_left.z();
+				//	l_new_middle.w() = l_left.w();
+				//}
+				//if (l_right.z() > l_new_middle.z())
+				//{
+				//	l_new_middle.z() = l_right.z();
+				//	l_new_middle.w() = l_right.w();
+				//}
+				//l_left.z() = l_right.z() = l_new_middle.z();
+				//l_left.w() = l_right.w() = l_new_middle.w();
 			}
 		}
 		if (!l_skip)
@@ -458,26 +607,60 @@ struct task0 : bk::application::task
 			l_window.clear(bk::cf::all, bk::white);
 			l_window.begin();
 
+			bk::rbig l_time = bk::sys_time();
+
 			for (bk::uint i = 0, s = m_occluders.size(); i < s; ++i)
 			{
 				project_occluder(m_occluders[i], m_viewproj);
 			}
 
-			occluders l_old = m_occluders;
-			sort_occluders();
+			//occluders l_old = m_occluders;
+			//sort_occluders();
 
 			m_voccluders.resize(0);
+			m_mergequeue.resize(0);
 			for (bk::uint i = 0, s = m_occluders.size(); i < s; ++i)
 			{
-				add_voccluder(m_occluders[i]);
+				voccluder l_o;
+				if (create_voccluder(m_occluders[i], l_o))
+				{
+					add_voccluder(l_o);
+				}
+			}
+//			for (bk::uint i = 0; i < m_mergequeue.size(); ++i)
+			while (!m_mergequeue.empty())
+			{
+				bk::uint l_pair = m_mergequeue.back();
+				m_mergequeue.pop_back();
+				bk::uint l_i0 = l_pair&0xffff, l_i1 = l_pair>>16;
+				voccluder &l_o0 = m_voccluders[l_i0];
+				voccluder &l_o1 = m_voccluders[l_i1];
+				voccluder l_o;
+				if (merge_voccluders(l_o0, l_o1, l_o))
+				{
+					add_voccluder(l_o);
+				}
 			}
 
-			m_occluders = l_old;
+			//m_occluders = l_old;
+
+			bk::uint l_vocc_count = 0;
+			bk::real l_max_vocc_score = 0;
 
 			for (bk::uint i = 0, s = m_voccluders.size(); i < s; ++i)
 			{
-				unproject_voccluder(m_voccluders[i], m_iviewproj);
+				voccluder &l_o = m_voccluders[i];
+				if (l_o.score == 0) continue;
+				unproject_voccluder(l_o, m_iviewproj);
+
+				++l_vocc_count;
+				if (l_max_vocc_score < l_o.score) l_max_vocc_score = l_o.score;
 			}
+
+			l_time = bk::sys_time() - l_time;
+
+			std::cout << "OCC: " << m_occluders.size() << " VOCC: " << l_vocc_count << " ";
+			std::cout << "Time: " << l_time * 1000.0 << " msec\n";
 
 			draw_camera(l_window);
 			for (bk::uint i = 0, s = m_occluders.size(); i < s; ++i)
@@ -486,6 +669,8 @@ struct task0 : bk::application::task
 			}
 			for (bk::uint i = 0, s = m_voccluders.size(); i < s; ++i)
 			{
+				if (m_voccluders[i].score == 0) continue;
+				m_voccluders[i].score /= l_max_vocc_score;
 				draw_voccluder(l_window, m_voccluders[i]);
 			}
 			if (m_curr_occluder < m_occluders.size())
@@ -511,6 +696,8 @@ private:
 	occluders m_occluders;
 	bk::uint m_curr_occluder;
 	voccluders m_voccluders;
+	bk::uint_array m_mergequeue;
+	//
 	bk::uint m_drag_type;
 	bk::sint2 m_drag_point;
 	HMENU m_menu;
