@@ -27,7 +27,7 @@ window::window(video &_video) :
 #	endif
 	m_video(_video)
 {
-	m_vbuffer.info.descs.push_back(vr::vbuffer::desc(1024 * 100, 0, true));
+	m_vbuffer.info.descs.push_back(vr::vbuffer::desc(1024 * 1000, 0, true));
 
 	m_vformat.info.format.push_back(vr::vformat::element(0, 0, D3DDECLTYPE_FLOAT3, 0, D3DDECLUSAGE_POSITION, 0));
 	m_vformat.info.format.push_back(vr::vformat::element(0, 12, D3DDECLTYPE_D3DCOLOR, 0, D3DDECLUSAGE_COLOR, 0));
