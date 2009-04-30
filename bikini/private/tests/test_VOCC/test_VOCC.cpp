@@ -496,8 +496,9 @@ struct task0 : bk::application::task
 		{
 			voccluder l_o;
 			l_o.left = l_left; l_o.right = l_right;
+			l_o.score = (l_o.right.x() - l_o.left.x()) * 0.5 * (l_o.right.y() + l_o.left.y() + 2.0) * (1.0 - 0.5 * (l_o.right.z() + l_o.left.z()));
 			//l_o.score = 0.5 * (l_o.right.z() + l_o.left.z());//(l_o.right.x() - l_o.left.x()) * (1.0 - 0.5 * (l_o.right.z() + l_o.left.z()));
-			l_o.score = bk::min(l_o.right.z(), l_o.left.z());//(l_o.right.x() - l_o.left.x()) * (1.0 - 0.5 * (l_o.right.z() + l_o.left.z()));
+			//l_o.score = bk::min(l_o.right.z(), l_o.left.z());//(l_o.right.x() - l_o.left.x()) * (1.0 - 0.5 * (l_o.right.z() + l_o.left.z()));
 			l_new.push_back(l_o);
 		}
 		while (!l_new.empty())
@@ -521,9 +522,10 @@ struct task0 : bk::application::task
 			const bk::real3 &l_p3 = _o.points[i];
 			bk::real4 l_p4(l_p3.x(), l_p3.y(), l_p3.z(), 1.0);
 			l_p4 = l_p4 * _m;
-			l_p4.x() /= l_p4.w();
-			l_p4.y() /= l_p4.w();
-			l_p4.z() /= l_p4.w();
+			bk::real l_w = 1.0 / l_p4.w();
+			l_p4.x() *= l_w;
+			l_p4.y() *= l_w;
+			l_p4.z() *= l_w;
 			_o.proj.push_back(l_p4);
 			if (l_p4.z() > 0 && l_p4.z() < 1.0)
 			{
@@ -614,35 +616,43 @@ struct task0 : bk::application::task
 				project_occluder(m_occluders[i], m_viewproj);
 			}
 
-			//occluders l_old = m_occluders;
-			//sort_occluders();
+			occluders l_old = m_occluders;
+			sort_occluders();
 
 			m_voccluders.resize(0);
-			m_mergequeue.resize(0);
+			//m_mergequeue.resize(0);
 			for (bk::uint i = 0, s = m_occluders.size(); i < s; ++i)
 			{
-				voccluder l_o;
-				if (create_voccluder(m_occluders[i], l_o))
-				{
-					add_voccluder(l_o);
-				}
+				const occluder &l_o = m_occluders[i];
+				add_voccluder(l_o);
+				//voccluder l_o;
+				//if (create_voccluder(m_occluders[i], l_o))
+				//{
+				//	add_voccluder(l_o);
+				//}
 			}
-//			for (bk::uint i = 0; i < m_mergequeue.size(); ++i)
-			while (!m_mergequeue.empty())
-			{
-				bk::uint l_pair = m_mergequeue.back();
-				m_mergequeue.pop_back();
-				bk::uint l_i0 = l_pair&0xffff, l_i1 = l_pair>>16;
-				voccluder &l_o0 = m_voccluders[l_i0];
-				voccluder &l_o1 = m_voccluders[l_i1];
-				voccluder l_o;
-				if (merge_voccluders(l_o0, l_o1, l_o))
-				{
-					add_voccluder(l_o);
-				}
-			}
+////			for (bk::uint i = 0; i < m_mergequeue.size(); ++i)
+//			while (!m_mergequeue.empty())
+//			{
+//				bk::uint l_pair = m_mergequeue.back();
+//				m_mergequeue.pop_back();
+//				bk::uint l_i0 = l_pair&0xffff, l_i1 = l_pair>>16;
+//				voccluder &l_o0 = m_voccluders[l_i0];
+//				voccluder &l_o1 = m_voccluders[l_i1];
+//				if (l_o0.score == 0 || l_o1.score == 0) continue;
+//				voccluder l_o;
+//				if (merge_voccluders(l_o0, l_o1, l_o))
+//				{
+//					//add_voccluder(l_o);
+//					bk::uint l_pair0 = (m_voccluders.size() << 16) | l_i0;
+//					m_mergequeue.push_back(l_pair0);
+//					bk::uint l_pair1 = (m_voccluders.size() << 16) | l_i1;
+//					m_mergequeue.push_back(l_pair1);
+//					m_voccluders.push_back(l_o);
+//				}
+//			}
 
-			//m_occluders = l_old;
+			m_occluders = l_old;
 
 			bk::uint l_vocc_count = 0;
 			bk::real l_max_vocc_score = 0;
