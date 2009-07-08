@@ -43,4 +43,9 @@ template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _
 
 // types
 
+// CRC32
+typedef u32 crc32;
+crc32 get_crc32(pointer _data, uint _size);
+
+
 #include "math.inl"
