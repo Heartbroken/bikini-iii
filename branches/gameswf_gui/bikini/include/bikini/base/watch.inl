@@ -536,7 +536,7 @@ inline astring watch::varaible::print() const
 		handle l_value;
 		if (l_member.get->by_value)
 		{
-			l_value = calloc(l_member.get->value_size, 1);
+			l_value = _malloca(l_member.get->value_size);
 			_varaible_resolve_get(*this, l_value);
 			l_result = l_type.print_value(l_value);
 			l_type.destroy_value(l_value);

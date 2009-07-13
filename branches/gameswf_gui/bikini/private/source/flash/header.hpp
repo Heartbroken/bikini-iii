@@ -9,3 +9,12 @@
 #pragma once
 
 #include <bikini/flash.hpp>
+
+// GameSWF
+#include "base/tu_file.h"
+#include "gameswf/gameswf_player.h"
+#include "gameswf/gameswf_movie_def.h"
+
+// GameSWF requires these libs
+#pragma comment(lib, "ws2_32")
+#pragma comment(lib, "winmm")

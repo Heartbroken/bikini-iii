@@ -19,7 +19,7 @@ tu_loadlib::tu_loadlib(const char* library_name) :
 	tu_string path = library_name;
 	path += ".dll";
 
-	m_hlib = LoadLibrary(path.c_str());
+	m_hlib = LoadLibraryA(path.c_str());
 }
 
 tu_loadlib::~tu_loadlib()
