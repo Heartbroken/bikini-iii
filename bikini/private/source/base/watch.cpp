@@ -117,7 +117,7 @@ void _varaible_resolve_get(const watch::varaible &_v, handle _value)
 		const watch::type &l_object_type = _v.get_watch().get_type(l_type);
 		const watch::type::member &l_member = l_object_type.get_member(l_step);
 
-		handle l_value = i + 1 < s ? calloc(l_member.get->value_size, 1) : _value;
+		handle l_value = i + 1 < s ? _malloca(l_member.get->value_size) : _value;
 		(*l_member.get)(l_value, l_object_type.member_base_cast(l_step, l_object));
 
 		if (i + 1 == s) break;
@@ -159,7 +159,7 @@ void _varaible_resolve_set(const watch::varaible &_v, pointer _value)
 
 		if (i + 1 < s)
 		{
-			l_value = calloc(l_member.get->value_size, 1);
+			l_value = _malloca(l_member.get->value_size);
 			(*l_member.get)(l_value, l_object_type.member_base_cast(l_step, l_object));
 		}
 		else
