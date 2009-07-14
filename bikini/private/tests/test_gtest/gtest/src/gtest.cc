@@ -97,6 +97,26 @@
 // silence it.
 #include <windows.h>  // NOLINT
 
+#ifdef _MSC_VER
+// Replace printf and vprintf
+namespace testing {
+int printf(const char *format, ...) {
+	va_list args;
+	va_start(args, format);
+	int result = vprintf(format, args);
+	va_end(args);
+	return result;
+}
+int vprintf(const char *format, va_list args) {
+	int length = _vscprintf(format, args) + 1;
+	char* string = (char*)_malloca(length);
+	vsprintf_s(string, length, format, args);
+	OutputDebugStringA(string);
+	return ::vprintf(format, args);
+}
+}	// namespace testing
+#endif // _MSC_VER
+
 #else
 
 // Assume other platforms have gettimeofday().

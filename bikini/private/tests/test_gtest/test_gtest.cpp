@@ -3,8 +3,10 @@
 
 #include "stdafx.h"
 
-
-TEST(GTestColorTest, Dummy) {
-	EXPECT_TRUE(true);
+TEST(GTestColorTest, Dummy0) {
+	EXPECT_TRUE(1);
+}
+TEST(GTestColorTest, Dummy1) {
+	EXPECT_TRUE(0);
 }
 
