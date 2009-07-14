@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -64,7 +64,7 @@ static inline rbig F64(const byte* &_d) {
 static inline wstring STRING(const byte* &_d) {
 	uint l_s0 = U30(_d);
 	uint l_s1 = MultiByteToWideChar(CP_UTF8, 0, (achar*)_d, (int)l_s0, 0, 0);
-	wchar* l_w = (wchar*)calloc(l_s1, sizeof(wchar*));
+	wchar* l_w = (wchar*)_malloca(l_s1 * sizeof(wchar*));
 	MultiByteToWideChar(CP_UTF8, 0, (achar*)_d, (int)l_s0, l_w, (int)l_s1); _d += l_s0;
 	return wstring(l_w, l_s1);
 }

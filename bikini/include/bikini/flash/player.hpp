@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -38,13 +38,17 @@ struct player : manager {
 	bool hide(uint _level = bad_ID);
 	bool render(uint _level = bad_ID) const;
 private:
+	handle m_handle;
 	renderer *m_renderer_p; bool m_delete_renderer;
 	loader *m_loader_p; bool m_delete_loader;
 	bk::loader m_def_loader;
-	array_<uint> m_levels;
-	array_<object::info*> m_movies;
-	array_<wstring> m_movie_names;
+	uint_array m_levels;
+	typedef array_<object::info*> movie_info_array;
+	movie_info_array m_movies;
+	wstring_array m_movie_names;
 	object::info& m_load_movie(const wchar* _path);
+	void m_set_handlers() const;
+	void m_reset_handlers() const;
 };
 
 #include "player.inl"

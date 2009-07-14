@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -127,7 +127,7 @@ wstring swfstream::STRING() {
 	for(u8 l_b = BYTE(); l_b > 0; l_b = BYTE()) l_a += (achar)l_b;
 	if(l_a.length() == 0) return L"";
 	uint l_size = MultiByteToWideChar(CP_UTF8, 0, l_a.data(), (int)l_a.length(), 0, 0);
-	wchar* l_buffer = (wchar*)calloc(l_size, sizeof(wchar));
+	wchar* l_buffer = (wchar*)_malloca(l_size * sizeof(wchar));
 	MultiByteToWideChar(CP_UTF8, 0, l_a.data(), (int)l_a.length(), l_buffer, (int)l_size);
 	return wstring(l_buffer, l_size);
 }
