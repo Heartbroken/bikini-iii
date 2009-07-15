@@ -30,22 +30,43 @@ TEST(base_random, set_seed) {
 	EXPECT_EQ(l_r0, l_r1);
 }
 TEST(base_random, get_range) {
+	bk::uint l_test_count = 20;
 	//
-	bk::uint l_umax = 100;
-	bk::uint l_u0 = bk::random::get(l_umax);
-	EXPECT_LE(l_u0, l_umax);
+	{
+		const bk::uint l_max0 = 10;
+		bk::uint l_min1 = 10, l_max1 = 0;
+		for(bk::uint i = 0; i < l_test_count; ++i) {
+			bk::uint l_v = bk::random::get(l_max0);
+			l_min1 = bk::min(l_min1, l_v);
+			l_max1 = bk::max(l_max1, l_v);
+		}
+		EXPECT_EQ(0U, l_min1);
+		EXPECT_EQ(l_max0, l_max1);
+	}
 	//
-	bk::sint l_smin = -100, l_smax = -100;
-	bk::sint l_s0 = bk::random::get(l_smin, l_smax);
-	EXPECT_GE(l_s0, l_smin);
-	EXPECT_LE(l_s0, l_smax);
+	{
+		const bk::sint l_min0 = -5, l_max0 = 5;
+		bk::sint l_min1 = 5, l_max1 = -5;
+		for(bk::uint i = 0; i < l_test_count; ++i) {
+			bk::sint l_v = bk::random::get(l_min0, l_max0);
+			l_min1 = bk::min(l_min1, l_v);
+			l_max1 = bk::max(l_max1, l_v);
+		}
+		EXPECT_EQ(l_min0, l_min1);
+		EXPECT_EQ(l_max0, l_max1);
+	}
 	//
-	bk::real l_rmin = -100, l_rmax = 100;
-	bk::real l_r0 = bk::random::get(l_rmax);
-	EXPECT_LE(l_r0, l_rmax);
+	{
+		bk::real l_rmin = -100, l_rmax = 100;
+		bk::real l_r0 = bk::random::get(l_rmax);
+		EXPECT_LE(l_r0, l_rmax);
+	}
 	//
-	bk::real l_r1 = bk::random::get(l_rmin, l_rmax);
-	EXPECT_GE(l_r1, l_rmin);
-	EXPECT_LE(l_r1, l_rmax);
+	{
+		bk::real l_rmin = -100, l_rmax = 100;
+		bk::real l_r1 = bk::random::get(l_rmin, l_rmax);
+		EXPECT_GE(l_r1, l_rmin);
+		EXPECT_LE(l_r1, l_rmax);
+	}
 }
 
