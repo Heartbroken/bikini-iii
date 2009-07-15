@@ -99,6 +99,13 @@ inline void GTestStreamToHelper(std::ostream* os, const T& val) {
 
 namespace testing {
 
+#ifdef _MSC_VER
+// Hack the printf to redirect output
+int printf(const char *format, ...);
+int vprintf(const char *format, va_list args);
+
+#endif // _MSC_VER
+
 // Forward declaration of classes.
 
 class Message;                         // Represents a failure message.

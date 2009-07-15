@@ -16,7 +16,10 @@ template<uint _ID> struct random_ {
 	static const uint ID = _ID;
 	static const uint max = 32768;
 	static uint seed;
-	static inline uint get(uint _max = max);
+	static inline void set(uint _seed);
+	static inline uint get();
+	static inline uint get(uint _max);
+	static inline sint get(sint _min, sint _max);
 	static inline real get(real _max);
 	static inline real get(real _min, real _max);
 };
