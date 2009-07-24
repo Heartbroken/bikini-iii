@@ -21,17 +21,32 @@ TEST(base_math, matrix_add) {
 // base/random
 TEST(base_random, set_seed) {
 	bk::random l_random(12345);
-	bk::uint l_r0 = l_random.get();
-	l_random.get();
-	l_random.get();
-	l_random.get();
+	bk::uint l_test_count = 20;
+	bk::uint_array l_res0, l_res1;
+	for(bk::uint i = 0; i < l_test_count; ++i) {
+		l_res0.push_back(l_random.get());
+	}
 	l_random.seed = 12345;
-	bk::uint l_r1 = l_random.get();
-	EXPECT_EQ(l_r0, l_r1);
+	for(bk::uint i = 0; i < l_test_count; ++i) {
+		l_res1.push_back(l_random.get());
+	}
+	for(bk::uint i = 0; i < l_test_count; ++i) {
+		EXPECT_EQ(l_res0[i], l_res1[i]);
+	}
 }
 TEST(base_random, get_range) {
-	bk::random l_random(12345);
+	bk::random l_random(2);
 	bk::uint l_test_count = 20;
+	//
+	{
+		bk::uint l_max = 0;
+		bk::uint l_test_count = 1000000;
+		for(bk::uint i = 0; i < l_test_count; ++i) {
+			bk::uint l_v = l_random.get();
+			l_max = bk::max(l_max, l_v);
+		}
+		EXPECT_EQ(bk::random::max, l_max);
+	}
 	//
 	{
 		const bk::uint l_max0 = 10;
