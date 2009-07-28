@@ -31,6 +31,7 @@ uint manager::add(object &_object) {
 		m_objects[l_index] = &_object;
 	}
 	uint l_ID = (++m_counter << ID_half_size) | l_index;
+	m_update_order.push_back(l_ID);
 	return l_ID;
 }
 bool manager::exists(uint _ID) const {
