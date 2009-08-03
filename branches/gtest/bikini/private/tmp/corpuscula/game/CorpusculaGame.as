@@ -98,6 +98,7 @@
 			scheme.removeChild(scheme.getChildByName("InitLoading"));
 			delete m_props.initDelay;
 			var l_root:Corpuscula = new Corpuscula(this);
+			l_root.SetMass(3);
 			m_roots.push(l_root);
 			m_editor.visible = false;
 		}
@@ -107,6 +108,7 @@
 		{
 			editor.addChild(m_editor);
 			for each (var l_root:Corpuscula in m_roots) l_root.StartEdit();
+			stage.addEventListener(MouseEvent.CLICK, OnStageClick);
 		}
 		function UpdateEdit():void
 		{
@@ -115,6 +117,11 @@
 		{
 			for each (var l_root:Corpuscula in m_roots) l_root.StopEdit();
 			editor.removeChild(m_editor);
+			stage.removeEventListener(MouseEvent.CLICK, OnStageClick);
+		}
+		function OnStageClick(_event:MouseEvent):void
+		{
+			if (_event.target == stage) SetSelected(null);
 		}
 
 		// State Play ///////////////////////////////////////////////////////////////////////////////////
@@ -146,6 +153,7 @@ class Corpuscula
 	
 	var m_position:Point = new Point();
 	var m_velocity:Point = new Point();
+	var m_mass:uint = 1;
 //	var m_x:Number = 0;
 //	var m_y:Number = 0;
 //	var m_velX:Number = 0;
@@ -167,65 +175,19 @@ class Corpuscula
 		m_parent = _parent;
 	}
 	
-	public function SetPosition(_position:Point):void
-	{
-		m_position = _position.clone();
-	}
-	
-	public function SetVelocity(_velocity:Point):void
-	{
-		m_velocity = _velocity.clone();
-	}
+	public function Position():Point { return m_position.clone(); }
+	public function SetPosition(_position:Point):void { m_position = _position.clone(); }
+	public function Velocity():Point { return m_velocity.clone(); }
+	public function SetVelocity(_velocity:Point):void { m_velocity = _velocity.clone(); }
+	public function Mass():uint { return m_mass; }
+	public function SetMass(_mass:uint):void { m_mass = _mass; }
 	
 	public function StartEdit():void
 	{
-		if (m_parent == null)
-		{
-			m_game.AddEntity(m_proton);
-			m_proton.x = m_position.x;
-			m_proton.y = m_position.y;
-		}
-		
-		if (isFinite(m_fissTime))
-		{
-		}
-		else
-		{
-			if (Point.distance(m_velocity, new Point()) > Number.MIN_VALUE)
-			{
-				m_game.AddTrack(m_track);
-				m_track.x = m_position.x;
-				m_track.y = m_position.y;
-				m_track.graphics.lineStyle(10, 0x777777);
-				m_track.graphics.lineTo(m_velocity.x * 100, m_velocity.y * 100);
-				m_track.buttonMode = true;
-			}
-			else
-			{
-				m_game.AddHotspot(m_selector);
-				m_selector.x = m_position.x;
-				m_selector.y = m_position.y;
-				m_selector.addEventListener(MouseEvent.CLICK, OnSelectorClick);
-			}
-		}
-		
-//		var l_x:Number = x + dX;
-//		var l_y:Number = y + dY;
-//		//
-//		m_game.screen.addChild(track);
-//		track.x = x;
-//		track.y = y;
-//		track.graphics.lineStyle(10, 0x777777);
-//		track.graphics.lineTo(dX, dY);
-//		track.buttonMode = true;
-//		//
-//		m_game.screen.addChild(proton);
-//		proton.x = l_x;
-//		proton.y = l_y;
-//		//
-//		m_game.screen.addChild(handle);
-//		handle.x = l_x;
-//		handle.y = l_y;
+		m_game.AddEntity(m_proton);
+		m_game.AddTrack(m_track);
+		m_game.AddHotspot(m_selector);
+		m_selector.addEventListener(MouseEvent.CLICK, OnSelectorClick);
 		
 		if (m_child0) m_child0.StartEdit();
 		if (m_child1) m_child1.StartEdit();
@@ -233,16 +195,51 @@ class Corpuscula
 	
 	public function StopEdit():void
 	{
+		m_game.RemoveEntity(m_proton);
 		m_game.RemoveTrack(m_track);
-		m_selector.removeEventListener(MouseEvent.CLICK, OnSelectorClick);
 		m_game.RemoveHotspot(m_selector);
-		
-//		m_game.screen.removeChild(track);
-//		m_game.screen.removeChild(proton);
-//		m_game.screen.removeChild(handle);
+		m_selector.removeEventListener(MouseEvent.CLICK, OnSelectorClick);
 		
 		if (m_child0) m_child0.StopEdit();
 		if (m_child1) m_child1.StopEdit();
+	}
+	
+	function UpdateEdit():void
+	{
+		m_proton.visible = false;
+		m_track.visible = false;
+		m_selector.visible = false;
+		m_track.graphics.clear();
+		
+		if (m_parent == null) m_proton.visible = true;
+
+		if (isFinite(m_fissTime))
+		{
+		}
+		else
+		{
+			if (m_velocity.length > Number.MIN_VALUE)
+			{
+				m_track.x = m_position.x;
+				m_track.y = m_position.y;
+//				var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 10;
+				var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
+				m_track.graphics.lineStyle(l_thickness, 0x777777);
+				var l_dir:Point = m_velocity.clone(); l_dir.normalize(1000);
+				m_track.graphics.lineTo(l_dir.x, l_dir.y);
+				m_track.buttonMode = true;
+				m_track.visible = true;
+			}
+			else
+			{
+				m_selector.x = m_position.x;
+				m_selector.y = m_position.y;
+				if (m_game.GetSelected() != this) m_selector.visible = true;
+			}
+		}
+		
+		if (m_child0) m_child0.UpdateEdit();
+		if (m_child1) m_child1.UpdateEdit();
 	}
 	
 	public function Update():void
@@ -262,7 +259,9 @@ class Corpuscula
 		var l_editor:Editor = m_game.GetEditor();
 		l_editor.x = m_position.x;
 		l_editor.y = m_position.y;
-		l_editor.rotation = m_fissAngle * 180 / Math.PI;
+		var l_baseAngle:Number = 0;
+		if (m_velocity.length > Number.MIN_VALUE) l_baseAngle = Math.atan2(m_velocity.y, m_velocity.x);
+		l_editor.rotation = (l_baseAngle + m_fissAngle) * 180 / Math.PI;
 		l_editor.rotationHandle.addEventListener(MouseEvent.MOUSE_DOWN, OnRotationDown);
 		l_editor.split0Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
 		l_editor.split1Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
@@ -290,11 +289,23 @@ class Corpuscula
 		else
 		{
 			m_child0 = new Corpuscula(m_game, this);
-			m_child0.SetVelocity(new Point(0, -100));
 			m_child0.StartEdit();
 			m_child1 = new Corpuscula(m_game, this);
-			m_child1.SetVelocity(new Point(0, 100));
 			m_child1.StartEdit();
+			
+			var l_velocity:Point = new Point(1, 0);
+			var l_rotate:Matrix = new Matrix();
+			l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
+			l_velocity = l_rotate.transformPoint(l_velocity);
+			
+			m_child0.SetVelocity(m_velocity.add(l_velocity));
+			m_child1.SetVelocity(m_velocity.subtract(l_velocity));
+			
+			var l_mass:uint = m_mass / 2;
+			m_child0.SetMass(l_mass);
+			m_child1.SetMass(m_mass - l_mass);
+			
+			UpdateEdit();
 		}
 	}
 	
@@ -317,6 +328,18 @@ class Corpuscula
 			m_fissAngle += l_angle - m_props.rotationAngle;
 			l_editor.rotation += (l_angle - m_props.rotationAngle) * 180 / Math.PI;
 			m_props.rotationAngle = l_angle;
+
+			if (m_child0 && m_child1)
+			{
+				var l_velocity:Point = new Point(1, 0);
+				var l_rotate:Matrix = new Matrix();
+				l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
+				l_velocity = l_rotate.transformPoint(l_velocity);
+				m_child0.SetVelocity(m_velocity.add(l_velocity));
+				m_child1.SetVelocity(m_velocity.subtract(l_velocity));
+				
+				UpdateEdit();
+			}
 		}
 	}
 	function OnRotationUp(_event:MouseEvent):void
