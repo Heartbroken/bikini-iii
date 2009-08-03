@@ -224,7 +224,7 @@ class Corpuscula
 				m_track.y = m_position.y;
 				var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 5;
 //				var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
-				m_track.graphics.lineStyle(l_thickness, (m_mass > 1) ? 0x777777 : 0x555555);
+				m_track.graphics.lineStyle(l_thickness, 0x777777, (m_mass > 1) ? 1 : 0.5);
 				var l_dir:Point = m_velocity.clone(); l_dir.normalize(1000);
 				m_track.graphics.lineTo(l_dir.x, l_dir.y);
 				m_track.buttonMode = (m_mass > 1);
@@ -293,17 +293,13 @@ class Corpuscula
 			
 			if (_event.target == l_editor.split0Handle)
 			{
-				var l_mass:uint = 0;//m_mass / 2;
-				//if (l_mass == m_mass - l_mass) --l_mass;
-				m_child0.SetMass(l_mass);
-				m_child1.SetMass(m_mass - l_mass);
+				m_child0.SetMass(0);
+				m_child1.SetMass(m_mass);
 			}
 			else
 			{
-				var l_mass:uint = 0;//m_mass / 2;
-				//if (l_mass == m_mass - l_mass) --l_mass;
-				m_child0.SetMass(m_mass - l_mass);
-				m_child1.SetMass(l_mass);
+				m_child0.SetMass(m_mass);
+				m_child1.SetMass(0);
 			}
 
 		}
