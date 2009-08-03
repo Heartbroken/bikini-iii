@@ -265,6 +265,7 @@ class Corpuscula
 		l_editor.rotationHandle.addEventListener(MouseEvent.MOUSE_DOWN, OnRotationDown);
 		l_editor.split0Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
 		l_editor.split1Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
+		l_editor.moveHandle.visible = (m_velocity.length > Number.MIN_VALUE);
 		l_editor.visible = true;
 	}
 	public function Unselect():void
@@ -292,15 +293,15 @@ class Corpuscula
 			
 			if (_event.target == l_editor.split0Handle)
 			{
-				var l_mass:uint = m_mass / 2;
-				if (l_mass == m_mass - l_mass) --l_mass;
+				var l_mass:uint = 0;//m_mass / 2;
+				//if (l_mass == m_mass - l_mass) --l_mass;
 				m_child0.SetMass(l_mass);
 				m_child1.SetMass(m_mass - l_mass);
 			}
 			else
 			{
-				var l_mass:uint = m_mass / 2;
-				if (l_mass == m_mass - l_mass) --l_mass;
+				var l_mass:uint = 0;//m_mass / 2;
+				//if (l_mass == m_mass - l_mass) --l_mass;
 				m_child0.SetMass(m_mass - l_mass);
 				m_child1.SetMass(l_mass);
 			}
