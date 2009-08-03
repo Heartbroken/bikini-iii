@@ -98,7 +98,7 @@
 			scheme.removeChild(scheme.getChildByName("InitLoading"));
 			delete m_props.initDelay;
 			var l_root:Corpuscula = new Corpuscula(this);
-			l_root.SetMass(3);
+			l_root.SetMass(20);
 			m_roots.push(l_root);
 			m_editor.visible = false;
 		}
@@ -222,12 +222,12 @@ class Corpuscula
 			{
 				m_track.x = m_position.x;
 				m_track.y = m_position.y;
-//				var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 10;
-				var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
-				m_track.graphics.lineStyle(l_thickness, 0x777777);
+				var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 5;
+//				var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
+				m_track.graphics.lineStyle(l_thickness, (m_mass > 1) ? 0x777777 : 0x555555);
 				var l_dir:Point = m_velocity.clone(); l_dir.normalize(1000);
 				m_track.graphics.lineTo(l_dir.x, l_dir.y);
-				m_track.buttonMode = true;
+				m_track.buttonMode = (m_mass > 1);
 				m_track.visible = true;
 			}
 			else
@@ -279,7 +279,46 @@ class Corpuscula
 	
 	function OnSplitClick(_event:MouseEvent):void
 	{
-		if (m_child0)
+		if (m_mass == 1) return;
+		
+		var l_editor:Editor = m_game.GetEditor();
+		
+		if (m_child0 == null && m_child0 == null)
+		{
+			m_child0 = new Corpuscula(m_game, this);
+			m_child0.StartEdit();
+			m_child1 = new Corpuscula(m_game, this);
+			m_child1.StartEdit();
+			
+			if (_event.target == l_editor.split0Handle)
+			{
+				var l_mass:uint = m_mass / 2;
+				if (l_mass == m_mass - l_mass) --l_mass;
+				m_child0.SetMass(l_mass);
+				m_child1.SetMass(m_mass - l_mass);
+			}
+			else
+			{
+				var l_mass:uint = m_mass / 2;
+				if (l_mass == m_mass - l_mass) --l_mass;
+				m_child0.SetMass(m_mass - l_mass);
+				m_child1.SetMass(l_mass);
+			}
+
+		}
+		
+		if (_event.target == l_editor.split0Handle)
+		{
+			m_child0.SetMass(m_child0.Mass() + 1);
+			m_child1.SetMass(m_child1.Mass() - 1);
+		}
+		else
+		{
+			m_child0.SetMass(m_child0.Mass() - 1);
+			m_child1.SetMass(m_child1.Mass() + 1);
+		}
+
+		if (m_child0.Mass() == 0 || m_child1.Mass() == 0)
 		{
 			m_child0.StopEdit();
 			m_child0 = null;
@@ -288,25 +327,16 @@ class Corpuscula
 		}
 		else
 		{
-			m_child0 = new Corpuscula(m_game, this);
-			m_child0.StartEdit();
-			m_child1 = new Corpuscula(m_game, this);
-			m_child1.StartEdit();
-			
 			var l_velocity:Point = new Point(1, 0);
 			var l_rotate:Matrix = new Matrix();
 			l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
 			l_velocity = l_rotate.transformPoint(l_velocity);
 			
-			m_child0.SetVelocity(m_velocity.add(l_velocity));
-			m_child1.SetVelocity(m_velocity.subtract(l_velocity));
-			
-			var l_mass:uint = m_mass / 2;
-			m_child0.SetMass(l_mass);
-			m_child1.SetMass(m_mass - l_mass);
-			
-			UpdateEdit();
+			m_child0.SetVelocity(m_velocity.subtract(l_velocity));
+			m_child1.SetVelocity(m_velocity.add(l_velocity));
 		}
+		
+		UpdateEdit();
 	}
 	
 	function OnRotationDown(_event:MouseEvent):void
@@ -335,8 +365,8 @@ class Corpuscula
 				var l_rotate:Matrix = new Matrix();
 				l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
 				l_velocity = l_rotate.transformPoint(l_velocity);
-				m_child0.SetVelocity(m_velocity.add(l_velocity));
-				m_child1.SetVelocity(m_velocity.subtract(l_velocity));
+				m_child0.SetVelocity(m_velocity.subtract(l_velocity));
+				m_child1.SetVelocity(m_velocity.add(l_velocity));
 				
 				UpdateEdit();
 			}
