@@ -140,7 +140,7 @@
 // Internals //////////////////////////////////////////////////////////////////////////////////////
 
 import flash.events.MouseEvent;
-import flash.display.Sprite;
+//import flash.display.Sprite;
 import flash.geom.Point;
 import flash.geom.Matrix;
 import game.CorpusculaGame;
@@ -163,7 +163,7 @@ class Corpuscula
 	var m_selector:Selector = new Selector();
 	var m_proton:Proton = new Proton();
 //	var handle:MouseHandle = new MouseHandle();
-	var m_track:Sprite = new Sprite();
+	var m_track:Track = new Track();
 	var m_game:CorpusculaGame;
 	var m_parent:Corpuscula;
 	var m_child0:Corpuscula;
@@ -173,6 +173,7 @@ class Corpuscula
 	{
 		m_game = _game;
 		m_parent = _parent;
+		m_track.selectorHandle.visible = false;
 	}
 	
 	public function Position():Point { return m_position.clone(); }
@@ -181,6 +182,16 @@ class Corpuscula
 	public function SetVelocity(_velocity:Point):void { m_velocity = _velocity.clone(); }
 	public function Mass():uint { return m_mass; }
 	public function SetMass(_mass:uint):void { m_mass = _mass; }
+	
+	public function FissPosition():Point
+	{
+		var l_time:Number = m_fissTime;
+//		if (!m_child0 || !m_child1) l_time = Infinity;
+		if (m_velocity.length < Number.MIN_VALUE) l_time = 0;
+		if (!isFinite(l_time)) l_time = 1000 / m_velocity.length;
+		var l_pos:Point = Point.interpolate(m_position.add(m_velocity), m_position, l_time);
+		return l_pos;
+	}
 	
 	public function StartEdit():void
 	{
@@ -198,7 +209,12 @@ class Corpuscula
 		m_game.RemoveEntity(m_proton);
 		m_game.RemoveTrack(m_track);
 		m_game.RemoveHotspot(m_selector);
+		
 		m_selector.removeEventListener(MouseEvent.CLICK, OnSelectorClick);
+		
+		m_track.removeEventListener(MouseEvent.MOUSE_MOVE, OnTrackMove);
+		m_track.removeEventListener(MouseEvent.CLICK, OnTrackClick);
+		m_track.removeEventListener(MouseEvent.MOUSE_OUT, OnTrackOut);
 		
 		if (m_child0) m_child0.StopEdit();
 		if (m_child1) m_child1.StopEdit();
@@ -210,36 +226,66 @@ class Corpuscula
 		m_track.visible = false;
 		m_selector.visible = false;
 		m_track.graphics.clear();
+		m_track.selectorHandle.visible = false;
 		
 		if (m_parent == null) m_proton.visible = true;
 
-		if (isFinite(m_fissTime))
+		if (m_velocity.length > Number.MIN_VALUE)
 		{
-		}
-		else
-		{
-			if (m_velocity.length > Number.MIN_VALUE)
+			m_track.x = m_position.x;
+			m_track.y = m_position.y;
+			var l_fissPos:Point = FissPosition().subtract(m_position);
+			var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 5;
+//			var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
+			var l_trackSelection:Boolean = (m_mass > 1 && !isFinite(m_fissTime));
+			m_track.graphics.lineStyle(l_thickness, 0x777777, l_trackSelection ? 1 : 0.5);
+			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
+			if (l_trackSelection)
 			{
-				m_track.x = m_position.x;
-				m_track.y = m_position.y;
-				var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 5;
-//				var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
-				m_track.graphics.lineStyle(l_thickness, 0x777777, (m_mass > 1) ? 1 : 0.5);
-				var l_dir:Point = m_velocity.clone(); l_dir.normalize(1000);
-				m_track.graphics.lineTo(l_dir.x, l_dir.y);
-				m_track.buttonMode = (m_mass > 1);
-				m_track.visible = true;
+				m_track.buttonMode = true;
+				m_track.addEventListener(MouseEvent.MOUSE_MOVE, OnTrackMove);
+				m_track.addEventListener(MouseEvent.CLICK, OnTrackClick);
+				m_track.addEventListener(MouseEvent.MOUSE_OUT, OnTrackOut);
 			}
 			else
 			{
-				m_selector.x = m_position.x;
-				m_selector.y = m_position.y;
+				m_track.buttonMode = false;
+				m_track.removeEventListener(MouseEvent.MOUSE_MOVE, OnTrackMove);
+				m_selector.x = FissPosition().x; // !!!! @@@@@
+				m_selector.y = FissPosition().y;
 				if (m_game.GetSelected() != this) m_selector.visible = true;
 			}
+			m_track.visible = true;
+		}
+		else
+		{
+			m_selector.x = m_position.x;
+			m_selector.y = m_position.y;
+			if (m_game.GetSelected() != this) m_selector.visible = true;
 		}
 		
-		if (m_child0) m_child0.UpdateEdit();
-		if (m_child1) m_child1.UpdateEdit();
+		if (m_child0 && m_child1)
+		{
+			m_child0.SetPosition(FissPosition());
+			m_child1.SetPosition(FissPosition());
+
+			var l_dir:Point = new Point(1, 0);
+			var l_baseAngle:Number = 0;
+			if (m_velocity.length > Number.MIN_VALUE) l_baseAngle = Math.atan2(m_velocity.y, m_velocity.x);
+			var l_rotate:Matrix = new Matrix();
+			l_rotate.rotate(0.5 * Math.PI + (l_baseAngle + m_fissAngle));
+			l_dir = l_rotate.transformPoint(l_dir);
+			
+			var l_energy:Number = 10;
+			var l_vel0:Point = l_dir.clone(); l_vel0.normalize(Math.sqrt(l_energy / m_child0.Mass()));
+			var l_vel1:Point = l_dir.clone(); l_vel1.normalize(Math.sqrt(l_energy / m_child1.Mass()));
+			
+			m_child0.SetVelocity(m_velocity.subtract(l_vel0));
+			m_child1.SetVelocity(m_velocity.add(l_vel1));
+			
+			m_child0.UpdateEdit();
+			m_child1.UpdateEdit();
+		}
 	}
 	
 	public function Update():void
@@ -248,7 +294,31 @@ class Corpuscula
 //		proton.y = y - height / 2;
 	}
 	
-	function OnSelectorClick(event:MouseEvent):void
+	function OnTrackMove(_event:MouseEvent):void
+	{
+		var l_pos:Point = m_velocity.clone(); l_pos.normalize(1);
+		var l_pnt:Point = new Point(_event.localX, _event.localY);
+		var l_dot:Number = l_pos.x * l_pnt.x + l_pos.y * l_pnt.y;
+		l_pos.normalize(l_dot);
+		m_track.selectorHandle.x = l_pos.x;
+		m_track.selectorHandle.y = l_pos.y;
+		m_track.selectorHandle.visible = true;
+	}
+	function OnTrackClick(_event:MouseEvent):void
+	{
+		var l_pos:Point = m_velocity.clone(); l_pos.normalize(1);
+		var l_pnt:Point = new Point(_event.localX, _event.localY);
+		var l_dot:Number = l_pos.x * l_pnt.x + l_pos.y * l_pnt.y;
+		l_pos.normalize(l_dot);
+		m_fissTime = l_pos.length / m_velocity.length;
+		m_game.SetSelected(this);
+	}
+	function OnTrackOut(_event:MouseEvent):void
+	{
+		m_track.selectorHandle.visible = false;
+	}
+	
+	function OnSelectorClick(_event:MouseEvent):void
 	{
 		m_game.SetSelected(this);
 	}
@@ -257,15 +327,16 @@ class Corpuscula
 	{
 		m_selector.visible = false;
 		var l_editor:Editor = m_game.GetEditor();
-		l_editor.x = m_position.x;
-		l_editor.y = m_position.y;
+		var l_pos:Point = FissPosition();
+		l_editor.x = l_pos.x;
+		l_editor.y = l_pos.y;
 		var l_baseAngle:Number = 0;
 		if (m_velocity.length > Number.MIN_VALUE) l_baseAngle = Math.atan2(m_velocity.y, m_velocity.x);
 		l_editor.rotation = (l_baseAngle + m_fissAngle) * 180 / Math.PI;
 		l_editor.rotationHandle.addEventListener(MouseEvent.MOUSE_DOWN, OnRotationDown);
 		l_editor.split0Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
 		l_editor.split1Handle.addEventListener(MouseEvent.CLICK, OnSplitClick);
-		l_editor.moveHandle.visible = (m_velocity.length > Number.MIN_VALUE);
+//		l_editor.moveHandle.visible = (m_velocity.length > Number.MIN_VALUE);
 		l_editor.visible = true;
 	}
 	public function Unselect():void
@@ -286,9 +357,12 @@ class Corpuscula
 		
 		if (m_child0 == null && m_child0 == null)
 		{
+			var l_fissPos:Point = FissPosition();
 			m_child0 = new Corpuscula(m_game, this);
+			m_child0.SetPosition(l_fissPos);
 			m_child0.StartEdit();
 			m_child1 = new Corpuscula(m_game, this);
+			m_child1.SetPosition(l_fissPos);
 			m_child1.StartEdit();
 			
 			if (_event.target == l_editor.split0Handle)
@@ -324,13 +398,19 @@ class Corpuscula
 		}
 		else
 		{
-			var l_velocity:Point = new Point(1, 0);
-			var l_rotate:Matrix = new Matrix();
-			l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
-			l_velocity = l_rotate.transformPoint(l_velocity);
-			
-			m_child0.SetVelocity(m_velocity.subtract(l_velocity));
-			m_child1.SetVelocity(m_velocity.add(l_velocity));
+//			var l_dir:Point = new Point(1, 0);
+//			var l_baseAngle:Number = 0;
+//			if (m_velocity.length > Number.MIN_VALUE) l_baseAngle = Math.atan2(m_velocity.y, m_velocity.x);
+//			var l_rotate:Matrix = new Matrix();
+//			l_rotate.rotate(0.5 * Math.PI + (l_baseAngle + m_fissAngle));
+//			l_dir = l_rotate.transformPoint(l_dir);
+//			
+//			var l_energy:Number = 10;
+//			var l_vel0:Point = l_dir.clone(); l_vel0.normalize(Math.sqrt(l_energy / m_child0.Mass()));
+//			var l_vel1:Point = l_dir.clone(); l_vel1.normalize(Math.sqrt(l_energy / m_child1.Mass()));
+//			
+//			m_child0.SetVelocity(m_velocity.subtract(l_vel0));
+//			m_child1.SetVelocity(m_velocity.add(l_vel1));
 		}
 		
 		UpdateEdit();
@@ -358,12 +438,19 @@ class Corpuscula
 
 			if (m_child0 && m_child1)
 			{
-				var l_velocity:Point = new Point(1, 0);
-				var l_rotate:Matrix = new Matrix();
-				l_rotate.rotate(0.5 * Math.PI + m_fissAngle);
-				l_velocity = l_rotate.transformPoint(l_velocity);
-				m_child0.SetVelocity(m_velocity.subtract(l_velocity));
-				m_child1.SetVelocity(m_velocity.add(l_velocity));
+//				var l_dir:Point = new Point(1, 0);
+//				var l_baseAngle:Number = 0;
+//				if (m_velocity.length > Number.MIN_VALUE) l_baseAngle = Math.atan2(m_velocity.y, m_velocity.x);
+//				var l_rotate:Matrix = new Matrix();
+//				l_rotate.rotate(0.5 * Math.PI + (l_baseAngle + m_fissAngle));
+//				l_dir = l_rotate.transformPoint(l_dir);
+//				
+//				var l_energy:Number = 10;
+//				var l_vel0:Point = l_dir.clone(); l_vel0.normalize(Math.sqrt(l_energy / m_child0.Mass()));
+//				var l_vel1:Point = l_dir.clone(); l_vel1.normalize(Math.sqrt(l_energy / m_child1.Mass()));
+//				
+//				m_child0.SetVelocity(m_velocity.subtract(l_vel0));
+//				m_child1.SetVelocity(m_velocity.add(l_vel1));
 				
 				UpdateEdit();
 			}
