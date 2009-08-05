@@ -266,8 +266,23 @@ class Corpuscula
 			l_fissPos = l_fissPos.subtract(m_position);
 			var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 5;
 //			var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
+			m_track.graphics.lineStyle(20, 0, 0);
+			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
+			m_track.graphics.moveTo(0, 0);
 			m_track.graphics.lineStyle(l_thickness, 0x777777, m_mass > 1 ? 1 : 0.5);
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
+			m_track.graphics.moveTo(0, 0);
+			m_track.graphics.lineStyle(0.5, 0x333333);
+			var l_step:Point = m_velocity.clone(); l_step.normalize(3);
+			var l_space:Point = m_velocity.clone(); l_space.normalize(m_velocity.length * 5);
+			var l_currPnt:Point = m_velocity.clone(); l_currPnt.normalize(10);
+			while(l_currPnt.length < l_fissPos.length - 10)
+			{
+				m_track.graphics.moveTo(l_currPnt.x, l_currPnt.y);
+				l_currPnt = l_currPnt.add(l_step);
+				m_track.graphics.lineTo(l_currPnt.x, l_currPnt.y);
+				l_currPnt = l_currPnt.add(l_space);
+			}
 			m_track.visible = true;
 			if (m_mass > 1)
 			{
