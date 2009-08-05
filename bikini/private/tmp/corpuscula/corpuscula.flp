@@ -1,5 +1,5 @@
 ﻿<flash_project name="corpuscula" version="1">
-    <project_folder name="game" expanded="false">
+    <project_folder name="game" expanded="true">
         <project_file path="./game/CorpusculaGame.as" filetype="as" />
     </project_folder>
     <project_folder name="lib" expanded="false">
