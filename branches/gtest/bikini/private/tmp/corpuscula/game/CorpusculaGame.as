@@ -269,13 +269,13 @@ class Corpuscula
 			m_track.graphics.lineStyle(20, 0, 0);
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
 			m_track.graphics.moveTo(0, 0);
-			m_track.graphics.lineStyle(l_thickness, 0x777777, m_mass > 1 ? 1 : 1, true, "normal", "none");
+			m_track.graphics.lineStyle(l_thickness, 0x777777, m_mass > 1 ? 1 : 1);
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
 			m_track.graphics.moveTo(0, 0);
-			m_track.graphics.lineStyle(0, 0, 0);
-			m_track.graphics.beginFill(0x777777);
-			m_track.graphics.drawCircle(l_fissPos.x, l_fissPos.y, l_thickness * 0.7);
-			m_track.graphics.endFill();
+//			m_track.graphics.lineStyle(0, 0, 0);
+//			m_track.graphics.beginFill(0x777777);
+//			m_track.graphics.drawCircle(l_fissPos.x, l_fissPos.y, l_thickness * 0.55);
+//			m_track.graphics.endFill();
 			m_track.graphics.lineStyle(1, 0x555555);
 			var l_step:Point = m_velocity.clone(); l_step.normalize(3);
 			var l_space:Point = m_velocity.clone(); l_space.normalize(m_velocity.length * 5);
@@ -313,9 +313,9 @@ class Corpuscula
 		
 		if (m_child0 && m_child1)
 		{
-			var l_fissPos:Point = FissPosition();
-			m_child0.SetPosition(l_fissPos);
-			m_child1.SetPosition(l_fissPos);
+			var l_pos:Point = FissPosition();
+			m_child0.SetPosition(l_pos);
+			m_child1.SetPosition(l_pos);
 			
 			var l_dir:Point = new Point(0, 1);
 			var l_baseAngle:Number = 0;
@@ -479,7 +479,6 @@ class Corpuscula
 		if (m_child0 && m_child1)
 		{
 			m_props.splitHandle = (_event.target == l_editor.split0Handle) ? 0 : 1;
-			var l_editor:Editor = m_game.GetEditor();
 			var l_dir:Point = new Point(0, 1);
 			var l_rot:Matrix = new Matrix(); l_rot.rotate(l_editor.rotation * Math.PI / 180);
 			l_dir = l_rot.transformPoint(l_dir);
