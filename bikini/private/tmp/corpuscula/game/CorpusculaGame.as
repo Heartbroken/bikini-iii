@@ -264,8 +264,8 @@ class Corpuscula
 			m_selector.y = l_fissPos.y;
 			if (m_game.GetSelected() != this) m_selector.visible = true;
 			l_fissPos = l_fissPos.subtract(m_position);
-			var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 7;
-//			var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 10;
+//			var l_thickness:Number = Math.sqrt(m_mass / Math.PI) * 7;
+			var l_thickness:Number = Math.pow((3 * m_mass) / (4 * Math.PI), 1 / 3) * 7;
 			m_track.graphics.lineStyle(20, 0, 0);
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
 			m_track.graphics.moveTo(0, 0);
@@ -279,7 +279,7 @@ class Corpuscula
 			while(l_currPnt.length < l_fissPos.length - 10)
 			{
 				m_track.graphics.moveTo(l_currPnt.x, l_currPnt.y);
-				l_currPnt = l_currPnt.add(l_step);
+				//l_currPnt = l_currPnt.add(l_step);
 				m_track.graphics.drawCircle(l_currPnt.x, l_currPnt.y, 0.3);
 				//m_track.graphics.lineTo(l_currPnt.x, l_currPnt.y);
 				l_currPnt = l_currPnt.add(l_space);
