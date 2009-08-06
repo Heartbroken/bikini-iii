@@ -269,14 +269,18 @@ class Corpuscula
 			m_track.graphics.lineStyle(20, 0, 0);
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
 			m_track.graphics.moveTo(0, 0);
-			m_track.graphics.lineStyle(l_thickness, 0x777777, m_mass > 1 ? 1 : 1);
+			m_track.graphics.lineStyle(l_thickness, 0x777777, m_mass > 1 ? 1 : 1, true, "normal", "none");
 			m_track.graphics.lineTo(l_fissPos.x, l_fissPos.y);
 			m_track.graphics.moveTo(0, 0);
+			m_track.graphics.lineStyle(0, 0, 0);
+			m_track.graphics.beginFill(0x777777);
+			m_track.graphics.drawCircle(l_fissPos.x, l_fissPos.y, l_thickness * 0.7);
+			m_track.graphics.endFill();
 			m_track.graphics.lineStyle(1, 0x555555);
 			var l_step:Point = m_velocity.clone(); l_step.normalize(3);
 			var l_space:Point = m_velocity.clone(); l_space.normalize(m_velocity.length * 5);
-			var l_currPnt:Point = m_velocity.clone(); l_currPnt.normalize(10);
-			while(l_currPnt.length < l_fissPos.length - 10)
+			var l_currPnt:Point = new Point(); //m_velocity.clone(); l_currPnt.normalize(10);
+			while(l_currPnt.length < l_fissPos.length)
 			{
 				m_track.graphics.moveTo(l_currPnt.x, l_currPnt.y);
 				//l_currPnt = l_currPnt.add(l_step);
@@ -381,6 +385,7 @@ class Corpuscula
 		l_editor.rotationHandle.addEventListener(MouseEvent.MOUSE_DOWN, OnRotationDown);
 		l_editor.split0Handle.addEventListener(MouseEvent.MOUSE_DOWN, OnSplitDown);
 		l_editor.split1Handle.addEventListener(MouseEvent.MOUSE_DOWN, OnSplitDown);
+		l_editor.moveHandle.addEventListener(MouseEvent.MOUSE_DOWN, OnMoveDown);
 		l_editor.visible = true;
 	}
 	public function Unselect():void
@@ -391,6 +396,34 @@ class Corpuscula
 		l_editor.rotationHandle.removeEventListener(MouseEvent.MOUSE_DOWN, OnRotationDown);
 		l_editor.split0Handle.removeEventListener(MouseEvent.MOUSE_DOWN, OnSplitDown);
 		l_editor.split1Handle.removeEventListener(MouseEvent.MOUSE_DOWN, OnSplitDown);
+		l_editor.moveHandle.removeEventListener(MouseEvent.MOUSE_DOWN, OnMoveDown);
+	}
+
+	
+	function OnMoveDown(_event:MouseEvent):void
+	{
+		m_game.stage.addEventListener(MouseEvent.MOUSE_MOVE, OnMoveMove);
+		m_game.stage.addEventListener(MouseEvent.MOUSE_UP, OnMoveUp);
+	}
+	function OnMoveMove(_event:MouseEvent):void
+	{
+		var l_pos:Point = m_game.world.localToGlobal(Position());
+		var l_dir:Point = m_velocity.clone(); l_dir.normalize(1);
+		var l_pnt:Point = new Point(_event.stageX, _event.stageY);
+		l_pnt = l_pnt.subtract(l_pos);
+		var l_dot:Number = Math.max(0, l_dir.x * l_pnt.x + l_dir.y * l_pnt.y);
+		l_dir.normalize(l_dot);
+		l_pos = m_game.world.globalToLocal(l_pos.add(l_dir));
+		var l_editor:Editor = m_game.GetEditor();
+		l_editor.x = l_pos.x;
+		l_editor.y = l_pos.y;
+		m_fissTime = l_dir.length / m_velocity.length;
+		UpdateEdit();
+	}
+	function OnMoveUp(_event:MouseEvent):void
+	{
+		m_game.stage.removeEventListener(MouseEvent.MOUSE_MOVE, OnMoveMove);
+		m_game.stage.removeEventListener(MouseEvent.MOUSE_UP, OnMoveUp);
 	}
 	
 	function OnSplitDown(_event:MouseEvent):void
