@@ -10,7 +10,7 @@
 
 struct video : device {
 	struct rt { enum resource_type {
-		screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
+		window, screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
 	};};
 
 	struct resource : device::resource {
@@ -61,6 +61,19 @@ namespace cf { enum clear_flags {
 };}
 
 namespace vr { /* video resources ---------------------------------------------------------------*/
+
+/// window
+struct window : video::resource {
+	struct info : video::resource::info {
+		typedef window object;
+		typedef handle a0;
+		info();
+	};
+	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
+	window(const info &_info, video &_video, handle _window);
+private:
+	handle m_window;
+};
 
 /// screen
 struct screen : video::resource {

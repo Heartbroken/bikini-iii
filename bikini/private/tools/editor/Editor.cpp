@@ -88,7 +88,6 @@ BOOL CEditorApp::InitInstance()
 	if (!pDocTemplate)
 		return FALSE;
 	AddDocTemplate(pDocTemplate);
-	AddDocTemplate(pDocTemplate);
 
 	// create main MDI Frame window
 	CMainFrame* pMainFrame = new CMainFrame;

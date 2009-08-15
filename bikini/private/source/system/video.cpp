@@ -184,6 +184,16 @@ video::resource::resource(const info &_info, video &_video) :
 
 namespace vr { /* video resources ---------------------------------------------------------------*/
 
+// window::info
+
+window::info::info() : video::resource::info(video::rt::window) {}
+
+// window
+
+window::window(const info &_info, video &_video, handle _window) :
+	video::resource(_info, _video), m_window(_window)
+{}
+
 // screen::info
 
 screen::info::info() :
