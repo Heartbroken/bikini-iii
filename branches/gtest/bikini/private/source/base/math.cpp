@@ -103,4 +103,7 @@ crc32 get_crc32(pointer _data, uint _size)
     return l_crc ^ 0xFFFFFFFF;
 }
 
+// move this to random.cpp
+random random_0;
+
 } /* namespace bk -------------------------------------------------------------------------------*/

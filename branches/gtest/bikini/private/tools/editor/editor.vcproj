@@ -2,11 +2,11 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="test_MFC"
-	ProjectGUID="{17932C15-15B0-42DF-BE6C-7B099B18CDBF}"
-	RootNamespace="test_MFC"
+	Name="editor"
+	ProjectGUID="{228FC16E-E7E1-413F-AB47-4CA295D8C242}"
+	RootNamespace="editor"
 	Keyword="MFCProj"
-	TargetFrameworkVersion="131072"
+	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
 		<Platform
@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="1"
@@ -40,20 +40,17 @@
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="false"
-				ValidateParameters="false"
+				ValidateParameters="true"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				RuntimeTypeInfo="false"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -71,11 +68,8 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="..\..\..\library"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -102,7 +96,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="1"
@@ -125,19 +119,18 @@
 				Name="VCMIDLTool"
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="false"
-				ValidateParameters="false"
+				ValidateParameters="true"
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\include"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="false"
 				RuntimeLibrary="0"
-				FloatingPointModel="2"
-				RuntimeTypeInfo="false"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -155,13 +148,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\..\..\library"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -200,7 +190,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ClassView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Editor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FileView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameDoc.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GameView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\OutputWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PropertiesWnd.cpp"
 				>
 			</File>
 			<File
@@ -224,15 +242,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\test_MFC.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test_MFCDoc.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\test_MFCView.cpp"
+				RelativePath=".\ViewTree.cpp"
 				>
 			</File>
 		</Filter>
@@ -246,7 +256,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ClassView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\editor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameDoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OutputWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PropertiesWnd.h"
 				>
 			</File>
 			<File
@@ -258,15 +296,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\test_MFC.h"
+				RelativePath=".\targetver.h"
 				>
 			</File>
 			<File
-				RelativePath=".\test_MFCDoc.h"
-				>
-			</File>
-			<File
-				RelativePath=".\test_MFCView.h"
+				RelativePath=".\ViewTree.h"
 				>
 			</File>
 		</Filter>
@@ -276,35 +310,123 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\res\test_MFC.ico"
+				RelativePath=".\res\class_view.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\test_MFC.rc"
+				RelativePath=".\res\class_view_hc.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\res\test_MFC.rc2"
+				RelativePath=".\res\classview.bmp"
 				>
 			</File>
 			<File
-				RelativePath=".\res\test_MFCDoc.ico"
+				RelativePath=".\res\classview_hc.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\editor.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\editor.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\res\editor.rc2"
+				>
+			</File>
+			<File
+				RelativePath=".\res\editorDoc.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\explorer.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\explorer_hc.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\file_view.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\file_view_hc.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fileview.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\fileview_hc.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\menuimages.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\menuimages_hc.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\output_wnd.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\output_wnd_hc.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\properties.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\properties_hc.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\properties_wnd.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\properties_wnd_hc.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\sort.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\sort_hc.bmp"
 				>
 			</File>
 			<File
 				RelativePath=".\res\Toolbar.bmp"
 				>
 			</File>
+			<File
+				RelativePath=".\res\Toolbar256.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\UserImages.bmp"
+				>
+			</File>
 		</Filter>
+		<File
+			RelativePath=".\editor.reg"
+			>
+		</File>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>
 		</File>
 	</Files>
 	<Globals>
-		<Global
-			Name="RESOURCE_FILE"
-			Value="test_MFC.rc"
-		/>
 	</Globals>
 </VisualStudioProject>

@@ -702,7 +702,7 @@ namespace gameswf
 		// way to do it.  Everything else just
 		// continues to work.
 
-#if (WCHAR_MAX != MAXINT)
+#if (WCHAR_MAX != 0x7fffffff/*MAXINT*/) // reutzky ?????
 		tu_string::encode_utf8_from_wchar(&m_string, (const uint16 *)wstr);
 #else
 # if (WCHAR_MAX != MAXSHORT)
