@@ -31,6 +31,6 @@ struct random {
 	/// Returns real numbers in range [_min.._max]. If _max is less than _min the result is in range [_max.._min]
 	inline real get(real _min, real _max);
 };
-random random_0;
+extern random random_0;
 
 #include "random.inl"
