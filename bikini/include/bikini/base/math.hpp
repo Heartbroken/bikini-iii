@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -42,5 +42,10 @@ template<uint _A, uint _B> struct c_min { static const uint result = _A > _B ? _
 template<uint _A, uint _B> struct c_max { static const uint result = _A > _B ? _A : _B; };
 
 // types
+
+// CRC32
+typedef u32 crc32;
+crc32 get_crc32(pointer _data, uint _size);
+
 
 #include "math.inl"

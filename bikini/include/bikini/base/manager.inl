@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -56,42 +56,42 @@ inline uint manager::m_find_shared(const _I &_info) {
 	return bad_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info) {
+inline uint manager::request(const _I &_info) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
 	return l_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0) {
+inline uint manager::request(const _I &_info, typename _I::a0 _a0) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info, _a0);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
 	return l_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1) {
+inline uint manager::request(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info, _a0, _a1);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
 	return l_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2) {
+inline uint manager::request(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info, _a0, _a1, _a2);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
 	return l_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2, typename _I::a3 _a3) {
+inline uint manager::request(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2, typename _I::a3 _a3) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info, _a0, _a1, _a2, _a3);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
 	return l_ID;
 }
 template<typename _I>
-inline uint manager::spawn_shared(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2, typename _I::a3 _a3, typename _I::a4 _a4) {
+inline uint manager::request(const _I &_info, typename _I::a0 _a0, typename _I::a1 _a1, typename _I::a2 _a2, typename _I::a3 _a3, typename _I::a4 _a4) {
 	uint l_ID = m_find_shared(_info);
 	if(l_ID == bad_ID) l_ID = spawn(_info, _a0, _a1, _a2, _a3, _a4);
 	get(l_ID).add_ref(); m_shared.push_back(l_ID);
@@ -116,6 +116,7 @@ inline uint manager::object::ID() const {
 	return m_ID;
 }
 inline uint manager::object::add_dependency(uint _ID) {
+	m_manager.m_update_order.resize(0);
 	m_dependencies.push_back(_ID);
 	return m_dependencies.size() - 1;
 }
@@ -126,6 +127,7 @@ inline uint manager::object::dependency(uint _i) const {
 	return m_dependencies[_i];
 }
 inline void manager::object::set_dependency(uint _i, uint _ID) {
+	m_manager.m_update_order.resize(0);
 	m_dependencies[_i] = _ID;
 }
 inline bool manager::object::has_dependency() const {

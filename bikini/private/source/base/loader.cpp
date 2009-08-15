@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -62,6 +62,9 @@ void loader::close(uint _ID) {
 	if(l_index > m_files.size() || m_files[l_index].ID != _ID || m_files[l_index].stream_p == 0) return;
 	std::ifstream &l_stream = *m_files[l_index].stream_p;
 	l_stream.close();
+	delete m_files[l_index].stream_p;
+	m_files[l_index].stream_p = 0;
+	m_files[l_index].ID = bad_ID;
 }
 
 } /* namespace bk -------------------------------------------------------------------------------*/

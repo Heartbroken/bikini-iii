@@ -348,6 +348,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\math.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\math.inl"
 				>
 			</File>

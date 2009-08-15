@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -39,7 +39,7 @@ namespace flash { /*------------------------------------------------------------
 //#include "flash/swfstream.hpp"
 #include "flash/player.hpp"
 //#include "flash/actionscript.hpp"
-//#include "flash/objects.hpp"
+#include "flash/objects.hpp"
 
 } /* namespace flash ----------------------------------------------------------------------------*/
 

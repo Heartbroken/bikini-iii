@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------*//*
 
 	Binary Kinematics 3 - C++ Game Programming Library
-	Copyright (C) 2008 Viktor Reutzky
+	Copyright (C) 2008-2009 Viktor Reutskyy
 	reutzky@bitchingames.com
 
 *//*---------------------------------------------------------------------------------------------*/
@@ -9,19 +9,23 @@
 #pragma once
 
 // random
-template<uint _ID>
-uint random_<_ID>::seed = 0;
-template<uint _ID>
-inline uint random_<_ID>::get(uint _max /*= max*/) {
+inline random::random(uint _seed) : seed(_seed)
+{}
+inline uint random::get() {
 	seed = seed * 1103515245 + 12345;
-	return uint(seed / 65536) % _max;
+	return uint(seed / 65536) & max;
 }
-template<uint _ID>
-inline real random_<_ID>::get(real _max) {
-	return real(get(max)) / real(max) * _max;
+inline uint random::get(uint _max) {
+	return get() % (_max + 1);
 }
-template<uint _ID>
-inline real random_<_ID>::get(real _min, real _max) {
+inline sint random::get(sint _min, sint _max) {
+	if(_max < _min) swap(_min, _max);
+	return _min + get(uint(_max - _min));
+}
+inline real random::get(real _max) {
+	return bk::max(real(0), real(get()) * _max / real(max));
+}
+inline real random::get(real _min, real _max) {
 	if(_max < _min) swap(_min, _max);
 	return _min + get(_max - _min);
 }
