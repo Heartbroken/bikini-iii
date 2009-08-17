@@ -65,7 +65,7 @@ BOOL CEditorApp::InitInstance()
 	// Change the registry key under which our settings are stored
 	// TODO: You should modify this string to be something appropriate
 	// such as the name of your company or organization
-	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
+	SetRegistryKey(_T("bikini-iii"));
 	LoadStdProfileSettings(5);  // Load standard INI file options (including MRU)
 
 	InitContextMenuManager();
@@ -119,10 +119,29 @@ BOOL CEditorApp::InitInstance()
 	pMainFrame->ShowWindow(m_nCmdShow);
 	pMainFrame->UpdateWindow();
 
+	// bikini
+	m_video.create();
+	m_time = bk::sys_time();
+
 	return TRUE;
 }
 
+int CEditorApp::ExitInstance()
+{
+	// bikini
+	m_video.destroy();
 
+	return CWinAppEx::ExitInstance();
+}
+
+BOOL CEditorApp::OnIdle(LONG lCount)
+{
+	bk::real l_time = bk::sys_time();
+	m_video.update(l_time - m_time);
+	m_time = l_time;
+
+	return FALSE;
+}
 
 // CAboutDlg dialog used for App About
 
@@ -186,4 +205,10 @@ void CEditorApp::SaveCustomState()
 // CEditorApp message handlers
 
 
+// bikini
+
+bk::video& CEditorApp::get_video()
+{
+	return m_video;
+}
 

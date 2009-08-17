@@ -18,6 +18,8 @@
 IMPLEMENT_DYNCREATE(CGameView, CView)
 
 BEGIN_MESSAGE_MAP(CGameView, CView)
+	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 // CGameView construction/destruction
@@ -86,3 +88,23 @@ CGameDoc* CGameView::GetDocument() const // non-debug version is inline
 
 
 // CGameView message handlers
+
+int CGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  Add your specialized creation code here
+	m_window_ID = theApp.get_video().spawn(m_window_info, m_hWnd);
+
+	return 0;
+}
+
+void CGameView::OnDestroy()
+{
+	CView::OnDestroy();
+
+	// TODO: Add your message handler code here
+	theApp.get_video().kill(m_window_ID);
+	m_window_ID = bk::bad_ID;
+}

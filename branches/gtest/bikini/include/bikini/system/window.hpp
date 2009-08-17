@@ -54,12 +54,12 @@ private:
 #	endif
 	thread::section m_lock;
 	video &m_video;
-	struct screen { vr::screen::info info; uint ID; } m_screen;
-	struct vbuffer { vr::vbuffer::info info; uint ID, def_ID; handle data; uint start, used; } m_vbuffer;
-	struct vformat { vr::vformat::info info; uint ID, def_ID; } m_vformat;
-	struct rstates { vr::rstates::info info; uint ID, def_ID; } m_rstates;
-	struct vshader { vr::vshader::info info; uint ID, def_ID; } m_vshader;
-	struct pshader { vr::pshader::info info; uint ID, def_ID; } m_pshader;
+	//struct screen { vr::screen::info info; uint ID; } m_screen;
+	//struct vbuffer { vr::vbuffer::info info; uint ID, def_ID; handle data; uint start, used; } m_vbuffer;
+	//struct vformat { vr::vformat::info info; uint ID, def_ID; } m_vformat;
+	//struct rstates { vr::rstates::info info; uint ID, def_ID; } m_rstates;
+	//struct vshader { vr::vshader::info info; uint ID, def_ID; } m_vshader;
+	//struct pshader { vr::pshader::info info; uint ID, def_ID; } m_pshader;
 	struct scissor { uint x0, y0, x1, y1; } m_scissor;
 	typedef matrix_<1, 3, f32> f1x3;
 	typedef matrix_<1, 4, f32> f1x4;

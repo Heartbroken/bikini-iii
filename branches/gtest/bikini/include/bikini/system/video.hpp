@@ -66,15 +66,23 @@ namespace vr { /* video resources ----------------------------------------------
 struct window : video::resource {
 	struct info : video::resource::info {
 		typedef window object;
-		typedef handle a0;
+		typedef HWND a0;
 		info();
 	};
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
-	window(const info &_info, video &_video, handle _window);
+	window(const info &_info, video &_video, HWND _window);
+	~window();
+	bool update(real _dt);
 private:
-	handle m_window;
+	HWND m_window;
+	IDirect3DSwapChain9 *m_backbuffer_p;
+	IDirect3DSurface9 *m_depthstencil_p;
+	static long _stdcall _wndproc(HWND _window, uint _message, uint _wparam, uint _lparam);
+	long m_wndproc(uint _message, uint _wparam, uint _lparam);
+	WNDPROC m_oldwndproc;
+	sint2 m_size;
 };
-
+/*
 /// screen
 struct screen : video::resource {
 	struct info : video::resource::info {
@@ -229,5 +237,5 @@ struct pshader : video::resource {
 private:
 	IDirect3DPixelShader9 *m_shader_p;
 };
-
+*/
 } /* video resources ----------------------------------------------------------------------------*/

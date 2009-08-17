@@ -26,7 +26,6 @@
 
 
 
-
 #ifndef _AFX_NO_OLE_SUPPORT
 #include <afxdtctl.h>           // MFC support for Internet Explorer 4 Common Controls
 #endif
@@ -39,7 +38,16 @@
 
 
 
+// bikini-iii
+#include <bikini/base.hpp>
+#include <bikini/system.hpp>
 
+#ifndef _T
+#	define _T _TEXT
+#endif
+#ifndef RGB
+#	define RGB(r,g,b)          ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+#endif
 
 
 
