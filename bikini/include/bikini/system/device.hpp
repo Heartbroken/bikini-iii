@@ -16,19 +16,16 @@ struct device : manager {
 			info(uint _type);
 		};
 		resource(const info &_info, device &_device);
-		virtual ~resource();
-		virtual bool create();
-		virtual bool load();
-		virtual void destroy();
 		inline device& get_device() const { return static_cast<device&>(get_manager()); }
-		inline bool valid() const { return m_version != bad_ID; }
+		inline bool valid() const { return m_version > 0; }
+		inline void set_invalid() { m_version = 0; }
+		inline real version() const { return m_version; }
 	protected:
-		typedef thread::locker _lock;
+		typedef thread::locker lock;
 		inline thread::section& section() { return m_section; }
+		inline void update_version() { m_version = (real)sys_time(); }
 	private:
 		thread::section m_section;
-		uint m_version;
+		real m_version;
 	};
-	device();
-	virtual ~device();
 };

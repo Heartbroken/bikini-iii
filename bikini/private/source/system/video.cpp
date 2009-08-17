@@ -115,10 +115,10 @@ bool video::update(real _dt) {
 	if(!super::update(_dt)) return false;
 	m_fsm.update(_dt);
 	if(!ready()) return false;
-	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-		resource &l_resource = get<resource>(l_ID);
-		if(!l_resource.valid() && !l_resource.create()) kill(l_ID);
-	}
+	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+	//	resource &l_resource = get<resource>(l_ID);
+	//	if(!l_resource.valid() && !l_resource.create()) kill(l_ID);
+	//}
 	return true;
 }
 void video::destroy() {
@@ -135,9 +135,9 @@ void video::m_void_u(real _dt) {}
 void video::m_void_e() {}
 // ready state
 void video::m_ready_b() {
-	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-		get<resource>(l_ID).create();
-	}
+	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+	//	get<resource>(l_ID).create();
+	//}
 }
 void video::m_ready_u(real _dt) {
 #	if defined(WIN32)
@@ -146,9 +146,9 @@ void video::m_ready_u(real _dt) {
 #	endif
 }
 void video::m_ready_e() {
-	for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-		get<resource>(l_ID).destroy();
-	}
+	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+	//	get<resource>(l_ID).destroy();
+	//}
 }
 // failed state
 void video::m_failed_b() {}
@@ -189,10 +189,134 @@ namespace vr { /* video resources ----------------------------------------------
 window::info::info() : video::resource::info(video::rt::window) {}
 
 // window
+window::window(const info &_info, video &_video, HWND _window) :
+	video::resource(_info, _video), m_window(_window),
+	m_backbuffer_p(0), m_depthstencil_p(0),
+	m_size(sint2_0)
+{
+	m_oldwndproc = (WNDPROC)SetWindowLong(m_window, GWL_WNDPROC, (LONG)_wndproc);
+	SetWindowLong(m_window, GWL_USERDATA, (LONG)this);
+}
+window::~window()
+{
+	if (m_backbuffer_p)
+	{
+		m_backbuffer_p->Release();
+		m_backbuffer_p = 0;
+	}
+	if (m_depthstencil_p)
+	{
+		m_depthstencil_p->Release();
+		m_depthstencil_p = 0;
+	}
+	SetWindowLong(m_window, GWL_WNDPROC, (LONG)m_oldwndproc);
+}
+bool window::update(real _dt)
+{
+	RECT l_crect; GetClientRect(m_window, &l_crect);
+	if (l_crect.right != m_size.x() || l_crect.bottom != m_size.y())
+	{
+		m_size = sint2(l_crect.right, l_crect.bottom);
 
-window::window(const info &_info, video &_video, handle _window) :
-	video::resource(_info, _video), m_window(_window)
-{}
+		set_invalid();
+
+		if (m_backbuffer_p)
+		{
+			m_backbuffer_p->Release();
+			m_backbuffer_p = 0;
+		}
+		if (m_depthstencil_p)
+		{
+			m_depthstencil_p->Release();
+			m_depthstencil_p = 0;
+		}
+
+		do
+		{
+
+			if (m_size.x() == 0 || m_size.y() == 0)
+			{
+				break;
+			}
+
+			D3DPRESENT_PARAMETERS l_d3dpp;
+			memset(&l_d3dpp, 0, sizeof(l_d3dpp));
+			l_d3dpp.hDeviceWindow = m_window;
+			l_d3dpp.Windowed = TRUE;
+			l_d3dpp.BackBufferWidth = (UINT)m_size.x();
+			l_d3dpp.BackBufferHeight = (UINT)m_size.y();
+			l_d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
+			l_d3dpp.FullScreen_RefreshRateInHz = 0;
+			l_d3dpp.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
+			l_d3dpp.MultiSampleQuality = 0;
+			l_d3dpp.EnableAutoDepthStencil = FALSE;
+			l_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+			l_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+			if (FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(
+					&l_d3dpp, &m_backbuffer_p
+				)))
+			{
+				break;
+			}
+
+			if (FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(
+					l_d3dpp.BackBufferWidth, l_d3dpp.BackBufferHeight,
+					D3DFMT_D24S8, l_d3dpp.MultiSampleType,
+					l_d3dpp.MultiSampleQuality, 0, &m_depthstencil_p, 0
+				)))
+			{
+				m_backbuffer_p->Release(); m_backbuffer_p = 0;
+				break;
+			}
+
+			update_version();
+		}
+		while(false);
+	}
+
+	if (valid())
+	{
+		if (SUCCEEDED(get_video().get_direct3ddevice9().BeginScene()))
+		{
+			IDirect3DSurface9 *l_backbuffer_p = 0;
+			if (SUCCEEDED(m_backbuffer_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_backbuffer_p)))
+			{
+				if (SUCCEEDED(get_video().get_direct3ddevice9().SetRenderTarget(0, l_backbuffer_p)))
+				{
+					if (SUCCEEDED(get_video().get_direct3ddevice9().SetDepthStencilSurface(m_depthstencil_p)))
+					{
+							get_video().get_direct3ddevice9().Clear(0, 0, D3DCLEAR_TARGET, 0, 0, 0);
+					}
+				}
+				l_backbuffer_p->Release();
+			}
+			get_video().get_direct3ddevice9().EndScene();
+			m_backbuffer_p->Present(0, 0, 0, 0, 0);
+		}
+	}
+
+	return true;
+}
+long _stdcall window::_wndproc(HWND _window, uint _message, uint _wparam, uint _lparam)
+{
+	window &l_window = *(window*)GetWindowLong(_window, GWL_USERDATA);
+	return l_window.m_wndproc(_message, _wparam, _lparam);
+}
+long window::m_wndproc(uint _message, uint _wparam, uint _lparam)
+{
+	switch (_message)
+	{
+		case WM_ERASEBKGND : return 1;
+
+		case WM_SIZE :
+		case WM_SIZING : {
+			m_size = sint2_0;
+		} break;
+	}
+	return CallWindowProc(m_oldwndproc, m_window, _message, _wparam, _lparam);
+}
+/*
 
 // screen::info
 
@@ -218,7 +342,7 @@ screen::~screen() {
 }
 bool screen::create() {
 	destroy();
-	if(_lock l = _lock(section())) {
+	if(lock l = lock(section())) {
 		if(!get_video().ready()) return false;
 #		if defined(XBOX)
 		if(get_video().screen_ID() != bad_ID) return false;
@@ -678,7 +802,7 @@ void pshader::destroy() {
 	}
 	super::destroy();
 }
-
+*/
 
 } /* video resources ----------------------------------------------------------------------------*/
 

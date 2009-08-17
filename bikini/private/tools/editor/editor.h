@@ -23,6 +23,8 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
+	virtual int ExitInstance();
+	virtual BOOL OnIdle(LONG lCount);
 
 // Implementation
 	BOOL  m_bHiColorIcons;
@@ -33,6 +35,14 @@ public:
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+
+// bikini
+public:
+	bk::video& get_video();
+	bk::real m_time;
+
+private:
+	bk::video m_video;
 };
 
 extern CEditorApp theApp;

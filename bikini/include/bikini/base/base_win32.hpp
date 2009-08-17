@@ -12,7 +12,9 @@
 #	error Wrong system include!!!
 #endif
 
-#define _WIN32_WINNT	0x0501
+#ifndef _WIN32_WINNT
+#	define _WIN32_WINNT	0x0501
+#endif
 #define VC_EXTRALEAN
 
 #ifndef _CRT_SECURE_NO_DEPRECATE

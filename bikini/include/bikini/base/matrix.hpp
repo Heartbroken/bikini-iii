@@ -341,12 +341,12 @@ const s1x1 s1x1_0(s_0);
 /// unit 1x1 matrix of sint
 const s1x1 s1x1_1(s_1);
 /// [0 0] vector of sint
-const s1x2 s1x2_0(s_0, s_0);
+const s1x2 s1x2_0(s_0, s_0), sint2_0(s_0, s_0);
 /// [1 1] vector of sint
-const s1x2 s1x2_1(s_1, s_1);
+const s1x2 s1x2_1(s_1, s_1), sint2_1(s_1, s_1);
 /// [1 0] vector of sint
-const s1x2 s1x2_x(s_1, s_0);
+const s1x2 s1x2_x(s_1, s_0), sint2_x(s_1, s_0);
 /// [0 1] vector of sint
-const s1x2 s1x2_y(s_0, s_1);
+const s1x2 s1x2_y(s_0, s_1), sint2_y(s_0, s_1);
 
 #include "matrix.inl"
