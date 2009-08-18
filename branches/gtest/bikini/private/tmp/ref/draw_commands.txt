@@ -9,6 +9,7 @@ vshader		- vertex shader
 pshader		- pixel shader
 consts		- list of vertex and pixel shader constants
 states		- list of render states
+view		- view parameters
 rtarget		- render target, states, consts
 material	- vshader, pshader, list of textures, states, consts
 primitive	- list of vbuffers, ibuffer, states, consts
@@ -31,7 +32,7 @@ init
 begin
 	begin_scene		( key = { begin } )
 draw
-	draw_primitive		( key = { draw, stage, rtarget, sequence, translucency, depth, material }, value = { rtarget, material, primitive } )
+	draw_primitive		( key = { draw, stage, rtarget, view, sequence, translucency, depth, material }, value = { rtarget, view, material, primitive } )
 end
 	end_scene		( key = { end } )
 present
