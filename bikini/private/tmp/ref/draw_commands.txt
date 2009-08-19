@@ -33,7 +33,7 @@ init
 begin
 	begin_scene		( key = { begin } )
 draw
-	draw_primitive		( key = { draw, stage, rtarget, view, sequence, translucency, depth, material }, value = { rtarget, view, material, primitive } )
+	draw_primitive		( key = { draw, stage, rtarget, viewport, sequence, translucency, depth, material }, value = { rtarget, viewport, material, primitive } )
 end
 	end_scene		( key = { end } )
 present
