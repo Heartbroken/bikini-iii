@@ -46,7 +46,7 @@ present
 draw		8	3   3
 stage		8	3   6
 rtarget		16	4   10
-view		8	3   13
+viewport	8	3   13
 sequence	32	5   18
 translucency	4	2   20
 depth		4096	12  32
