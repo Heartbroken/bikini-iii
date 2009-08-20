@@ -469,6 +469,8 @@ public:
 	bool stop();
 	bool draw(HDC _hdc);
 	bool mouse(int _x, int _y, bool _pressed);
+	bool key(unsigned int _key, unsigned int _flags);
+	bool message(UINT _msg, WPARAM _wparam, LPARAM _lparam);
 
 //	bool					StartAnimation(const std::string& theFileName);	
 	void					SetQuality(int theQuality);
@@ -1049,8 +1051,8 @@ _flash_player::_flash_player(ipf::player_ID _ID)
 	m_control_site->AddRef();	
 	m_control_site->Init(this);
 		
-	mFlashLibHandle = LoadLibraryA("Flash10a.ocx");
-	//mFlashLibHandle = LoadLibraryA("flash.ocx");
+	//mFlashLibHandle = LoadLibraryA("Flash10a.ocx");
+	mFlashLibHandle = LoadLibraryA("flash.ocx");
 	if (mFlashLibHandle != NULL)
 	{
 		IClassFactory* aClassFactory = NULL;
@@ -1083,6 +1085,9 @@ _flash_player::_flash_player(ipf::player_ID _ID)
 	m_flash_sink = new _flash_sink();
 	m_flash_sink->AddRef();	
 	m_flash_sink->Init(this);
+
+	m_mouse_x = m_mouse_y = 0;
+	m_pressed = false;
 }
 
 _flash_player::~_flash_player()
@@ -1274,7 +1279,7 @@ bool _flash_player::draw(HDC _hdc)
 
 bool _flash_player::mouse(int _x, int _y, bool _pressed)
 {
-	HRESULT l_hres;
+	HRESULT l_hres = S_OK;
 	LRESULT l_lres;
 	bool m_button = (m_pressed != _pressed);
 	bool m_motion = (m_mouse_x != _x || m_mouse_y != _y);
@@ -1294,6 +1299,37 @@ bool _flash_player::mouse(int _x, int _y, bool _pressed)
 		else
 			l_hres = m_windowless_object_p->OnWindowMessage(WM_MOUSEMOVE, 0, MAKELPARAM(m_mouse_x, m_mouse_y), &l_lres);
 	}
+	return l_hres == S_OK;
+}
+
+bool _flash_player::key(unsigned int _key, unsigned int _flags)
+{
+	HRESULT l_hres;
+	LRESULT l_lres;
+	bool l_pressed = (_flags & (1<<31)) == 0;
+	if (l_pressed)
+	{
+		l_hres = m_windowless_object_p->OnWindowMessage(WM_KEYDOWN, (WPARAM)_key, (LPARAM)_flags, &l_lres);
+		TCHAR l_char = (TCHAR)MapVirtualKeyEx(_key, 2, ::GetKeyboardLayout(0));
+		if (l_char)
+		{
+			l_hres = m_windowless_object_p->OnWindowMessage(WM_CHAR, (WPARAM)l_char, (LPARAM)_flags, &l_lres);
+		}
+	}
+	else
+	{
+		l_hres = m_windowless_object_p->OnWindowMessage(WM_KEYUP, (WPARAM)_key, (LPARAM)_flags, &l_lres);
+		//TCHAR l_char = (TCHAR)MapVirtualKeyEx(_key, 2, ::GetKeyboardLayout(0));
+		//l_hres = m_windowless_object_p->OnWindowMessage(WM_DEADCHAR, (WPARAM)l_char, (LPARAM)_flags, &l_lres);
+	}
+	return l_hres == S_OK;
+}
+
+bool _flash_player::message(UINT _msg, WPARAM _wparam, LPARAM _lparam)
+{
+	HRESULT l_hres;
+	LRESULT l_lres;
+	l_hres = m_windowless_object_p->OnWindowMessage(_msg, _wparam, _lparam, &l_lres);
 	return l_hres == S_OK;
 }
 
@@ -1671,6 +1707,20 @@ bool player_mouse(player_ID _ID, int _x, int _y, bool _pressed)
 {
 	_flash_player &l_player = * sg_players[_ID];
 	return l_player.mouse(_x, _y, _pressed);
+}
+
+//
+bool player_key(player_ID _ID, unsigned int _key, unsigned int _flags)
+{
+	_flash_player &l_player = * sg_players[_ID];
+	return l_player.key(_key, _flags);
+}
+
+//
+bool player_message(player_ID _ID, UINT _msg, WPARAM _wparam, LPARAM _lparam)
+{
+	_flash_player &l_player = * sg_players[_ID];
+	return l_player.message(_msg, _wparam, _lparam);
 }
 
 } // namespace ipf --------------------------------------------------------------------------------

@@ -31,4 +31,10 @@ bool player_draw(player_ID _ID, HDC _hdc);
 //
 bool player_mouse(player_ID _ID, int _x, int _y, bool _pressed);
 
+//
+bool player_key(player_ID _ID, unsigned int _key, unsigned int _flags);
+
+//
+bool player_message(player_ID _ID, UINT _msg, WPARAM _wparam, LPARAM _lparam);
+
 } // namespace ipf --------------------------------------------------------------------------------
