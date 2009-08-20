@@ -1218,7 +1218,7 @@ bool _flash_player::load(const char* _filename)
 	//if (m_flash_interface_p->Play() != S_OK) return false;
 	//m_flash_interface_p->StopPlay();
 
-	Resize(0, 0, 100, 100);
+	Resize(0, 0, 800, 600);
 
 	mState = STATE_IDLE;	
 	return true;
@@ -1253,6 +1253,7 @@ bool _flash_player::draw(HDC _hdc)
 	{
 		RECT l_rect = {0,0,800, 600};
 		this->m_windowless_object_p->SetObjectRects(&l_rect, &l_rect);
+		//FillRect(_hdc, &l_rect, (HBRUSH)GetStockObject(GRAY_BRUSH));
 		l_res = OleDraw(m_flash_interface_p, DVASPECT_CONTENT, _hdc, &l_rect);
 	}
 	//IViewObject* aViewObject = NULL;
@@ -1671,7 +1672,11 @@ void destroy_player(player_ID _ID)
 bool player_load(player_ID _ID, char* _movie)
 {
 	_flash_player &l_player = * sg_players[_ID];
-	return l_player.load(_movie);
+	char l_path[MAX_PATH] = {0};
+	DWORD l_length = GetCurrentDirectoryA(MAX_PATH, l_path);
+	l_path[l_length++] = '/';
+	strcpy_s(l_path + l_length, MAX_PATH - l_length, _movie);
+	return l_player.load(l_path);
 }
 
 //

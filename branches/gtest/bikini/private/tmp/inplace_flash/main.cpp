@@ -46,7 +46,7 @@ int main()
 {
 //
 	WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, MsgProc, 0L, 0L,
-		GetModuleHandle(NULL), NULL, NULL, (HBRUSH)GetStockObject(GRAY_BRUSH), NULL,
+		GetModuleHandle(NULL), NULL, NULL, 0/*(HBRUSH)GetStockObject(GRAY_BRUSH)*/, NULL,
 		TEXT("DxFlashViewer"), NULL };
 	RegisterClassEx( &wc );
 
@@ -61,7 +61,7 @@ int main()
 
 	g_player_ID = ipf::create_player();
 
-	if (ipf::player_load(g_player_ID, "D:/BACKUP!!! viktor.reutskyy/Trash/FYEO/bikini-iii/private/tmp/inplace_flash/sheriff.swf"))
+	if (ipf::player_load(g_player_ID, "test.swf"))
 	{
 		ipf::player_play(g_player_ID);
 		//
