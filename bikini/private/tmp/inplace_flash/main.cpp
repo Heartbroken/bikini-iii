@@ -10,26 +10,30 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 			InvalidateRect(hWnd, NULL, FALSE);
 		} return 0;
 		case WM_PAINT : {
-			//if (GetUpdateRect(hWnd, NULL, FALSE))
-			//{
-				PAINTSTRUCT l_paint;
-				HDC l_hdc = BeginPaint(hWnd, &l_paint);
-				//HRGN l_rgn = CreateRectRgn(0, 0, 800, 600);
-				//SelectClipRgn(l_hdc, l_rgn);
-				//DeleteObject(l_rgn);
-				ipf::player_draw(g_player_ID, l_hdc);
-				EndPaint(hWnd, &l_paint);
-			//}
+			PAINTSTRUCT l_paint;
+			HDC l_hdc = BeginPaint(hWnd, &l_paint);
+			ipf::player_draw(g_player_ID, l_hdc);
+			EndPaint(hWnd, &l_paint);
 		} return 0;
-		case WM_MOUSEMOVE:
-		case WM_LBUTTONUP:
-		case WM_LBUTTONDOWN:
-		case WM_LBUTTONDBLCLK: {
+		case WM_MOUSEMOVE :
+		case WM_LBUTTONUP :
+		case WM_LBUTTONDOWN :
+		case WM_LBUTTONDBLCLK : {
 			int l_x = LOWORD(lParam);
 			int l_y = HIWORD(lParam);
 			bool l_pressed = wParam&MK_LBUTTON;
 			ipf::player_mouse(g_player_ID, l_x, l_y, l_pressed);
-		} return 1;
+		} return 0;
+		case WM_KEYDOWN :
+		case WM_KEYUP :
+		case WM_CHAR :
+		case WM_DEADCHAR :
+		case WM_SYSKEYDOWN :
+		case WM_SYSKEYUP :
+		case WM_SYSDEADCHAR :
+		case WM_CANCELMODE : {
+			if(ipf::player_message(g_player_ID, msg, wParam, lParam)) return 0;
+		} break;
 		case WM_DESTROY : {
 			PostQuitMessage(0);
 		} return 0;
@@ -57,7 +61,7 @@ int main()
 
 	g_player_ID = ipf::create_player();
 
-	if (ipf::player_load(g_player_ID, "D:/BACKUP!!! viktor.reutskyy/Trash/FYEO/bikini-iii/private/tmp/inplace_flash/test.swf"))
+	if (ipf::player_load(g_player_ID, "D:/BACKUP!!! viktor.reutskyy/Trash/FYEO/bikini-iii/private/tmp/inplace_flash/sheriff.swf"))
 	{
 		ipf::player_play(g_player_ID);
 		//
