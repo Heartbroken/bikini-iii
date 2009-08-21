@@ -24,6 +24,7 @@ LRESULT WINAPI MsgProc( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
 			bool l_pressed = wParam&MK_LBUTTON;
 			ipf::player_mouse(g_player_ID, l_x, l_y, l_pressed);
 		} return 0;
+		case WM_SETCURSOR :
 		case WM_KEYDOWN :
 		case WM_KEYUP :
 		case WM_CHAR :
@@ -61,7 +62,7 @@ int main()
 
 	g_player_ID = ipf::create_player();
 
-	if (ipf::player_load(g_player_ID, "test.swf"))
+	if (ipf::player_load(g_player_ID, "VT.swf"))
 	{
 		ipf::player_play(g_player_ID);
 		//

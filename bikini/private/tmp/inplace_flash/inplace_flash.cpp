@@ -1249,6 +1249,13 @@ bool _flash_player::stop()
 
 bool _flash_player::draw(HDC _hdc)
 {
+	//for (int i = 0; i < 5; ++i)
+	//{
+	//	BSTR l_val[MAX_PATH];
+	//	HRESULT l_res = m_flash_interface_p->Put_F(L"root.name", l_val);
+	//	int a=0;
+	//}
+
 	HRESULT l_res;
 	{
 		RECT l_rect = {0,0,800, 600};
