@@ -57,6 +57,7 @@ namespace bk { /*---------------------------------------------------------------
 #include "base/GUID.hpp"
 #include "base/functor.hpp"
 #include "base/variant.hpp"
+#include "base/pool.hpp"
 #include "base/manager.hpp"
 #include "base/fsm.hpp"
 #include "base/loader.hpp"

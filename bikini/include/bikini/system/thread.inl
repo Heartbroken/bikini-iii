@@ -155,9 +155,9 @@ template<typename _F> struct _task_helper_ {
 };
 
 // _start
-inline bool _start(handle _thread_h, sint _priority, uint _processor) {
-	if(_thread_h == 0) return false;
-	SetThreadPriority(_thread_h, (int)_priority);
+inline bool _start(handle _thread, sint _priority, uint _processor) {
+	if(_thread == 0) return false;
+	SetThreadPriority(_thread, (int)_priority);
 #	if defined(XBOX)
 	if(_processor == bad_ID) {
 		static uint sl_next_processor = 0;
@@ -165,11 +165,11 @@ inline bool _start(handle _thread_h, sint _priority, uint _processor) {
 		sl_next_processor = (sl_next_processor + 1) % MAXIMUM_PROCESSORS;
 	}
 	_processor = _processor % MAXIMUM_PROCESSORS;
-	XSetThreadProcessor(_thread_h, (DWORD)_processor);
+	XSetThreadProcessor(_thread, (DWORD)_processor);
 #	elif defined(WIN32)
-	SetThreadIdealProcessor(_thread_h, (DWORD)_processor);
+	SetThreadIdealProcessor(_thread, (DWORD)_processor);
 #	endif
-	return ResumeThread(_thread_h) != (DWORD)-1;
+	return ResumeThread(_thread) != (DWORD)-1;
 }
 
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9> template<typename _F>

@@ -9,48 +9,144 @@
 #pragma once
 
 struct video : device {
-	struct rt { enum resource_type {
-		window, screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
-	};};
+	
+	/* video object -----------------------------------------------------------------------------*/
 
-	struct resource : device::resource {
-		struct info : device::resource::info {
+	struct object : device::object
+	{
+		struct info : device::object::info
+		{
 			typedef video manager;
 			info(uint _type);
 		};
-		resource(const info &_info, video &_video);
 		inline video& get_video() const { return static_cast<video&>(get_device()); }
+		object(const info &_info, video &_video);
+	protected:
+		template<typename _Command> inline void add_command(const _Command &_command) { get_video().add_command(_command); }
+		inline uint obtain_resource_ID() const { return get_video().obtain_resource_ID(); }
+		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
+		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
+		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
+	};
+
+	struct ot { enum object_type {
+		window, screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
+	};};
+
+	/* rendering interface ----------------------------------------------------------------------*/
+
+	struct rendering
+	{
+		/* rendering commands -------------------------------------------------------------------*/
+
+		struct rc { enum rendering_command {
+			create_resource, destroy_resource, begin_scene, draw_primitive, end_scene, present_schain, last_command
+		};};
+
+		struct rr { enum rendering_resource {
+			schain, vbuffer, ibuffer, vformat, texture, vshader, pshader, consts, states, viewport, rtarget, material, primitive
+		};};
+
+		struct rendering_command {
+			rc::rendering_command command; uint size;
+		protected:
+			inline rendering_command(rc::rendering_command _command, uint _size) : command(_command), size(_size) {}
+		};
+		struct create_resource : rendering_command {
+			rr::rendering_resource resource; uint ID;
+		protected:
+			inline create_resource(rr::rendering_resource _resource, uint _size) : rendering_command(rc::create_resource, _size), resource(_resource), ID(bad_ID) {}
+		};
+		struct destroy_resource : rendering_command {
+			uint ID;
+			inline destroy_resource() : rendering_command(rc::destroy_resource, sizeof(destroy_resource)), ID(bad_ID) {}
+		};
+		struct begin_scene : rendering_command {
+			inline begin_scene() : rendering_command(rc::begin_scene, sizeof(begin_scene)) {}
+		};
+		struct draw_primitive : rendering_command {
+			inline draw_primitive() : rendering_command(rc::draw_primitive, sizeof(draw_primitive)) {}
+		};
+		struct end_scene : rendering_command {
+			inline end_scene() : rendering_command(rc::end_scene, sizeof(end_scene)) {}
+		};
+		struct present_schain : rendering_command {
+			inline present_schain() : rendering_command(rc::present_schain, sizeof(present_schain)) {}
+		};
+		struct last_command : rendering_command {
+			inline last_command() : rendering_command(rc::last_command, sizeof(last_command)) {}
+		};
+		struct create_schain : create_resource {
+			handle window;
+			inline create_schain() : create_resource(rr::schain, sizeof(create_schain)), window(0) {}
+		};
+
+		/* rendering commands -------------------------------------------------------------------*/
+
+		rendering(video &_video);
+		virtual ~rendering();
+		virtual bool create();
+		virtual void destroy();
+		virtual bool command(const rendering_command &_command) = 0;
+
+	private:
+		friend video;
+		video &m_video;
+		thread::task m_task;
+		bool m_run;
+		void m_proc();
+		static const uint max_cbuffer_count = 2;
+		byte_array m_cbuffer[max_cbuffer_count];
+		uint m_current_cbuffer;
+		void swap_cbuffer(byte_array &_cbuffer);
+		void process_cbuffer(const byte_array &_cbuffer);
+		thread::flag m_cbuffer_ready;
+		thread::section m_cbuffer_lock;
 	};
 
 	video();
 	~video();
 
-	bool create(bool _multithreaded = false);
+	bool create();
 	bool update(real _dt);
 	void destroy();
 
-	inline bool ready() const { return m_fsm.state_is(m_ready); }
-	inline bool failed() const { return m_fsm.state_is(m_failed); }
-	inline bool lost() const { return m_fsm.state_is(m_lost); }
+	//inline bool ready() const { return m_fsm.state_is(m_ready); }
+	//inline bool failed() const { return m_fsm.state_is(m_failed); }
+	//inline bool lost() const { return m_fsm.state_is(m_lost); }
 
-	inline uint screen_ID() const { return m_screen_ID; }
-	inline void set_screen_ID(uint _ID) { m_screen_ID = _ID; }
-	inline uint vbuffer_ID() const { return m_vbuffer_ID; }
-	inline void set_vbuffer_ID(uint _ID) { m_vbuffer_ID = _ID; }
+	//inline uint screen_ID() const { return m_screen_ID; }
+	//inline void set_screen_ID(uint _ID) { m_screen_ID = _ID; }
+	//inline uint vbuffer_ID() const { return m_vbuffer_ID; }
+	//inline void set_vbuffer_ID(uint _ID) { m_vbuffer_ID = _ID; }
 
-	inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
-	inline HWND get_focus_window() const { return m_d3dpresent_parameters.hDeviceWindow; }
+	//inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
+	//inline HWND get_focus_window() const { return m_d3dpresent_parameters.hDeviceWindow; }
 
 private:
-	static IDirect3D9 *sm_direct3d9_p;
-	IDirect3DDevice9 *m_direct3ddevice9_p;
-	D3DPRESENT_PARAMETERS m_d3dpresent_parameters;
-	uint m_screen_ID, m_vbuffer_ID;
-	typedef fsm_<video> fsm; fsm m_fsm;
-	fsm::state m_void; void m_void_b(); void m_void_u(real _dt); void m_void_e();
-	fsm::state m_ready; void m_ready_b(); void m_ready_u(real _dt); void m_ready_e();
-	fsm::state m_failed; void m_failed_b(); void m_failed_u(real _dt); void m_failed_e();
-	fsm::state m_lost; void m_lost_b(); void m_lost_u(real _dt); void m_lost_e();
+	rendering &m_rendering;
+	rendering& new_rendering(video &_video);
+	inline rendering& get_rendering() const { return m_rendering; }
+	//
+	byte_array m_cbuffer;
+	template<typename _Command> inline void add_command(const _Command &_command) { m_cbuffer.insert(m_cbuffer.end(), (byte*)&_command, (byte*)&_command + sizeof(_command)); }
+	//
+	struct resource { bool valid; };
+	pool_<resource> m_resources;
+	uint obtain_resource_ID();
+	void release_resource_ID(uint _ID);
+	bool resource_exists(uint _ID);
+	bool resource_valid(uint _ID);
+
+	//static IDirect3D9 *sm_direct3d9_p;
+	//IDirect3DDevice9 *m_direct3ddevice9_p;
+	//D3DPRESENT_PARAMETERS m_d3dpresent_parameters;
+	//uint m_screen_ID, m_vbuffer_ID;
+	//typedef fsm_<video> fsm; fsm m_fsm;
+	//fsm::state m_void; void m_void_b(); void m_void_u(real _dt); void m_void_e();
+	//fsm::state m_ready; void m_ready_b(); void m_ready_u(real _dt); void m_ready_e();
+	//fsm::state m_failed; void m_failed_b(); void m_failed_u(real _dt); void m_failed_e();
+	//fsm::state m_lost; void m_lost_b(); void m_lost_u(real _dt); void m_lost_e();
 };
 
 namespace cf { enum clear_flags {
@@ -60,11 +156,11 @@ namespace cf { enum clear_flags {
 	all = color|depth|stencil,
 };}
 
-namespace vr { /* video resources ---------------------------------------------------------------*/
+namespace vr { /* video objects -----------------------------------------------------------------*/
 
 /// window
-struct window : video::resource {
-	struct info : video::resource::info {
+struct window : video::object {
+	struct info : video::object::info {
 		typedef window object;
 		typedef HWND a0;
 		info();
@@ -72,15 +168,19 @@ struct window : video::resource {
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	window(const info &_info, video &_video, HWND _window);
 	~window();
+	//bool create();
 	bool update(real _dt);
+	//void destroy();
 private:
 	HWND m_window;
-	IDirect3DSwapChain9 *m_backbuffer_p;
-	IDirect3DSurface9 *m_depthstencil_p;
+	uint m_schain_resource_ID;
+	//IDirect3DSwapChain9 *m_backbuffer_p;
+	//IDirect3DSurface9 *m_depthstencil_p;
 	static long _stdcall _wndproc(HWND _window, uint _message, uint _wparam, uint _lparam);
 	long m_wndproc(uint _message, uint _wparam, uint _lparam);
 	WNDPROC m_oldwndproc;
-	sint2 m_size;
+	LONG m_oldusrdata;
+	//sint2 m_size;
 };
 /*
 /// screen
