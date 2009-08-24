@@ -40,47 +40,21 @@ struct video : device {
 	{
 		/* rendering commands -------------------------------------------------------------------*/
 
-		struct rc { enum rendering_command {
-			create_resource, destroy_resource, begin_scene, draw_primitive, end_scene, present_schain, last_command
-		};};
+		struct create_schain { uint ID; handle window; };
+		struct destroy_resource { uint ID; };
+		struct begin_scene {};
+		struct clear_viewport { uint ID; };
+		struct draw_primitive {};
+		struct end_scene {};
+		struct present_schain {};
 
-		struct rr { enum rendering_resource {
-			schain, vbuffer, ibuffer, vformat, texture, vshader, pshader, consts, states, viewport, rtarget, material, primitive
-		};};
-
-		struct rendering_command {
-			rc::rendering_command command; uint size;
-		protected:
-			inline rendering_command(rc::rendering_command _command, uint _size) : command(_command), size(_size) {}
-		};
-		struct create_resource : rendering_command {
-			rr::rendering_resource resource; uint ID;
-		protected:
-			inline create_resource(rr::rendering_resource _resource, uint _size) : rendering_command(rc::create_resource, _size), resource(_resource), ID(bad_ID) {}
-		};
-		struct destroy_resource : rendering_command {
-			uint ID;
-			inline destroy_resource() : rendering_command(rc::destroy_resource, sizeof(destroy_resource)), ID(bad_ID) {}
-		};
-		struct begin_scene : rendering_command {
-			inline begin_scene() : rendering_command(rc::begin_scene, sizeof(begin_scene)) {}
-		};
-		struct draw_primitive : rendering_command {
-			inline draw_primitive() : rendering_command(rc::draw_primitive, sizeof(draw_primitive)) {}
-		};
-		struct end_scene : rendering_command {
-			inline end_scene() : rendering_command(rc::end_scene, sizeof(end_scene)) {}
-		};
-		struct present_schain : rendering_command {
-			inline present_schain() : rendering_command(rc::present_schain, sizeof(present_schain)) {}
-		};
-		struct last_command : rendering_command {
-			inline last_command() : rendering_command(rc::last_command, sizeof(last_command)) {}
-		};
-		struct create_schain : create_resource {
-			handle window;
-			inline create_schain() : create_resource(rr::schain, sizeof(create_schain)), window(0) {}
-		};
+		typedef make_typelist_<
+			create_schain, destroy_resource,
+			begin_scene, clear_viewport, draw_primitive, end_scene,
+			present_schain
+		>::type command_types;
+		typedef variant_<command_types, false> command;
+		typedef array_<command> commands;
 
 		/* rendering commands -------------------------------------------------------------------*/
 
@@ -88,7 +62,7 @@ struct video : device {
 		virtual ~rendering();
 		virtual bool create();
 		virtual void destroy();
-		virtual bool command(const rendering_command &_command) = 0;
+		virtual bool execute(const command &_command) = 0;
 
 	private:
 		friend video;
@@ -97,10 +71,10 @@ struct video : device {
 		bool m_run;
 		void m_proc();
 		static const uint max_cbuffer_count = 2;
-		byte_array m_cbuffer[max_cbuffer_count];
+		commands m_cbuffer[max_cbuffer_count];
 		uint m_current_cbuffer;
-		void swap_cbuffer(byte_array &_cbuffer);
-		void process_cbuffer(const byte_array &_cbuffer);
+		void swap_cbuffer(commands &_cbuffer);
+		void process_cbuffer(const commands &_cbuffer);
 		thread::flag m_cbuffer_ready;
 		thread::section m_cbuffer_lock;
 	};
@@ -129,8 +103,8 @@ private:
 	rendering& new_rendering(video &_video);
 	inline rendering& get_rendering() const { return m_rendering; }
 	//
-	byte_array m_cbuffer;
-	template<typename _Command> inline void add_command(const _Command &_command) { m_cbuffer.insert(m_cbuffer.end(), (byte*)&_command, (byte*)&_command + sizeof(_command)); }
+	rendering::commands m_cbuffer;
+	inline void add_command(const rendering::command &_command) { m_cbuffer.push_back(_command); }
 	//
 	struct resource { bool valid; };
 	pool_<resource> m_resources;

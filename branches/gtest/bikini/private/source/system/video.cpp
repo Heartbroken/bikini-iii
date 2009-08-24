@@ -43,24 +43,19 @@ void video::rendering::destroy()
 		m_task.wait();
 	}
 }
-void video::rendering::swap_cbuffer(byte_array &_cbuffer)
+void video::rendering::swap_cbuffer(commands &_cbuffer)
 {
 	m_cbuffer_lock.enter();
 	m_cbuffer[m_current_cbuffer].swap(_cbuffer);
 	m_cbuffer_ready.set();
 	m_cbuffer_lock.leave();
 }
-void video::rendering::process_cbuffer(const byte_array &_cbuffer)
+void video::rendering::process_cbuffer(const commands &_cbuffer)
 {
-	const byte *l_command_p = &_cbuffer[0];
-	do
+	for (uint i = 0, s = _cbuffer.size(); i < s; ++i)
 	{
-		const rendering_command &l_command = *reinterpret_cast<const rendering_command*>(l_command_p);
-		command(l_command);
-		if (l_command.command == rc::last_command) break;
-		l_command_p += l_command.size;
+		execute(_cbuffer[i]);
 	}
-	while (true);
 }
 void video::rendering::m_proc()
 {
@@ -69,7 +64,7 @@ void video::rendering::m_proc()
 		m_cbuffer_ready.wait();
 
 		m_cbuffer_lock.enter();
-		byte_array &l_cbuffer = m_cbuffer[m_current_cbuffer];
+		commands &l_cbuffer = m_cbuffer[m_current_cbuffer];
 		m_current_cbuffer = (m_current_cbuffer + 1) % max_cbuffer_count;
 		m_cbuffer_lock.leave();
 
@@ -157,7 +152,6 @@ bool video::update(real _dt) {
 	{
 		add_command(rendering::begin_scene());
 		add_command(rendering::end_scene());
-		add_command(rendering::last_command());
 		m_rendering.swap_cbuffer(m_cbuffer);
 	}
 	m_cbuffer.resize(0);
