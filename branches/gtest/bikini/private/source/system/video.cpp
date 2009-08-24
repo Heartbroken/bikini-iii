@@ -174,7 +174,9 @@ void video::destroy() {
 }
 uint video::obtain_resource_ID()
 {
-	return m_resources.add();
+	uint l_ID = m_resources.add();
+	m_resources.get(l_ID).valid = false;
+	return l_ID;
 }
 void video::release_resource_ID(uint _ID)
 {
@@ -187,6 +189,10 @@ bool video::resource_exists(uint _ID)
 bool video::resource_valid(uint _ID)
 {
 	return m_resources.get(_ID).valid;
+}
+void video::set_resource_valid(uint _ID)
+{
+	m_resources.get(_ID).valid = true;
 }
 
 //// void state
@@ -256,10 +262,23 @@ window::window(const info &_info, video &_video, HWND _window) :
 {
 	m_oldwndproc = (WNDPROC)SetWindowLong(m_window, GWL_WNDPROC, (LONG)_wndproc);
 	m_oldusrdata = SetWindowLong(m_window, GWL_USERDATA, (LONG)this);
+
+	m_schain_resource_ID = obtain_resource_ID();
+
+	video::rendering::create_schain l_create_schain;
+	l_create_schain.ID = m_schain_resource_ID;
+	l_create_schain.window = m_window;
+	add_command(l_create_schain);
+	set_resource_valid(m_schain_resource_ID);
 }
 window::~window()
 {
-	m_schain_resource_ID = obtain_resource_ID();
+	video::rendering::destroy_resource l_destroy_resource;
+	l_destroy_resource.ID = m_schain_resource_ID;
+	add_command(l_destroy_resource);
+
+	release_resource_ID(m_schain_resource_ID);
+
 	//if (m_backbuffer_p)
 	//{
 	//	m_backbuffer_p->Release();
@@ -284,6 +303,15 @@ window::~window()
 //}
 bool window::update(real _dt)
 {
+	if (!resource_valid(m_schain_resource_ID))
+	{
+		video::rendering::create_schain l_create_schain;
+		l_create_schain.ID = m_schain_resource_ID;
+		l_create_schain.window = m_window;
+		add_command(l_create_schain);
+		set_resource_valid(m_schain_resource_ID);
+	}
+
 	//RECT l_crect; GetClientRect(m_window, &l_crect);
 	//if (l_crect.right != m_size.x() || l_crect.bottom != m_size.y())
 	//{
@@ -367,10 +395,10 @@ bool window::update(real _dt)
 	//	}
 	//}
 
-	video::rendering::create_schain l_create_schain;
-	l_create_schain.ID = m_schain_resource_ID;
-	l_create_schain.window = m_window;
-	add_command(l_create_schain);
+	//video::rendering::create_schain l_create_schain;
+	//l_create_schain.ID = m_schain_resource_ID;
+	//l_create_schain.window = m_window;
+	//add_command(l_create_schain);
 
 	return true;
 }
