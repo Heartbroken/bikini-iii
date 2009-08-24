@@ -27,6 +27,7 @@ struct video : device {
 		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
 		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
 		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
+		inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
 	};
 
 	struct ot { enum object_type {
@@ -137,6 +138,7 @@ private:
 	void release_resource_ID(uint _ID);
 	bool resource_exists(uint _ID);
 	bool resource_valid(uint _ID);
+	void set_resource_valid(uint _ID);
 
 	//static IDirect3D9 *sm_direct3d9_p;
 	//IDirect3DDevice9 *m_direct3ddevice9_p;
