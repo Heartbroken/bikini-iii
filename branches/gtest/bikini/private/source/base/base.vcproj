@@ -461,6 +461,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\include\bikini\base\pool.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\include\bikini\base\quat.hpp"
 				>
 			</File>

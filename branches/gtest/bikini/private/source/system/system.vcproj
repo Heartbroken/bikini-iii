@@ -377,10 +377,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\video.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\window.cpp"
 				>
 			</File>
@@ -392,6 +388,18 @@
 				RelativePath=".\window.vs"
 				>
 			</File>
+			<Filter
+				Name="video"
+				>
+				<File
+					RelativePath=".\video.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\video_rendering_D3D9.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="header"

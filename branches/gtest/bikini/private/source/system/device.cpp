@@ -12,32 +12,38 @@ namespace bk { /*---------------------------------------------------------------
 
 //device
 
-// device::resource
+bool device::update(real _dt)
+{
+	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
+	//	object &l_object = get<object>(l_ID);
+	//	if(!l_object.valid() && !l_object.create()) kill(l_ID);
+	//}
+	return super::update(_dt);
+}
 
-device::resource::resource(const info &_info, device &_device) :
+// device::object
+
+device::object::object(const info &_info, device &_device) :
 	manager::object(_info, _device),
-	m_version(0)
+	m_version(infinity)
 {}
-//device::resource::~resource() {
-//	if(m_version != 0) {
-//		std::cerr << "ERROR: Destroy device resource before deleting\n";
-//		assert(m_version == 0);
-//	}
-//}
-//bool device::resource::create() {
-//	m_version = 0;
+device::object::~object() {
+	//if(valid()) {
+	//	std::cerr << "ERROR: Destroy device object before deleting\n";
+	//	assert(m_version == infinity);
+	//}
+}
+//bool device::object::create() {
+//	update_version();
 //	return true;
 //}
-//bool device::resource::load() {
-//	return true;
-//}
-//void device::resource::destroy() {
-//	m_version = 0;
+//void device::object::destroy() {
+//	set_invalid();
 //}
 
-// device::resource::info
+// device::object::info
 
-device::resource::info::info(uint _type) :
+device::object::info::info(uint _type) :
 	manager::object::info(_type)
 {}
 

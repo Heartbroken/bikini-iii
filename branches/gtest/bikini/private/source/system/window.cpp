@@ -63,14 +63,14 @@ window::~window() {
 //#elif defined(WIN32)
 bool window::create(uint _width, uint _height, bool _fullscreen, HICON _icon) {
 #	if defined(WIN32)
-	HINSTANCE l_instance = GetModuleHandleA(0);
-    WNDCLASSW l_window_class = { CS_HREDRAW|CS_VREDRAW, window::window_proc, 0, 0, l_instance, _icon, LoadCursor(NULL, IDC_ARROW), (HBRUSH)GetStockObject(BLACK_BRUSH), NULL, L"bikini-iii window" };
-    RegisterClassW(&l_window_class);
-	m_handle = CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT, L"bikini-iii window", 0, WS_BORDER|WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, (int)_width, (int)_height, m_video.get_focus_window(), 0, l_instance, 0);
-	if(m_handle == 0) return false;
-	set_size(_width, _height);
-	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
-	if(!m_video.ready()) return false;
+	//HINSTANCE l_instance = GetModuleHandleA(0);
+ //   WNDCLASSW l_window_class = { CS_HREDRAW|CS_VREDRAW, window::window_proc, 0, 0, l_instance, _icon, LoadCursor(NULL, IDC_ARROW), (HBRUSH)GetStockObject(BLACK_BRUSH), NULL, L"bikini-iii window" };
+ //   RegisterClassW(&l_window_class);
+	//m_handle = CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_APPWINDOW|WS_EX_RIGHT, L"bikini-iii window", 0, WS_BORDER|WS_CAPTION, CW_USEDEFAULT, CW_USEDEFAULT, (int)_width, (int)_height, m_video.get_focus_window(), 0, l_instance, 0);
+	//if(m_handle == 0) return false;
+	//set_size(_width, _height);
+	//SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
+	//if(!m_video.ready()) return false;
 	//m_screen.ID = m_video.spawn(m_screen.info, m_handle, _fullscreen, _width, _height);
 	//m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info);
 	//m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
@@ -83,12 +83,12 @@ bool window::create(uint _width, uint _height, bool _fullscreen, HICON _icon) {
 }
 #if defined(WIN32)
 bool window::create(HWND _handle) {
-	m_handle = _handle;
-	m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
-	SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
-	SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
-	if(!m_video.ready()) return false;
-	RECT l_crect; GetClientRect(m_handle, &l_crect);
+	//m_handle = _handle;
+	//m_oldproc = (WNDPROC)(LONG_PTR)GetWindowLong(m_handle, GWL_WNDPROC);
+	//SetWindowLong(m_handle, GWL_WNDPROC, (LONG)(LONG_PTR)window_proc);
+	//SetWindowLong(m_handle, GWL_USERDATA, (LONG)(LONG_PTR)this);
+	//if(!m_video.ready()) return false;
+	//RECT l_crect; GetClientRect(m_handle, &l_crect);
 	//m_screen.ID = m_video.spawn(m_screen.info, m_handle, false, l_crect.right, l_crect.bottom);
 	//m_vbuffer.ID = m_vbuffer.def_ID = m_video.spawn(m_vbuffer.info); m_vbuffer.data = 0;
 	//m_vformat.ID = m_vformat.def_ID = m_video.spawn(m_vformat.info);
@@ -198,7 +198,8 @@ LRESULT window::m_proc(UINT _message, WPARAM _wparam, LPARAM _lparam) {
 			on_mouse_move(l_position);
 		} break;
 	}
-	if(m_oldproc != 0) return m_oldproc(m_handle, _message, _wparam, _lparam);
+//	if(m_oldproc != 0) return m_oldproc(m_handle, _message, _wparam, _lparam);
+	if(m_oldproc != 0) return CallWindowProcW(m_oldproc, m_handle, _message, _wparam, _lparam);
 	return DefWindowProcW(m_handle, _message, _wparam, _lparam);
 }
 #endif

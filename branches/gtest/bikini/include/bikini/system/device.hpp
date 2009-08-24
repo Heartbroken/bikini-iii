@@ -9,23 +9,25 @@
 #pragma once
 
 struct device : manager {
-	struct resource : manager::object {
+	struct object : manager::object {
 		struct info : manager::object::info {
-			typedef resource object;
-			typedef device manager;
 			info(uint _type);
 		};
-		resource(const info &_info, device &_device);
 		inline device& get_device() const { return static_cast<device&>(get_manager()); }
-		inline bool valid() const { return m_version > 0; }
-		inline void set_invalid() { m_version = 0; }
+		inline bool valid() const { return m_version < infinity; }
 		inline real version() const { return m_version; }
+		object(const info &_info, device &_device);
+		~object();
+		//virtual bool create();
+		//virtual void destroy();
 	protected:
 		typedef thread::locker lock;
 		inline thread::section& section() { return m_section; }
 		inline void update_version() { m_version = (real)sys_time(); }
 	private:
+		inline void set_invalid() { m_version = infinity; }
 		thread::section m_section;
 		real m_version;
 	};
+	bool update(real _dt);
 };
