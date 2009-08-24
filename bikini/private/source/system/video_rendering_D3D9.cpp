@@ -48,8 +48,12 @@ struct rendering_D3D9 : video::rendering
 	~rendering_D3D9();
 	bool create();
 	void destroy();
-	bool command(const rendering_command &_command);
+	bool execute(const command &_command);
 private:
+	bool execute(const create_schain &_command);
+	bool execute(const destroy_resource &_command);
+	bool execute(const begin_scene &_command);
+	bool execute(const end_scene &_command);
 	struct schain {};
 	struct vbuffer {};
 	struct ibuffer {};
@@ -80,7 +84,30 @@ void rendering_D3D9::destroy()
 {
 	super::destroy();
 }
-bool rendering_D3D9::command(const rendering_command &_command)
+bool rendering_D3D9::execute(const command &_command)
+{
+	switch (_command.type())
+	{
+	case command_types::type_<create_schain>::index : return execute(_command.get_<create_schain>());
+	case command_types::type_<destroy_resource>::index : return execute(_command.get_<destroy_resource>());
+	case command_types::type_<begin_scene>::index : return execute(_command.get_<begin_scene>());
+	case command_types::type_<end_scene>::index : return execute(_command.get_<end_scene>());
+	}
+	return false;
+}
+bool rendering_D3D9::execute(const create_schain &_command)
+{
+	return true;
+}
+bool rendering_D3D9::execute(const destroy_resource &_command)
+{
+	return true;
+}
+bool rendering_D3D9::execute(const begin_scene &_command)
+{
+	return true;
+}
+bool rendering_D3D9::execute(const end_scene &_command)
 {
 	return true;
 }

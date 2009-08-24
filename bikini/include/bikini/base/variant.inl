@@ -110,14 +110,14 @@ inline bool variant_<_L, _D>::is_nothing() const {
 	return m_type == bad_ID;
 }
 template<typename _L, bool _D> template<typename _T>
-inline bool variant_<_L, _D>::is() const {
+inline bool variant_<_L, _D>::is_() const {
 	return !is_nothing() && _L::type_<_T>::index == m_type;
 }
 template<typename _L, bool _D> template<typename _T>
-inline const _T& variant_<_L, _D>::get() const {
+inline const _T& variant_<_L, _D>::get_() const {
 	return *reinterpret_cast<const _T*>(m_data);
 }
 template<typename _L, bool _D> template<typename _T>
 inline const _T& variant_<_L, _D>::def(const _T &_def) const {
-	return is<_T>() ? get<_T>() : _def;
+	return is_<_T>() ? get_<_T>() : _def;
 }
