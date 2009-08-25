@@ -106,8 +106,7 @@ private:
 	rendering::commands m_cbuffer;
 	inline void add_command(const rendering::command &_command) { m_cbuffer.push_back(_command); }
 	//
-	struct resource { bool valid; };
-	pool_<resource> m_resources;
+	pool_<bool> m_resources;
 	uint obtain_resource_ID();
 	void release_resource_ID(uint _ID);
 	bool resource_exists(uint _ID);
@@ -153,9 +152,9 @@ private:
 	//IDirect3DSwapChain9 *m_backbuffer_p;
 	//IDirect3DSurface9 *m_depthstencil_p;
 	static long _stdcall _wndproc(HWND _window, uint _message, uint _wparam, uint _lparam);
+	static window *first_p; window *next_p;
 	long m_wndproc(uint _message, uint _wparam, uint _lparam);
 	WNDPROC m_oldwndproc;
-	LONG m_oldusrdata;
 	//sint2 m_size;
 };
 /*
