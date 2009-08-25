@@ -227,6 +227,7 @@ void video::set_resource_valid(uint _ID)
 //#	endif
 //}
 //void video::m_lost_e() {}
+static int tmp;
 
 // video::resource::info
 

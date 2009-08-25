@@ -9,30 +9,6 @@
 #pragma once
 
 struct video : device {
-	
-	/* video object -----------------------------------------------------------------------------*/
-
-	struct object : device::object
-	{
-		struct info : device::object::info
-		{
-			typedef video manager;
-			info(uint _type);
-		};
-		inline video& get_video() const { return static_cast<video&>(get_device()); }
-		object(const info &_info, video &_video);
-	protected:
-		template<typename _Command> inline void add_command(const _Command &_command) { get_video().add_command(_command); }
-		inline uint obtain_resource_ID() const { return get_video().obtain_resource_ID(); }
-		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
-		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
-		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
-		inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
-	};
-
-	struct ot { enum object_type {
-		window, screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
-	};};
 
 	/* rendering interface ----------------------------------------------------------------------*/
 
@@ -78,6 +54,35 @@ struct video : device {
 		thread::flag m_cbuffer_ready;
 		thread::section m_cbuffer_lock;
 	};
+	
+	/* video object -----------------------------------------------------------------------------*/
+
+	struct object : device::object
+	{
+		struct info : device::object::info
+		{
+			typedef video manager;
+			info(uint _type);
+		};
+
+		inline video& get_video() const { return static_cast<video&>(get_device()); }
+
+		object(const info &_info, video &_video);
+
+	protected:
+		inline void add_command(const rendering::command &_command) { get_video().add_command(_command); }
+		inline uint obtain_resource_ID() const { return get_video().obtain_resource_ID(); }
+		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
+		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
+		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
+		inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
+	};
+
+	struct ot { enum object_type {
+		window, screen, vbuffer, vformat, rstates, vshader, pshader, ibuffer, texture
+	};};
+
+	/* video ------------------------------------------------------------------------------------*/
 
 	video();
 	~video();
