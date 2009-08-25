@@ -40,38 +40,29 @@ template<typename _Type> struct pool_
 			m_free.pop_back();
 		}
 		item &l_item = m_items[l_index];
-		l_item.ID = l_index | (m_counter++ << half_ID_size);
+		l_item.ID = uint_ID(m_counter++, l_index);
 		l_item.value = _value;
 		return l_item.ID;
 	}
-	type& get(uint_ID _ID)
+	type& get(const uint_ID &_ID)
 	{
 		assert(exists(_ID));
-		uint l_index = _ID & index_mask;
-		item &l_item = m_items[l_index];
-		return l_item.value;
+		return m_items[_ID.index].value;
 	}
-	const type& get(uint_ID _ID) const
+	const type& get(const uint_ID &_ID) const
 	{
 		assert(exists(_ID));
-		uint l_index = _ID & index_mask;
-		const item &l_item = m_items[l_index];
-		return l_item.value;
+		return m_items[_ID.index].value;
 	}
-	void remove(uint_ID _ID)
+	void remove(const uint_ID &_ID)
 	{
 		assert(exists(_ID));
-		uint l_index = _ID & index_mask;
-		item &l_item = m_items[l_index];
-		l_item.ID = bad_ID;
-		m_free.push_back(l_index);
+		m_free.push_back(_ID.index);
+		m_items[_ID.index].ID = bad_ID;
 	}
-	bool exists(uint_ID _ID) const
+	bool exists(const uint_ID &_ID) const
 	{
-		uint l_index = _ID & index_mask;
-		if (l_index > m_items.size()) return false;
-		const item &l_item = m_items[l_index];
-		if (l_item.ID != _ID) return false;
+		if (_ID.index > m_items.size() || m_items[_ID.index].ID != _ID) return false;
 		return true;
 	}
 	uint_ID first_ID() const
@@ -83,11 +74,10 @@ template<typename _Type> struct pool_
 		}
 		return bad_ID;
 	}
-	uint_ID next_ID(uint_ID _prev_ID) const
+	uint_ID next_ID(const uint_ID &_prev_ID) const
 	{
-		uint l_start = _prev_ID & index_mask;
-		assert(l_start < m_items.size());
-		for (uint i = l_start + 1, s = m_items.size(); i < s; ++i)
+		assert(_prev_ID.index < m_items.size());
+		for (uint i = _prev_ID.index + 1, s = m_items.size(); i < s; ++i)
 		{
 			const item &l_item = m_items[i];
 			if (l_item.ID != bad_ID) return l_item.ID;
@@ -95,8 +85,6 @@ template<typename _Type> struct pool_
 		return bad_ID;
 	}
 private:
-	static const uint half_ID_size = sizeof(uint) * 8 / 2;
-	static const uint index_mask = uint(-1) >> half_ID_size;
 	array_<item> m_items;
 	uint_array m_free;
 	uint m_counter;

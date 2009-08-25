@@ -262,6 +262,9 @@ window::window(const info &_info, video &_video, HWND _window) :
 	m_oldwndproc = (WNDPROC)SetWindowLong(m_window, GWL_WNDPROC, (LONG)_wndproc);
 
 	m_schain_resource_ID = obtain_resource_ID();
+	release_resource_ID(obtain_resource_ID());
+	release_resource_ID(obtain_resource_ID());
+	release_resource_ID(obtain_resource_ID());
 
 	video::rendering::create_schain l_create_schain;
 	l_create_schain.ID = m_schain_resource_ID;
