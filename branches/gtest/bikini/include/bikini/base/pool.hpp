@@ -13,7 +13,7 @@ template<typename _Type> struct pool_
 	typedef _Type type;
 	struct item { uint ID; type value; };
 	pool_() : m_counter(0) {}
-	uint add()
+	uint add(const type &_value)
 	{
 		uint l_index;
 		if (m_free.empty())
@@ -28,9 +28,17 @@ template<typename _Type> struct pool_
 		}
 		item &l_item = m_items[l_index];
 		l_item.ID = l_index | (m_counter++ << half_ID_size);
+		l_item.value = _value;
 		return l_item.ID;
 	}
 	type& get(uint _ID)
+	{
+		assert(exists(_ID));
+		uint l_index = _ID & index_mask;
+		item &l_item = m_items[l_index];
+		return l_item.value;
+	}
+	const type& get(uint _ID) const
 	{
 		assert(exists(_ID));
 		uint l_index = _ID & index_mask;
@@ -45,11 +53,11 @@ template<typename _Type> struct pool_
 		l_item.ID = bad_ID;
 		m_free.push_back(l_index);
 	}
-	bool exists(uint _ID)
+	bool exists(uint _ID) const
 	{
 		uint l_index = _ID & index_mask;
 		if (l_index > m_items.size()) return false;
-		item &l_item = m_items[l_index];
+		const item &l_item = m_items[l_index];
 		if (l_item.ID != _ID) return false;
 		return true;
 	}

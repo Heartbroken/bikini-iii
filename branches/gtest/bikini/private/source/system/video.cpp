@@ -168,9 +168,7 @@ void video::destroy() {
 }
 uint video::obtain_resource_ID()
 {
-	uint l_ID = m_resources.add();
-	m_resources.get(l_ID).valid = false;
-	return l_ID;
+	return m_resources.add(false);
 }
 void video::release_resource_ID(uint _ID)
 {
@@ -182,11 +180,11 @@ bool video::resource_exists(uint _ID)
 }
 bool video::resource_valid(uint _ID)
 {
-	return m_resources.get(_ID).valid;
+	return m_resources.get(_ID);
 }
 void video::set_resource_valid(uint _ID)
 {
-	m_resources.get(_ID).valid = true;
+	m_resources.get(_ID) = true;
 }
 
 //// void state
@@ -249,13 +247,18 @@ namespace vr { /* video objects ------------------------------------------------
 window::info::info() : video::object::info(video::ot::window) {}
 
 // window
+
+window *window::first_p = 0;
+
 window::window(const info &_info, video &_video, HWND _window) :
-	video::object(_info, _video), m_window(_window)//,
+	video::object(_info, _video), m_window(_window), next_p(0)
 	//m_backbuffer_p(0), m_depthstencil_p(0),
 	//m_size(sint2_0)
 {
+	next_p = first_p;
+	first_p = this;
+
 	m_oldwndproc = (WNDPROC)SetWindowLong(m_window, GWL_WNDPROC, (LONG)_wndproc);
-	m_oldusrdata = SetWindowLong(m_window, GWL_USERDATA, (LONG)this);
 
 	m_schain_resource_ID = obtain_resource_ID();
 
@@ -273,6 +276,17 @@ window::~window()
 
 	release_resource_ID(m_schain_resource_ID);
 
+	window *l_window_p = first_p;
+	while (l_window_p)
+	{
+		if (l_window_p->next_p == this)
+		{
+			l_window_p = next_p;
+			break;
+		}
+		l_window_p = l_window_p->next_p;
+	}
+
 	//if (m_backbuffer_p)
 	//{
 	//	m_backbuffer_p->Release();
@@ -284,7 +298,6 @@ window::~window()
 	//	m_depthstencil_p = 0;
 	//}
 	SetWindowLong(m_window, GWL_WNDPROC, (LONG)m_oldwndproc);
-	SetWindowLong(m_window, GWL_USERDATA, m_oldusrdata);
 }
 //bool window::create()
 //{
@@ -404,8 +417,17 @@ bool window::update(real _dt)
 //}
 long _stdcall window::_wndproc(HWND _window, uint _message, uint _wparam, uint _lparam)
 {
-	window &l_window = *(window*)GetWindowLong(_window, GWL_USERDATA);
-	return l_window.m_wndproc(_message, _wparam, _lparam);
+	window *l_window_p = window::first_p;
+	while (l_window_p)
+	{
+		if (l_window_p->m_window == _window)
+		{
+			return l_window_p->m_wndproc(_message, _wparam, _lparam);
+		}
+		l_window_p = l_window_p->next_p;
+	}
+
+	return 1;
 }
 long window::m_wndproc(uint _message, uint _wparam, uint _lparam)
 {
@@ -418,10 +440,8 @@ long window::m_wndproc(uint _message, uint _wparam, uint _lparam)
 			//m_size = sint2_0;
 		} break;
 	}
-	//SetWindowLong(m_window, GWL_USERDATA, m_oldusrdata);
-	LRESULT l_res = CallWindowProc(m_oldwndproc, m_window, _message, _wparam, _lparam);
-	//SetWindowLong(m_window, GWL_USERDATA, (LONG)this);
-	return l_res;
+
+	return CallWindowProc(m_oldwndproc, m_window, _message, _wparam, _lparam);
 }
 /*
 
