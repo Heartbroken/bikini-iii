@@ -16,10 +16,10 @@ struct video : device {
 	{
 		/* rendering commands -------------------------------------------------------------------*/
 
-		struct create_schain { uint ID; handle window; };
-		struct destroy_resource { uint ID; };
+		struct create_schain { uint_ID ID; handle window; sint2 size; };
+		struct destroy_resource { uint_ID ID; };
 		struct begin_scene {};
-		struct clear_viewport { uint ID; };
+		struct clear_viewport { uint_ID ID; };
 		struct draw_primitive {};
 		struct end_scene {};
 		struct present_schain {};
@@ -34,11 +34,17 @@ struct video : device {
 
 		/* rendering commands -------------------------------------------------------------------*/
 
+		video& get_video() const { return m_video; }
+
 		rendering(video &_video);
 		virtual ~rendering();
 		virtual bool create();
 		virtual void destroy();
 		virtual bool execute(const command &_command) = 0;
+
+	protected:
+		inline void set_valid(uint _ID) { if (m_video.resource_exists(_ID)) m_video.set_resource_valid(_ID); }
+		inline void set_invalid(uint _ID) { if (m_video.resource_exists(_ID)) m_video.set_resource_invalid(_ID); }
 
 	private:
 		friend video;
@@ -75,7 +81,7 @@ struct video : device {
 		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
 		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
 		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
-		inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
+		//inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
 	};
 
 	struct ot { enum object_type {
@@ -117,6 +123,7 @@ private:
 	bool resource_exists(uint _ID);
 	bool resource_valid(uint _ID);
 	void set_resource_valid(uint _ID);
+	void set_resource_invalid(uint _ID);
 
 	//static IDirect3D9 *sm_direct3d9_p;
 	//IDirect3DDevice9 *m_direct3ddevice9_p;
@@ -160,7 +167,7 @@ private:
 	static window *first_p; window *next_p;
 	long m_wndproc(uint _message, uint _wparam, uint _lparam);
 	WNDPROC m_oldwndproc;
-	//sint2 m_size;
+	sint2 m_size;
 };
 /*
 /// screen
