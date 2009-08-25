@@ -186,6 +186,10 @@ void video::set_resource_valid(uint _ID)
 {
 	m_resources.get(_ID) = true;
 }
+void video::set_resource_invalid(uint _ID)
+{
+	m_resources.get(_ID) = false;
+}
 
 //// void state
 //void video::m_void_b() {}
@@ -253,8 +257,6 @@ window *window::first_p = 0;
 
 window::window(const info &_info, video &_video, HWND _window) :
 	video::object(_info, _video), m_window(_window), next_p(0)
-	//m_backbuffer_p(0), m_depthstencil_p(0),
-	//m_size(sint2_0)
 {
 	next_p = first_p;
 	first_p = this;
@@ -265,12 +267,6 @@ window::window(const info &_info, video &_video, HWND _window) :
 	release_resource_ID(obtain_resource_ID());
 	release_resource_ID(obtain_resource_ID());
 	release_resource_ID(obtain_resource_ID());
-
-	video::rendering::create_schain l_create_schain;
-	l_create_schain.ID = m_schain_resource_ID;
-	l_create_schain.window = m_window;
-	add_command(l_create_schain);
-	set_resource_valid(m_schain_resource_ID);
 }
 window::~window()
 {
@@ -314,13 +310,23 @@ window::~window()
 //}
 bool window::update(real _dt)
 {
+	RECT l_crect; GetClientRect(m_window, &l_crect);
+	if (l_crect.right != m_size.x() || l_crect.bottom != m_size.y())
+	{
+		m_size = sint2(l_crect.right, l_crect.bottom);
+		video::rendering::destroy_resource l_destroy_resource;
+		l_destroy_resource.ID = m_schain_resource_ID;
+		add_command(l_destroy_resource);
+	}
+
 	if (!resource_valid(m_schain_resource_ID))
 	{
 		video::rendering::create_schain l_create_schain;
 		l_create_schain.ID = m_schain_resource_ID;
 		l_create_schain.window = m_window;
+		l_create_schain.size = m_size;
 		add_command(l_create_schain);
-		set_resource_valid(m_schain_resource_ID);
+		//set_resource_valid(m_schain_resource_ID);
 	}
 
 	//RECT l_crect; GetClientRect(m_window, &l_crect);

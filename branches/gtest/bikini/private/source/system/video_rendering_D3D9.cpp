@@ -49,6 +49,12 @@ struct rendering_D3D9 : video::rendering
 	bool create();
 	void destroy();
 	bool execute(const command &_command);
+
+	inline IDirect3DDevice9& get_device()
+	{
+		return *m_D3DDevice9_p;
+	}
+
 private:
 	//
 	static IDirect3D9 *sm_D3D9_p;
@@ -60,19 +66,31 @@ private:
 	bool execute(const begin_scene &_command);
 	bool execute(const end_scene &_command);
 	//
-	struct schain {};
-	struct vbuffer {};
-	struct ibuffer {};
-	struct vformat {};
-	struct texture {};
-	struct vshader {};
-	struct pshader {};
-	struct consts {};
-	struct ststes {};
-	struct viewport {};
-	struct rtarget {};
-	struct material {};
-	struct primitive {};
+	struct _resource { uint_ID ID; };
+
+	struct schain : _resource { IDirect3DSwapChain9 *D3DSChain9_p; };
+	struct vbuffer : _resource {};
+	struct ibuffer : _resource {};
+	struct vformat : _resource {};
+	struct texture : _resource {};
+	struct vshader : _resource {};
+	struct pshader : _resource {};
+	struct consts : _resource {};
+	struct ststes : _resource {};
+	struct viewport : _resource {};
+	struct rtarget : _resource {};
+	struct material : _resource {};
+	struct primitive : _resource {};
+
+	typedef make_typelist_<
+		schain
+	>::type resource_types;
+	typedef variant_<resource_types, false> resource;
+	typedef array_<resource> resources;
+
+	resources m_resources;
+
+	void m_destroy_resource(const uint_ID &_ID);
 };
 
 IDirect3D9 *rendering_D3D9::sm_D3D9_p = 0;
@@ -111,7 +129,7 @@ bool rendering_D3D9::create()
 	m_D3DPP.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_D3DPP.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE/*|D3DCREATE_MULTITHREADED*/;
+	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE|D3DCREATE_MULTITHREADED;
 	if(FAILED(sm_D3D9_p->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
@@ -128,10 +146,20 @@ bool rendering_D3D9::create()
 }
 void rendering_D3D9::destroy()
 {
+	super::destroy();
+
+	while (!m_resources.empty())
+	{
+		resource &l_resource = m_resources.back();
+		if (!l_resource.is_nothing())
+		{
+			m_destroy_resource(l_resource.get_<_resource>().ID);
+		}
+		m_resources.pop_back();
+	}
+
 	if (m_D3DDevice9_p && m_D3DDevice9_p->Release() == 0) m_D3DDevice9_p = 0;
 	if (sm_D3D9_p && sm_D3D9_p->Release() == 0) sm_D3D9_p = 0;
-
-	super::destroy();
 }
 bool rendering_D3D9::execute(const command &_command)
 {
@@ -144,12 +172,59 @@ bool rendering_D3D9::execute(const command &_command)
 	}
 	return false;
 }
+void rendering_D3D9::m_destroy_resource(const uint_ID &_ID)
+{
+	if (_ID.index < m_resources.size())
+	{
+		resource &l_resource = m_resources[_ID.index];
+		if (!l_resource.is_nothing() && l_resource.get_<_resource>().ID == _ID)
+		{
+			switch (l_resource.type())
+			{
+				case resource_types::type_<schain>::index : {
+					schain l_schain = l_resource.get_<schain>();
+					l_schain.D3DSChain9_p->Release();
+					l_resource.destruct();
+				} break;
+			}
+			set_invalid(_ID);
+		}
+	}
+}
 bool rendering_D3D9::execute(const create_schain &_command)
 {
+	m_destroy_resource(_command.ID);
+
+	schain l_schain;
+	l_schain.ID = _command.ID;
+
+	D3DPRESENT_PARAMETERS l_D3DPP = {0};
+	l_D3DPP.hDeviceWindow = (HWND)_command.window;
+	l_D3DPP.Windowed = TRUE;
+	l_D3DPP.BackBufferWidth = (UINT)_command.size.x();
+	l_D3DPP.BackBufferHeight = (UINT)_command.size.y();
+	l_D3DPP.BackBufferFormat = D3DFMT_X8R8G8B8;
+	l_D3DPP.FullScreen_RefreshRateInHz = 0;
+	l_D3DPP.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
+	l_D3DPP.MultiSampleQuality = 0;
+	l_D3DPP.EnableAutoDepthStencil = FALSE;
+	l_D3DPP.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	l_D3DPP.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	if (FAILED(get_device().CreateAdditionalSwapChain(&l_D3DPP, &l_schain.D3DSChain9_p))) return false;
+
+	if (_command.ID.index >= m_resources.size()) m_resources.resize(_command.ID.index + 1);
+
+	m_resources[_command.ID.index] = l_schain;
+
+	set_valid(_command.ID);
+
 	return true;
 }
 bool rendering_D3D9::execute(const destroy_resource &_command)
 {
+	m_destroy_resource(_command.ID);
+
 	return true;
 }
 bool rendering_D3D9::execute(const begin_scene &_command)
