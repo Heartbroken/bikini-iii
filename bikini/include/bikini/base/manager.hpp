@@ -84,10 +84,11 @@ private:
 	static const uint index_mask = bad_ID >> ID_half_size;
 	uint add(object &_object);
 	void remove(uint _ID);
-	array_<object*> m_objects;
+	//array_<object*> m_objects;
+	pool_<object*> m_objects;
 	array_<uint> m_shared;
 	template<typename _Info> inline uint m_find_shared(const _Info &_info);
-	array_<uint> m_free_IDs;
+	//array_<uint> m_free_IDs;
 	array_<uint> m_update_order;
 	void m_build_update_order();
 	uint m_counter;
