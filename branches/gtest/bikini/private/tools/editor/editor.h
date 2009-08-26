@@ -39,10 +39,11 @@ public:
 // bikini
 public:
 	bk::video& get_video();
-	bk::real m_time;
 
 private:
 	bk::video m_video;
+	bk::real m_time;
+	bk::ticker m_ticker;
 };
 
 extern CEditorApp theApp;

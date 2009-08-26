@@ -64,7 +64,9 @@ private:
 	bool execute(const create_schain &_command);
 	bool execute(const destroy_resource &_command);
 	bool execute(const begin_scene &_command);
+	bool execute(const clear_viewport &_command);
 	bool execute(const end_scene &_command);
+	bool execute(const present_schain &_command);
 	//
 	struct _resource { uint_ID ID; };
 
@@ -91,6 +93,7 @@ private:
 	resources m_resources;
 
 	void m_destroy_resource(const uint_ID &_ID);
+	bool m_set_render_target(const uint_ID &_ID);
 };
 
 IDirect3D9 *rendering_D3D9::sm_D3D9_p = 0;
@@ -120,6 +123,7 @@ bool rendering_D3D9::initialize()
 	memset(&m_D3DPP, 0, sizeof(m_D3DPP));
 	m_D3DPP.hDeviceWindow = _video_rendering_helper::create_dummy_window();
 	m_D3DPP.Windowed = true;
+	m_D3DPP.BackBufferCount = 1;
 	m_D3DPP.BackBufferWidth = 10;
 	m_D3DPP.BackBufferHeight = 10;
 	m_D3DPP.BackBufferFormat = D3DFMT_X8R8G8B8;
@@ -159,17 +163,6 @@ void rendering_D3D9::finalize()
 	if (m_D3DDevice9_p->Release() == 0) m_D3DDevice9_p = 0;
 	if (sm_D3D9_p->Release() == 0) sm_D3D9_p = 0;
 }
-bool rendering_D3D9::execute(const command &_command)
-{
-	switch (_command.type())
-	{
-		case command_types::type_<create_schain>::index : return execute(_command.get_<create_schain>());
-		case command_types::type_<destroy_resource>::index : return execute(_command.get_<destroy_resource>());
-		case command_types::type_<begin_scene>::index : return execute(_command.get_<begin_scene>());
-		case command_types::type_<end_scene>::index : return execute(_command.get_<end_scene>());
-	}
-	return false;
-}
 void rendering_D3D9::m_destroy_resource(const uint_ID &_ID)
 {
 	if (_ID.index < m_resources.size())
@@ -182,12 +175,49 @@ void rendering_D3D9::m_destroy_resource(const uint_ID &_ID)
 				case resource_types::type_<schain>::index : {
 					schain l_schain = l_resource.get_<schain>();
 					l_schain.D3DSChain9_p->Release();
-					l_resource.destruct();
 				} break;
 			}
+			l_resource.destruct();
 			set_invalid(_ID);
 		}
 	}
+}
+bool rendering_D3D9::m_set_render_target(const uint_ID &_ID)
+{
+	if (_ID.index < m_resources.size())
+	{
+		resource &l_resource = m_resources[_ID.index];
+		if (!l_resource.is_nothing() && l_resource.get_<_resource>().ID == _ID)
+		{
+			switch (l_resource.type())
+			{
+				case resource_types::type_<schain>::index : {
+					schain l_schain = l_resource.get_<schain>();
+					IDirect3DSurface9 *l_D3DSurface9_p;
+					if (SUCCEEDED(l_schain.D3DSChain9_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_D3DSurface9_p)))
+					{
+						m_D3DDevice9_p->SetRenderTarget(0, l_D3DSurface9_p);
+						l_D3DSurface9_p->Release();
+						return true;
+					}
+				} break;
+			}
+		}
+	}
+	return false;
+}
+bool rendering_D3D9::execute(const command &_command)
+{
+	switch (_command.type())
+	{
+		case command_types::type_<create_schain>::index : return execute(_command.get_<create_schain>());
+		case command_types::type_<destroy_resource>::index : return execute(_command.get_<destroy_resource>());
+		case command_types::type_<begin_scene>::index : return execute(_command.get_<begin_scene>());
+		case command_types::type_<clear_viewport>::index : return execute(_command.get_<clear_viewport>());
+		case command_types::type_<end_scene>::index : return execute(_command.get_<end_scene>());
+		case command_types::type_<present_schain>::index : return execute(_command.get_<present_schain>());
+	}
+	return false;
 }
 bool rendering_D3D9::execute(const create_schain &_command)
 {
@@ -199,8 +229,9 @@ bool rendering_D3D9::execute(const create_schain &_command)
 	D3DPRESENT_PARAMETERS l_D3DPP = {0};
 	l_D3DPP.hDeviceWindow = (HWND)_command.window;
 	l_D3DPP.Windowed = TRUE;
-	l_D3DPP.BackBufferWidth = (UINT)_command.size.x();
-	l_D3DPP.BackBufferHeight = (UINT)_command.size.y();
+	l_D3DPP.BackBufferCount = 1;
+	l_D3DPP.BackBufferWidth = 0;
+	l_D3DPP.BackBufferHeight = 0;
 	l_D3DPP.BackBufferFormat = D3DFMT_X8R8G8B8;
 	l_D3DPP.FullScreen_RefreshRateInHz = 0;
 	l_D3DPP.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
@@ -227,10 +258,28 @@ bool rendering_D3D9::execute(const destroy_resource &_command)
 }
 bool rendering_D3D9::execute(const begin_scene &_command)
 {
+	if (FAILED(m_D3DDevice9_p->BeginScene())) return false;
+	return true;
+}
+bool rendering_D3D9::execute(const clear_viewport &_command)
+{
+	if (!m_set_render_target(_command.ID)) return false;
+	if (FAILED(m_D3DDevice9_p->Clear(0, 0, D3DCLEAR_TARGET, 0, 1.f, 0))) return false;
 	return true;
 }
 bool rendering_D3D9::execute(const end_scene &_command)
 {
+	if (FAILED(m_D3DDevice9_p->EndScene())) return false;
+	return true;
+}
+bool rendering_D3D9::execute(const present_schain &_command)
+{
+	if (_command.ID.index >= m_resources.size()) return false;
+	resource &l_resource = m_resources[_command.ID.index];
+	if (l_resource.is_nothing() || l_resource.get_<_resource>().ID != _command.ID) return false;
+	if (l_resource.type() != resource_types::type_<schain>::index) return false;
+	schain l_schain = l_resource.get_<schain>();
+	if (FAILED(l_schain.D3DSChain9_p->Present(0, 0, 0, 0, 0))) return false;
 	return true;
 }
 

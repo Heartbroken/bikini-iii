@@ -21,7 +21,8 @@ struct uint_ID
 	inline operator uint() const { return uint((counter << uint_half_size) | index); }
 };
 
-template<typename _Type> struct pool_
+template<typename _Type>
+struct pool_
 {
 	typedef _Type type;
 	struct item { uint_ID ID; type value; };

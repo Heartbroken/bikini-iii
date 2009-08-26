@@ -28,7 +28,8 @@ END_MESSAGE_MAP()
 
 // CEditorApp construction
 
-CEditorApp::CEditorApp()
+CEditorApp::CEditorApp() :
+	m_ticker(0.033)
 {
 
 	m_bHiColorIcons = TRUE;
@@ -140,7 +141,9 @@ BOOL CEditorApp::OnIdle(LONG lCount)
 	m_video.update(l_time - m_time);
 	m_time = l_time;
 
-	return FALSE;
+	m_ticker.sync();
+
+	return TRUE;
 }
 
 // CAboutDlg dialog used for App About

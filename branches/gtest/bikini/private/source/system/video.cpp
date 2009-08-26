@@ -55,6 +55,7 @@ void video::rendering::process_cbuffer(const commands &_cbuffer)
 	for (uint i = 0, s = _cbuffer.size(); i < s; ++i)
 	{
 		execute(_cbuffer[i]);
+		if (!m_run) break;
 	}
 }
 void video::rendering::m_proc()
@@ -76,77 +77,15 @@ void video::rendering::m_proc()
 	}
 }
 
-
 // video
 
-//IDirect3D9 *video::sm_direct3d9_p = 0;
-
 video::video() :
-	//m_direct3ddevice9_p(0),
-	//m_screen_ID(bad_ID), m_vbuffer_ID(bad_ID),
-	//m_void(&video::m_void_b, &video::m_void_u, &video::m_void_e),
-	//m_ready(&video::m_ready_b, &video::m_ready_u, &video::m_ready_e),
-	//m_failed(&video::m_failed_b, &video::m_failed_u, &video::m_failed_e),
-	//m_lost(&video::m_lost_b, &video::m_lost_u, &video::m_lost_e),
-	//m_fsm(*this, m_void),
 	m_rendering(new_rendering(*this))
 {}
 video::~video() {
 	delete &m_rendering;
-	//if(m_direct3ddevice9_p != 0) {
-	//	std::cerr << "ERROR: Destroy video device before deleting\n";
-	//	assert(m_direct3ddevice9_p == 0);
-	//}
 }
 bool video::create() {
-//	if(sm_direct3d9_p == 0) {
-//		sm_direct3d9_p = Direct3DCreate9(D3D_SDK_VERSION);
-//		if(sm_direct3d9_p == 0) {
-//			std::cerr << "ERROR: Can't create Direct3D object.\n";
-//			m_fsm.set_state(m_failed);
-//			return false;
-//		}
-//	} else {
-//		sm_direct3d9_p->AddRef();
-//	}
-//	memset(&m_d3dpresent_parameters, 0, sizeof(m_d3dpresent_parameters));
-//#	if defined(WIN32)
-//	m_d3dpresent_parameters.hDeviceWindow = _video_helper::create_dummy_window();
-//#	endif
-//	m_d3dpresent_parameters.Windowed = true;
-//	m_d3dpresent_parameters.BackBufferWidth = 10;
-//	m_d3dpresent_parameters.BackBufferHeight = 10;
-//	m_d3dpresent_parameters.BackBufferFormat = D3DFMT_X8R8G8B8;
-//	m_d3dpresent_parameters.FullScreen_RefreshRateInHz = 0;
-//    m_d3dpresent_parameters.EnableAutoDepthStencil = false;
-//	m_d3dpresent_parameters.SwapEffect = D3DSWAPEFFECT_DISCARD;
-//	m_d3dpresent_parameters.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-//
-//#	if defined(XBOX)
-//	XVIDEO_MODE l_mode; memset(&l_mode, 0, sizeof(l_mode)); XGetVideoMode(&l_mode);
-//	bool l_enable720p = l_mode.dwDisplayWidth >= 1280;
-//	m_d3dpresent_parameters.BackBufferWidth  = l_enable720p ? 1280 : 640;
-//	m_d3dpresent_parameters.BackBufferHeight = l_enable720p ? 720 : 480;
-//#	endif
-//
-//	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE;
-//#	if defined(WIN32)
-//	if(_multithreaded) l_flags |= D3DCREATE_MULTITHREADED;
-//#	endif
-//	if(FAILED(sm_direct3d9_p->CreateDevice(
-//		D3DADAPTER_DEFAULT,
-//		D3DDEVTYPE_HAL,
-//		m_d3dpresent_parameters.hDeviceWindow,
-//		l_flags,
-//		&m_d3dpresent_parameters,
-//		&m_direct3ddevice9_p
-//	))) {
-//		std::cerr << "ERROR: Can't create D3D device\n";
-//		m_fsm.set_state(m_failed);
-//		return false;
-//	}
-//	m_fsm.set_state(m_ready);
-//	m_fsm.update(0);
 	m_rendering.create();
 	return true;
 }
@@ -163,11 +102,6 @@ bool video::update(real _dt) {
 }
 void video::destroy() {
 	m_rendering.destroy();
-	//m_fsm.set_state(m_void);
-	//m_fsm.update(0);
-	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) kill(l_ID);
-	//if(m_direct3ddevice9_p != 0) { while(m_direct3ddevice9_p->Release() != 0); m_direct3ddevice9_p = 0; }
-	//if(sm_direct3d9_p != 0 && sm_direct3d9_p->Release() == 0) sm_direct3d9_p = 0;
 	super::destroy();
 }
 uint video::obtain_resource_ID()
@@ -194,48 +128,6 @@ void video::set_resource_invalid(uint _ID)
 {
 	m_resources.get(_ID) = false;
 }
-
-//// void state
-//void video::m_void_b() {}
-//void video::m_void_u(real _dt) {}
-//void video::m_void_e() {}
-//// ready state
-//void video::m_ready_b() {
-//	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-//	//	get<resource>(l_ID).create();
-//	//}
-//}
-//void video::m_ready_u(real _dt) {
-//#	if defined(WIN32)
-//	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
-//	if(l_result == D3DERR_DEVICELOST) return m_fsm.set_state(m_lost);
-//#	endif
-//}
-//void video::m_ready_e() {
-//	//for(uint l_ID = get_first_ID(); l_ID != bad_ID; l_ID = get_next_ID(l_ID)) {
-//	//	get<resource>(l_ID).destroy();
-//	//}
-//}
-//// failed state
-//void video::m_failed_b() {}
-//void video::m_failed_u(real _dt) {}
-//void video::m_failed_e() {}
-//// lost state
-//void video::m_lost_b() {}
-//void video::m_lost_u(real _dt) {
-//#	if defined(WIN32)
-//	HRESULT l_result = m_direct3ddevice9_p->TestCooperativeLevel();
-//	if(l_result == D3DERR_DEVICENOTRESET) {
-//		if(FAILED(m_direct3ddevice9_p->Reset(&m_d3dpresent_parameters))) return m_fsm.set_state(m_failed);
-//		return m_fsm.set_state(m_ready);
-//	}
-//	if(l_result == D3DERR_DRIVERINTERNALERROR) {
-//		return m_fsm.set_state(m_failed);
-//	}
-//#	endif
-//}
-//void video::m_lost_e() {}
-static int tmp;
 
 // video::resource::info
 
@@ -280,44 +172,23 @@ window::~window()
 
 	release_resource_ID(m_schain_resource_ID);
 
-	window *l_window_p = first_p;
-	while (l_window_p)
+	window **l_window_pp = &first_p;
+	while (*l_window_pp)
 	{
-		if (l_window_p->next_p == this)
+		if (*l_window_pp == this)
 		{
-			l_window_p = next_p;
+			*l_window_pp = next_p;
 			break;
 		}
-		l_window_p = l_window_p->next_p;
+		l_window_pp = &((*l_window_pp)->next_p);
 	}
 
-	//if (m_backbuffer_p)
-	//{
-	//	m_backbuffer_p->Release();
-	//	m_backbuffer_p = 0;
-	//}
-	//if (m_depthstencil_p)
-	//{
-	//	m_depthstencil_p->Release();
-	//	m_depthstencil_p = 0;
-	//}
 	SetWindowLong(m_window, GWL_WNDPROC, (LONG)m_oldwndproc);
 }
-//bool window::create()
-//{
-//	video::rendering::create_schain l_create_schain;
-//	l_create_schain.ID = 0;
-//	l_create_schain.window = m_window;
-//	get_video().add_command(l_create_schain);
-//
-//	return super::create();
-//}
 bool window::update(real _dt)
 {
-	RECT l_crect; GetClientRect(m_window, &l_crect);
-	if (l_crect.right != m_size.x() || l_crect.bottom != m_size.y())
+	if (!valid())
 	{
-		m_size = sint2(l_crect.right, l_crect.bottom);
 		video::rendering::destroy_resource l_destroy_resource;
 		l_destroy_resource.ID = m_schain_resource_ID;
 		add_command(l_destroy_resource);
@@ -328,107 +199,19 @@ bool window::update(real _dt)
 		video::rendering::create_schain l_create_schain;
 		l_create_schain.ID = m_schain_resource_ID;
 		l_create_schain.window = m_window;
-		l_create_schain.size = m_size;
 		add_command(l_create_schain);
-		//set_resource_valid(m_schain_resource_ID);
 	}
 
-	//RECT l_crect; GetClientRect(m_window, &l_crect);
-	//if (l_crect.right != m_size.x() || l_crect.bottom != m_size.y())
-	//{
-	//	m_size = sint2(l_crect.right, l_crect.bottom);
+	video::rendering::clear_viewport l_clear_viewport;
+	l_clear_viewport.ID = m_schain_resource_ID;
+	add_command(l_clear_viewport);
 
-	//	set_invalid();
-
-	//	if (m_backbuffer_p)
-	//	{
-	//		m_backbuffer_p->Release();
-	//		m_backbuffer_p = 0;
-	//	}
-	//	if (m_depthstencil_p)
-	//	{
-	//		m_depthstencil_p->Release();
-	//		m_depthstencil_p = 0;
-	//	}
-
-	//	do
-	//	{
-
-	//		if (m_size.x() == 0 || m_size.y() == 0)
-	//		{
-	//			break;
-	//		}
-
-	//		D3DPRESENT_PARAMETERS l_d3dpp;
-	//		memset(&l_d3dpp, 0, sizeof(l_d3dpp));
-	//		l_d3dpp.hDeviceWindow = m_window;
-	//		l_d3dpp.Windowed = TRUE;
-	//		l_d3dpp.BackBufferWidth = (UINT)m_size.x();
-	//		l_d3dpp.BackBufferHeight = (UINT)m_size.y();
-	//		l_d3dpp.BackBufferFormat = D3DFMT_X8R8G8B8;
-	//		l_d3dpp.FullScreen_RefreshRateInHz = 0;
-	//		l_d3dpp.MultiSampleType = (D3DMULTISAMPLE_TYPE)4;
-	//		l_d3dpp.MultiSampleQuality = 0;
-	//		l_d3dpp.EnableAutoDepthStencil = FALSE;
-	//		l_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	//		l_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-
-	//		if (FAILED(get_video().get_direct3ddevice9().CreateAdditionalSwapChain(
-	//				&l_d3dpp, &m_backbuffer_p
-	//			)))
-	//		{
-	//			break;
-	//		}
-
-	//		if (FAILED(get_video().get_direct3ddevice9().CreateDepthStencilSurface(
-	//				l_d3dpp.BackBufferWidth, l_d3dpp.BackBufferHeight,
-	//				D3DFMT_D24S8, l_d3dpp.MultiSampleType,
-	//				l_d3dpp.MultiSampleQuality, 0, &m_depthstencil_p, 0
-	//			)))
-	//		{
-	//			m_backbuffer_p->Release(); m_backbuffer_p = 0;
-	//			break;
-	//		}
-
-	//		update_version();
-	//	}
-	//	while(false);
-	//}
-
-	//if (valid())
-	//{
-	//	if (SUCCEEDED(get_video().get_direct3ddevice9().BeginScene()))
-	//	{
-	//		IDirect3DSurface9 *l_backbuffer_p = 0;
-	//		if (SUCCEEDED(m_backbuffer_p->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &l_backbuffer_p)))
-	//		{
-	//			if (SUCCEEDED(get_video().get_direct3ddevice9().SetRenderTarget(0, l_backbuffer_p)))
-	//			{
-	//				if (SUCCEEDED(get_video().get_direct3ddevice9().SetDepthStencilSurface(m_depthstencil_p)))
-	//				{
-	//						get_video().get_direct3ddevice9().Clear(0, 0, D3DCLEAR_TARGET, 0, 0, 0);
-	//				}
-	//			}
-	//			l_backbuffer_p->Release();
-	//		}
-	//		get_video().get_direct3ddevice9().EndScene();
-	//		m_backbuffer_p->Present(0, 0, 0, 0, 0);
-	//	}
-	//}
-
-	//video::rendering::create_schain l_create_schain;
-	//l_create_schain.ID = m_schain_resource_ID;
-	//l_create_schain.window = m_window;
-	//add_command(l_create_schain);
+	video::rendering::present_schain l_present_schain;
+	l_present_schain.ID = m_schain_resource_ID;
+	add_command(l_present_schain);
 
 	return true;
 }
-//void destroy()
-//{
-//	video::rendering::destroy_resource l_destroy_resource;
-//	l_destroy_resource.ID = 0;
-//	super::destroy();
-//}
 long _stdcall window::_wndproc(HWND _window, uint _message, uint _wparam, uint _lparam)
 {
 	window *l_window_p = window::first_p;
@@ -451,12 +234,13 @@ long window::m_wndproc(uint _message, uint _wparam, uint _lparam)
 
 		case WM_SIZE :
 		case WM_SIZING : {
-			//m_size = sint2_0;
+			set_invalid();
 		} break;
 	}
 
 	return CallWindowProc(m_oldwndproc, m_window, _message, _wparam, _lparam);
 }
+
 /*
 
 // screen::info

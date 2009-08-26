@@ -16,13 +16,13 @@ struct video : device {
 	{
 		/* rendering commands -------------------------------------------------------------------*/
 
-		struct create_schain { uint_ID ID; handle window; sint2 size; };
+		struct create_schain { uint_ID ID; handle window; };
 		struct destroy_resource { uint_ID ID; };
 		struct begin_scene {};
 		struct clear_viewport { uint_ID ID; };
 		struct draw_primitive {};
 		struct end_scene {};
-		struct present_schain {};
+		struct present_schain { uint_ID ID; };
 
 		typedef make_typelist_<
 			create_schain, destroy_resource,
@@ -83,7 +83,6 @@ struct video : device {
 		inline void release_resource_ID(uint _ID) const { get_video().release_resource_ID(_ID); }
 		inline bool resource_exists(uint _ID) const { return get_video().resource_exists(_ID); }
 		inline bool resource_valid(uint _ID) const { return get_video().resource_valid(_ID); }
-		//inline void set_resource_valid(uint _ID) const { get_video().set_resource_valid(_ID); }
 	};
 
 	struct ot { enum object_type {
@@ -98,18 +97,6 @@ struct video : device {
 	bool create();
 	bool update(real _dt);
 	void destroy();
-
-	//inline bool ready() const { return m_fsm.state_is(m_ready); }
-	//inline bool failed() const { return m_fsm.state_is(m_failed); }
-	//inline bool lost() const { return m_fsm.state_is(m_lost); }
-
-	//inline uint screen_ID() const { return m_screen_ID; }
-	//inline void set_screen_ID(uint _ID) { m_screen_ID = _ID; }
-	//inline uint vbuffer_ID() const { return m_vbuffer_ID; }
-	//inline void set_vbuffer_ID(uint _ID) { m_vbuffer_ID = _ID; }
-
-	//inline IDirect3DDevice9& get_direct3ddevice9() const { return *m_direct3ddevice9_p; }
-	//inline HWND get_focus_window() const { return m_d3dpresent_parameters.hDeviceWindow; }
 
 private:
 	rendering &m_rendering;
@@ -126,16 +113,6 @@ private:
 	bool resource_valid(uint _ID);
 	void set_resource_valid(uint _ID);
 	void set_resource_invalid(uint _ID);
-
-	//static IDirect3D9 *sm_direct3d9_p;
-	//IDirect3DDevice9 *m_direct3ddevice9_p;
-	//D3DPRESENT_PARAMETERS m_d3dpresent_parameters;
-	//uint m_screen_ID, m_vbuffer_ID;
-	//typedef fsm_<video> fsm; fsm m_fsm;
-	//fsm::state m_void; void m_void_b(); void m_void_u(real _dt); void m_void_e();
-	//fsm::state m_ready; void m_ready_b(); void m_ready_u(real _dt); void m_ready_e();
-	//fsm::state m_failed; void m_failed_b(); void m_failed_u(real _dt); void m_failed_e();
-	//fsm::state m_lost; void m_lost_b(); void m_lost_u(real _dt); void m_lost_e();
 };
 
 namespace cf { enum clear_flags {
@@ -157,20 +134,16 @@ struct window : video::object {
 	inline const info& get_info() const { return static_cast<const info&>(super::get_info()); }
 	window(const info &_info, video &_video, HWND _window);
 	~window();
-	//bool create();
 	bool update(real _dt);
-	//void destroy();
 private:
 	HWND m_window;
 	uint m_schain_resource_ID;
-	//IDirect3DSwapChain9 *m_backbuffer_p;
-	//IDirect3DSurface9 *m_depthstencil_p;
 	static long _stdcall _wndproc(HWND _window, uint _message, uint _wparam, uint _lparam);
 	static window *first_p; window *next_p;
 	long m_wndproc(uint _message, uint _wparam, uint _lparam);
 	WNDPROC m_oldwndproc;
-	sint2 m_size;
 };
+
 /*
 /// screen
 struct screen : video::resource {
