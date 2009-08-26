@@ -38,8 +38,8 @@ struct video : device {
 
 		rendering(video &_video);
 		virtual ~rendering();
-		virtual bool create();
-		virtual void destroy();
+		virtual bool initialize() = 0;
+		virtual void finalize() = 0;
 		virtual bool execute(const command &_command) = 0;
 
 	protected:
@@ -48,6 +48,8 @@ struct video : device {
 
 	private:
 		friend video;
+		bool create();
+		void destroy();
 		video &m_video;
 		thread::task m_task;
 		bool m_run;
