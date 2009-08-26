@@ -59,16 +59,20 @@ void video::rendering::process_cbuffer(const commands &_cbuffer)
 }
 void video::rendering::m_proc()
 {
-	while (m_run)
+	if (initialize())
 	{
-		m_cbuffer_ready.wait();
+		while (m_run)
+		{
+			m_cbuffer_ready.wait();
 
-		m_cbuffer_lock.enter();
-		commands &l_cbuffer = m_cbuffer[m_current_cbuffer];
-		m_current_cbuffer = (m_current_cbuffer + 1) % max_cbuffer_count;
-		m_cbuffer_lock.leave();
+			m_cbuffer_lock.enter();
+			commands &l_cbuffer = m_cbuffer[m_current_cbuffer];
+			m_current_cbuffer = (m_current_cbuffer + 1) % max_cbuffer_count;
+			m_cbuffer_lock.leave();
 
-		if (!l_cbuffer.empty()) process_cbuffer(l_cbuffer);
+			if (!l_cbuffer.empty()) process_cbuffer(l_cbuffer);
+		}
+		finalize();
 	}
 }
 

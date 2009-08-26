@@ -46,8 +46,8 @@ struct rendering_D3D9 : video::rendering
 {
 	rendering_D3D9(video &_video);
 	~rendering_D3D9();
-	bool create();
-	void destroy();
+	bool initialize();
+	void finalize();
 	bool execute(const command &_command);
 
 	inline IDirect3DDevice9& get_device()
@@ -103,12 +103,11 @@ rendering_D3D9::rendering_D3D9(video &_video)
 rendering_D3D9::~rendering_D3D9()
 {
 }
-bool rendering_D3D9::create()
+bool rendering_D3D9::initialize()
 {
 	if (sm_D3D9_p == 0)
 	{
-		sm_D3D9_p = Direct3DCreate9(D3D_SDK_VERSION);
-		if(sm_D3D9_p == 0) {
+		if((sm_D3D9_p = Direct3DCreate9(D3D_SDK_VERSION)) == 0) {
 			std::cerr << "ERROR: Can't create Direct3D object.\n";
 			return false;
 		}
@@ -129,7 +128,7 @@ bool rendering_D3D9::create()
 	m_D3DPP.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	m_D3DPP.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE|D3DCREATE_MULTITHREADED;
+	DWORD l_flags = D3DCREATE_HARDWARE_VERTEXPROCESSING|D3DCREATE_FPU_PRESERVE|D3DCREATE_PUREDEVICE/*|D3DCREATE_MULTITHREADED*/;
 	if(FAILED(sm_D3D9_p->CreateDevice(
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
@@ -139,15 +138,14 @@ bool rendering_D3D9::create()
 		&m_D3DDevice9_p
 	))) {
 		std::cerr << "ERROR: Can't create D3D device\n";
+		if (sm_D3D9_p->Release() == 0) sm_D3D9_p = 0;
 		return false;
 	}
 	
-	return super::create();
+	return true;
 }
-void rendering_D3D9::destroy()
+void rendering_D3D9::finalize()
 {
-	super::destroy();
-
 	while (!m_resources.empty())
 	{
 		resource &l_resource = m_resources.back();
@@ -158,8 +156,8 @@ void rendering_D3D9::destroy()
 		m_resources.pop_back();
 	}
 
-	if (m_D3DDevice9_p && m_D3DDevice9_p->Release() == 0) m_D3DDevice9_p = 0;
-	if (sm_D3D9_p && sm_D3D9_p->Release() == 0) sm_D3D9_p = 0;
+	if (m_D3DDevice9_p->Release() == 0) m_D3DDevice9_p = 0;
+	if (sm_D3D9_p->Release() == 0) sm_D3D9_p = 0;
 }
 bool rendering_D3D9::execute(const command &_command)
 {
