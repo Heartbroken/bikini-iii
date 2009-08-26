@@ -23,9 +23,9 @@ struct device : manager {
 	protected:
 		typedef thread::locker lock;
 		inline thread::section& section() { return m_section; }
+		inline void set_invalid() { m_version = infinity; }
 		inline void update_version() { m_version = (real)sys_time(); }
 	private:
-		inline void set_invalid() { m_version = infinity; }
 		thread::section m_section;
 		real m_version;
 	};
