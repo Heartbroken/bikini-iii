@@ -285,7 +285,7 @@ LRESULT CMainFrame::OnToolbarCreateNew(WPARAM wp,LPARAM lp)
 BOOL CMainFrame::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	theApp.update_video();
+	//theApp.update_video();
 
 	return CMDIFrameWndEx::OnWndMsg(message, wParam, lParam, pResult);
 }

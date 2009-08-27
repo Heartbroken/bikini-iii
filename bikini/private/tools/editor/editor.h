@@ -23,7 +23,8 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
-	virtual int Run();
+	virtual BOOL OnIdle(LONG lCount);
+//	virtual int Run();
 	virtual int ExitInstance();
 
 // Implementation
@@ -44,6 +45,7 @@ public:
 private:
 	bk::video m_video;
 	bk::real m_time;
+public:
 };
 
 extern CEditorApp theApp;

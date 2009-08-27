@@ -20,6 +20,9 @@ private:
 	_T r;
 };
 
+/// set thread name
+inline void set_thread_name(uint _ID, const achar* _name);
+
 ///	Thread task class template. Serves to start and manage separate thread.
 /**	Encloses a function, member function or functor with up to ten arguments.
 	Allows to check if enclosed function finished execution and to get execution result.
@@ -27,9 +30,9 @@ private:
 template<typename _R, typename _A0 = notype, typename _A1 = notype, typename _A2 = notype, typename _A3 = notype, typename _A4 = notype, typename _A5 = notype, typename _A6 = notype, typename _A7 = notype, typename _A8 = notype, typename _A9 = notype>
 struct task_ : uncopyble {
 	/// construct a task from a function or a functor
-	template<typename _F> inline task_(_F &_f, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
+	template<typename _F> inline task_(_F &_f, const achar* _name = 0, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
 	/// construct a task ftom a member function
-	template<typename _O, typename _M> inline task_(_O &_o, const _M &_m, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
+	template<typename _O, typename _M> inline task_(_O &_o, const _M &_m, const achar* _name = 0, sint _priority = THREAD_PRIORITY_NORMAL, uint _stacksize = 0, uint _processor = bad_ID);
 	/// destructor
 	inline ~task_();
 	/// start execution
@@ -43,9 +46,10 @@ struct task_ : uncopyble {
 	/// clear a task after execution is finished
 	inline void clear();
 private:
+	astring m_name;
 	typedef functor_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9> functor;
 	functor m_functor;
-	handle m_handle;
+	handle m_handle; uint m_ID;
 	sint m_priority;
 	uint m_stacksize;
 	uint m_processor;

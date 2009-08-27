@@ -17,7 +17,7 @@ namespace bk { /*---------------------------------------------------------------
 video::rendering::rendering(video &_video)
 :
 	m_video(_video),
-	m_task(*this, &rendering::m_proc),
+	m_task(*this, &rendering::m_proc, "bikini-iii rendering"),
 	m_cbuffer_ready(false, false),
 	m_current_cbuffer(0)
 {}

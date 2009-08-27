@@ -120,39 +120,48 @@ BOOL CEditorApp::InitInstance()
 	pMainFrame->UpdateWindow();
 
 	// bikini
+	bk::thread::set_thread_name(GetCurrentThreadId(), "bikini-iii main");
 	m_video.create();
 	m_time = bk::sys_time();
 
 	return TRUE;
 }
 
-int CEditorApp::Run()
+BOOL CEditorApp::OnIdle(LONG lCount)
 {
-	bool l_run = true;
-	while (l_run)
-	{
-		MSG l_message;
-		while (PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
-			if (l_message.message == WM_QUIT)
-			{
-				l_run = false;
-				break;
-			}
-			if (!PreTranslateMessage(&l_message))
-			{
-				TranslateMessage(&l_message);
-				DispatchMessage(&l_message);
-			}
-		}
-		if (l_run)
-		{
-			update_video();
-			//m_ticker.sync();
-		}
-	}
+	// TODO: Add your specialized code here and/or call the base class
+	update_video();
 
-	return 0;
+	return CWinAppEx::OnIdle(lCount);
 }
+
+//int CEditorApp::Run()
+//{
+//	bool l_run = true;
+//	while (l_run)
+//	{
+//		MSG l_message;
+//		while (PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
+//			if (l_message.message == WM_QUIT)
+//			{
+//				l_run = false;
+//				break;
+//			}
+//			if (!PreTranslateMessage(&l_message))
+//			{
+//				TranslateMessage(&l_message);
+//				DispatchMessage(&l_message);
+//			}
+//		}
+//		if (l_run)
+//		{
+//			update_video();
+//			//m_ticker.sync();
+//		}
+//	}
+//
+//	return 0;
+//}
 
 int CEditorApp::ExitInstance()
 {

@@ -23,6 +23,37 @@ template<> struct _task_result_<void> {
 	inline void get() const {}
 };
 
+// set thread name
+inline void set_thread_name(uint _ID, const achar* _name)
+{
+	static const uint MS_VC_EXCEPTION = 0x406D1388;
+
+#	pragma pack(push,8)
+	typedef struct tagTHREADNAME_INFO
+	{
+		DWORD dwType;		// Must be 0x1000.
+		LPCSTR szName;		// Pointer to name (in user addr space).
+		DWORD dwThreadID;	// Thread ID (-1=caller thread).
+		DWORD dwFlags;		// Reserved for future use, must be zero.
+	} THREADNAME_INFO;
+#	pragma pack(pop)
+
+//	Sleep(10);
+	THREADNAME_INFO l_info;
+	l_info.dwType = 0x1000;
+	l_info.szName = _name;
+	l_info.dwThreadID = _ID;
+	l_info.dwFlags = 0;
+
+	__try
+	{
+		RaiseException( MS_VC_EXCEPTION, 0, sizeof(l_info)/sizeof(ULONG_PTR), (ULONG_PTR*)&l_info );
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+	}
+}
+
 // _task_helper_
 template<typename _F> struct _task_helper_ {
 	typedef typename _F::arglist::type arglist;
@@ -149,8 +180,8 @@ template<typename _F> struct _task_helper_ {
 	typedef typename _F::arg7 A7;
 	typedef typename _F::arg8 A8;
 	typedef typename _F::arg9 A9;
-	static inline handle create(uint _s, R &_r, _F &_f, A0 _a0, A1 _a1, A2 _a2, A3 _a3, A4 _a4, A5 _a5, A6 _a6, A7 _a7, A8 _a8, A9 _a9) {
-		return CreateThread(0, _s, &ret_<typename _F::rettype>::proc_<arglist::count>, new data(_r, _f, args::build(_a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9)), CREATE_SUSPENDED, 0);
+	static inline handle create(uint &_ID, uint _s, R &_r, _F &_f, A0 _a0, A1 _a1, A2 _a2, A3 _a3, A4 _a4, A5 _a5, A6 _a6, A7 _a7, A8 _a8, A9 _a9) {
+		return CreateThread(0, _s, &ret_<typename _F::rettype>::proc_<arglist::count>, new data(_r, _f, args::build(_a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9)), CREATE_SUSPENDED, (LPDWORD)&_ID);
 	}
 };
 
@@ -173,12 +204,12 @@ inline bool _start(handle _thread, sint _priority, uint _processor) {
 }
 
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9> template<typename _F>
-inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::task_(_F &_f, sint _priority, uint _stacksize, uint _processor) :
-	m_functor(_f), m_handle(0), m_priority(_priority), m_stacksize(_stacksize), m_processor(_processor)
+inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::task_(_F &_f, const achar* _name, sint _priority, uint _stacksize, uint _processor) :
+	m_name(_name ? _name : ""), m_functor(_f), m_handle(0), m_priority(_priority), m_stacksize(_stacksize), m_processor(_processor)
 {}
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9> template<typename _O, typename _M>
-inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::task_(_O &_o, const _M &_m, sint _priority, uint _stacksize, uint _processor) :
-	m_functor(_o, _m), m_handle(0), m_priority(_priority), m_stacksize(_stacksize), m_processor(_processor)
+inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::task_(_O &_o, const _M &_m, const achar* _name, sint _priority, uint _stacksize, uint _processor) :
+	m_name(_name ? _name : ""), m_functor(_o, _m), m_handle(0), m_priority(_priority), m_stacksize(_stacksize), m_processor(_processor)
 {}
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9>
 inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::~task_() {
@@ -187,7 +218,8 @@ inline task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::~task_() {
 
 template<typename _R, typename _A0, typename _A1, typename _A2, typename _A3, typename _A4, typename _A5, typename _A6, typename _A7, typename _A8, typename _A9>
 inline bool task_<_R, _A0, _A1, _A2, _A3, _A4, _A5, _A6, _A7, _A8, _A9>::run(_A0 _a0, _A1 _a1, _A2 _a2, _A3 _a3, _A4 _a4, _A5 _a5, _A6 _a6, _A7 _a7, _A8 _a8, _A9 _a9) {
-	m_handle = _task_helper_<functor>::create(m_stacksize, m_result, m_functor, _a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
+	m_handle = _task_helper_<functor>::create(m_ID, m_stacksize, m_result, m_functor, _a0, _a1, _a2, _a3, _a4, _a5, _a6, _a7, _a8, _a9);
+	if (m_name != "") set_thread_name(m_ID, m_name.c_str());
 	return _start(m_handle, m_priority, m_processor);
 }
 
