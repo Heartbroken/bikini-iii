@@ -210,6 +210,8 @@ bool window::update(real _dt)
 	l_present_schain.ID = m_schain_resource_ID;
 	add_command(l_present_schain);
 
+	update_version();
+
 	return true;
 }
 long _stdcall window::_wndproc(HWND _window, uint _message, uint _wparam, uint _lparam)
@@ -230,12 +232,11 @@ long window::m_wndproc(uint _message, uint _wparam, uint _lparam)
 {
 	switch (_message)
 	{
-		case WM_ERASEBKGND : return 1;
-
-		case WM_SIZE :
-		case WM_SIZING : {
-			set_invalid();
-		} break;
+	case WM_ERASEBKGND : {
+	} return 1;
+	case WM_SIZE : {
+		set_invalid();
+	} break;
 	}
 
 	return CallWindowProc(m_oldwndproc, m_window, _message, _wparam, _lparam);

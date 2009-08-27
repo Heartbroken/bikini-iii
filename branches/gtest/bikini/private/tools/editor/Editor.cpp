@@ -28,8 +28,7 @@ END_MESSAGE_MAP()
 
 // CEditorApp construction
 
-CEditorApp::CEditorApp() :
-	m_ticker(0.033)
+CEditorApp::CEditorApp()
 {
 
 	m_bHiColorIcons = TRUE;
@@ -127,23 +126,40 @@ BOOL CEditorApp::InitInstance()
 	return TRUE;
 }
 
+int CEditorApp::Run()
+{
+	bool l_run = true;
+	while (l_run)
+	{
+		MSG l_message;
+		while (PeekMessage(&l_message, NULL, 0U, 0U, PM_REMOVE)) {
+			if (l_message.message == WM_QUIT)
+			{
+				l_run = false;
+				break;
+			}
+			if (!PreTranslateMessage(&l_message))
+			{
+				TranslateMessage(&l_message);
+				DispatchMessage(&l_message);
+			}
+		}
+		if (l_run)
+		{
+			update_video();
+			//m_ticker.sync();
+		}
+	}
+
+	return 0;
+}
+
 int CEditorApp::ExitInstance()
 {
 	// bikini
 	m_video.destroy();
 
 	return CWinAppEx::ExitInstance();
-}
-
-BOOL CEditorApp::OnIdle(LONG lCount)
-{
-	bk::real l_time = bk::sys_time();
-	m_video.update(l_time - m_time);
-	m_time = l_time;
-
-	m_ticker.sync();
-
-	return TRUE;
 }
 
 // CAboutDlg dialog used for App About
@@ -213,5 +229,15 @@ void CEditorApp::SaveCustomState()
 bk::video& CEditorApp::get_video()
 {
 	return m_video;
+}
+void CEditorApp::update_video()
+{
+	bk::real l_time = bk::sys_time();
+	bk::real l_dt = l_time - m_time;
+	if (l_dt > (1.0/60.0))
+	{
+		m_video.update(l_time - m_time);
+		m_time = l_time;
+	}
 }
 
