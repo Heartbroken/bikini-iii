@@ -23,8 +23,8 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
+	virtual int Run();
 	virtual int ExitInstance();
-	virtual BOOL OnIdle(LONG lCount);
 
 // Implementation
 	BOOL  m_bHiColorIcons;
@@ -39,11 +39,11 @@ public:
 // bikini
 public:
 	bk::video& get_video();
+	void update_video();
 
 private:
 	bk::video m_video;
 	bk::real m_time;
-	bk::ticker m_ticker;
 };
 
 extern CEditorApp theApp;
