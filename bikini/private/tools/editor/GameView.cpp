@@ -97,6 +97,8 @@ int CGameView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  Add your specialized creation code here
 	m_window_ID = theApp.get_video().spawn(m_window_info, m_hWnd);
 
+	SetTimer(0, 10, NULL);
+
 	return 0;
 }
 
@@ -114,6 +116,9 @@ BOOL CGameView::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pR
 	// TODO: Add your specialized code here and/or call the base class
 	switch (message)
 	{
+	case WM_TIMER : {
+		Invalidate(FALSE);
+	} break;
 	case WM_PAINT : {
 		theApp.update_video();
 	} break;
