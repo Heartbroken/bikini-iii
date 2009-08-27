@@ -108,3 +108,16 @@ void CGameView::OnDestroy()
 	theApp.get_video().kill(m_window_ID);
 	m_window_ID = bk::bad_ID;
 }
+
+BOOL CGameView::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	switch (message)
+	{
+	case WM_PAINT : {
+		theApp.update_video();
+	} break;
+	}
+
+	return CView::OnWndMsg(message, wParam, lParam, pResult);
+}

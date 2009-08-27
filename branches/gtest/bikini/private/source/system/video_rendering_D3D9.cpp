@@ -8,19 +8,7 @@
 
 #include "header.hpp"
 
-#if defined(XBOX)
-#	if defined(_DEBUG)
-#		pragma comment(lib, "d3d9d")
-#	else
-#		pragma comment(lib, "d3d9")
-#	endif
-//#	pragma comment(lib, "xapilibd")
-//#	pragma comment(lib, "d3dx9d")
-//#	pragma comment(lib, "xgraphicsd")
-//#	pragma comment(lib, "xboxkrnl")
-#elif defined(WIN32)
-#	pragma comment(lib, "d3d9")
-#endif
+#pragma comment(lib, "d3d9")
 
 namespace bk { /*--------------------------------------------------------------------------------*/
 
