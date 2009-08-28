@@ -56,8 +56,8 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	m_wndOutputBuild.SetFont(&m_Font);
-	m_wndOutputDebug.SetFont(&m_Font);
-	m_wndOutputFind.SetFont(&m_Font);
+	//m_wndOutputDebug.SetFont(&m_Font);
+	//m_wndOutputFind.SetFont(&m_Font);
 
 	CString strTabName;
 	BOOL bNameValid;
@@ -66,17 +66,17 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	bNameValid = strTabName.LoadString(IDS_BUILD_TAB);
 	ASSERT(bNameValid);
 	m_wndTabs.AddTab(&m_wndOutputBuild, strTabName, (UINT)0);
-	bNameValid = strTabName.LoadString(IDS_DEBUG_TAB);
-	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputDebug, strTabName, (UINT)1);
-	bNameValid = strTabName.LoadString(IDS_FIND_TAB);
-	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);
+	//bNameValid = strTabName.LoadString(IDS_DEBUG_TAB);
+	//ASSERT(bNameValid);
+	//m_wndTabs.AddTab(&m_wndOutputDebug, strTabName, (UINT)1);
+	//bNameValid = strTabName.LoadString(IDS_FIND_TAB);
+	//ASSERT(bNameValid);
+	//m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);
 
 	// Fill output tabs with some dummy text (nothing magic here)
 	FillBuildWindow();
-	FillDebugWindow();
-	FillFindWindow();
+	//FillDebugWindow();
+	//FillFindWindow();
 
 	return 0;
 }
